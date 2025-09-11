@@ -1,69 +1,164 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { Link } from "expo-router";
-import { Colors } from "@/constants/Colors";
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView,
+  Dimensions 
+} from "react-native";
 import { Layout } from "@/constants/Layout";
+import { Colors } from "@/constants/Colors";
 
-export default function MainPage() {
+const { width } = Dimensions.get("window");
+const CARD_GAP = 12;
+const CONTAINER_PADDING = 20;
+const CARD_SIZE = (width - CONTAINER_PADDING * 2 - CARD_GAP) / 2;
+
+// Simple card component with 3 sizes
+const GridCard = ({ size, title, color }) => {
+  const getCardStyle = () => {
+    switch (size) {
+      case 'small':
+        return {
+          width: CARD_SIZE,
+          height: CARD_SIZE,
+          backgroundColor: color,
+        };
+      case 'rectangle':
+        return {
+          width: CARD_SIZE * 2 + CARD_GAP,
+          height: CARD_SIZE,
+          backgroundColor: color,
+        };
+      case 'big':
+        return {
+          width: CARD_SIZE * 2 + CARD_GAP,
+          height: CARD_SIZE * 2 + CARD_GAP,
+          backgroundColor: color,
+        };
+      default:
+        return {
+          width: CARD_SIZE,
+          height: CARD_SIZE,
+          backgroundColor: color,
+        };
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Main App</Text>
-        <Text style={styles.subtitle}>Your professional app is ready for development</Text>
-        
-        <View style={styles.buttonContainer}>
-          <Link href="/venues" asChild>
-            <TouchableOpacity style={styles.featureButton}>
-              <Text style={styles.featureButtonText}>Sports Venues</Text>
-            </TouchableOpacity>
-          </Link>
+    <View style={[styles.card, getCardStyle()]}>
+      <Text style={styles.cardTitle}>{title}</Text>
+      <Text style={styles.cardSize}>{size}</Text>
+    </View>
+  );
+};
+
+export default function DashboardPage() {
+  return (
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <View style={styles.header}>
+        <Text style={styles.greeting}>Good morning</Text>
+        <Text style={styles.title}>Dashboard</Text>
+        <Text style={styles.date}>{new Date().toLocaleDateString('en-US', { 
+          weekday: 'long', 
+          month: 'long', 
+          day: 'numeric' 
+        })}</Text>
+      </View>
+
+      <View style={styles.grid}>
+        {/* Row 1: Two small cards */}
+        <View style={styles.row}>
+          <GridCard size="small" title="Card 1" color="#FF6B6B" />
+          <GridCard size="small" title="Card 2" color="#4ECDC4" />
+        </View>
+
+        {/* Row 2: One rectangle card */}
+        <View style={styles.row}>
+          <GridCard size="rectangle" title="Card 3" color="#45B7D1" />
+        </View>
+
+        {/* Row 3: Two small cards */}
+        <View style={styles.row}>
+          <GridCard size="small" title="Card 4" color="#96CEB4" />
+          <GridCard size="small" title="Card 5" color="#FFEAA7" />
+        </View>
+
+        {/* Row 4: One big card */}
+        <View style={styles.row}>
+          <GridCard size="big" title="Card 6" color="#DDA0DD" />
+        </View>
+
+        {/* Row 5: Two small cards */}
+        <View style={styles.row}>
+          <GridCard size="small" title="Card 7" color="#98D8C8" />
+          <GridCard size="small" title="Card 8" color="#F7DC6F" />
+        </View>
+
+        {/* Row 6: One rectangle card */}
+        <View style={styles.row}>
+          <GridCard size="rectangle" title="Card 9" color="#BB8FCE" />
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.surface,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: Layout.spacing.lg,
+    backgroundColor: Colors.gray[50],
   },
-  content: {
-    alignItems: "center",
-    maxWidth: 400,
+  header: {
+    paddingHorizontal: CONTAINER_PADDING,
+    paddingTop: 60,
+    paddingBottom: Layout.spacing.lg,
+    backgroundColor: Colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  greeting: {
+    fontSize: Layout.fontSize.sm,
+    color: Colors.text.secondary,
+    marginBottom: Layout.spacing.xs,
   },
   title: {
     fontSize: Layout.fontSize.xxxl,
     fontWeight: Layout.fontWeight.bold,
     color: Colors.text.primary,
-    textAlign: "center",
-    marginBottom: Layout.spacing.md,
-  },
-  subtitle: {
-    fontSize: Layout.fontSize.md,
-    color: Colors.text.secondary,
-    textAlign: "center",
-    lineHeight: 24,
-    marginBottom: Layout.spacing.xl,
-  },
-  buttonContainer: {
-    width: "100%",
-  },
-  featureButton: {
-    backgroundColor: Colors.primary,
-    paddingVertical: Layout.spacing.md,
-    paddingHorizontal: Layout.spacing.lg,
-    borderRadius: Layout.borderRadius.lg,
     marginBottom: Layout.spacing.sm,
+  },
+  date: {
+    fontSize: Layout.fontSize.sm,
+    color: Colors.text.tertiary,
+  },
+  grid: {
+    padding: CONTAINER_PADDING,
+    paddingTop: Layout.spacing.lg,
+    paddingBottom: Layout.spacing.xxl,
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: CARD_GAP,
+    flexWrap: "wrap",
+  },
+  card: {
+    borderRadius: Layout.borderRadius.xl,
+    padding: Layout.spacing.lg,
+    justifyContent: "center",
+    alignItems: "center",
     ...Layout.shadow.md,
   },
-  featureButtonText: {
-    color: Colors.text.inverse,
-    fontSize: Layout.fontSize.md,
-    fontWeight: Layout.fontWeight.semibold,
-    textAlign: "center",
+  cardTitle: {
+    fontSize: Layout.fontSize.lg,
+    fontWeight: Layout.fontWeight.bold,
+    color: Colors.white,
+    marginBottom: Layout.spacing.xs,
+  },
+  cardSize: {
+    fontSize: Layout.fontSize.sm,
+    color: Colors.white,
+    opacity: 0.8,
   },
 });
