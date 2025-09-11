@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Dimensions 
 } from "react-native";
+import { Colors } from "@/constants/Colors";
 
 interface NavigationDotsProps {
   /** Total number of items */
@@ -47,8 +48,8 @@ export default function NavigationDots({
   orientation = "horizontal",
   size = "medium",
   variant = "default",
-  activeColor = "#1B4D3E",
-  inactiveColor = "#E5E7EB",
+  activeColor = Colors.primary,
+  inactiveColor = Colors.gray[300],
   containerStyle,
   dotStyle,
   spacing,
@@ -257,9 +258,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   dot: {
-    backgroundColor: "#E5E7EB",
+    backgroundColor: Colors.gray[300],
     // Shadow for modern depth
-    shadowColor: "#000",
+    shadowColor: Colors.black,
     shadowOffset: {
       width: 0,
       height: 1,
@@ -301,8 +302,8 @@ const styles = StyleSheet.create({
   activeIndex={currentIndex}
   variant="pill"
   size="medium"
-  activeColor="#1B4D3E"
-  inactiveColor="#E5E7EB"
+  activeColor={Colors.primary}
+  inactiveColor={Colors.gray[300]}
   interactive={true}
   onDotPress={(index) => scrollToPage(index)}
   showProgress={false}

@@ -21,55 +21,55 @@ const cities = [
     id: 1,
     title: "New York",
     description: "The Big Apple",
-    color: "#003D1E", // Forest Green
+    color: Colors.primary, // Forest Green
     venues: [
-      { id: 1, title: "Madison Square Garden", color: "#47C686" }, // Ocean Green
-      { id: 2, title: "Yankee Stadium", color: "#2CA166" }, // Illuminating Emerald
-      { id: 3, title: "MetLife Stadium", color: "#032516" }, // Dark Green
+      { id: 1, title: "Madison Square Garden", color: Colors.primaryLight }, // Ocean Green
+      { id: 2, title: "Yankee Stadium", color: Colors.info }, // Illuminating Emerald
+      { id: 3, title: "MetLife Stadium", color: Colors.primaryDark }, // Dark Green
     ],
   },
   {
     id: 2,
     title: "Los Angeles",
     description: "City of Angels",
-    color: "#DCFF00", // Chartreuse
+    color: Colors.accent, // Chartreuse
     venues: [
-      { id: 1, title: "Staples Center", color: "#EDFD8A" }, // Key Lime
-      { id: 2, title: "Dodger Stadium", color: "#F9FFD0" }, // Light Goldenrod Yellow
-      { id: 3, title: "SoFi Stadium", color: "#FF9E4A" }, // Royal Orange
+      { id: 1, title: "Staples Center", color: Colors.accentLight }, // Key Lime
+      { id: 2, title: "Dodger Stadium", color: Colors.accentDark }, // Light Goldenrod Yellow
+      { id: 3, title: "SoFi Stadium", color: Colors.warning }, // Royal Orange
     ],
   },
   {
     id: 3,
     title: "Chicago",
     description: "Windy City",
-    color: "#47C686", // Ocean Green
+    color: Colors.primaryLight, // Ocean Green
     venues: [
-      { id: 1, title: "United Center", color: "#FFB777" }, // Very Light Tangelo
-      { id: 2, title: "Wrigley Field", color: "#FF7700" }, // Safety Orange
-      { id: 3, title: "Soldier Field", color: "#2CA166" }, // Illuminating Emerald
+      { id: 1, title: "United Center", color: Colors.veryLightTangelo }, // Very Light Tangelo
+      { id: 2, title: "Wrigley Field", color: Colors.error }, // Safety Orange
+      { id: 3, title: "Soldier Field", color: Colors.info }, // Illuminating Emerald
     ],
   },
   {
     id: 4,
     title: "Boston",
     description: "Beantown",
-    color: "#2CA166", // Illuminating Emerald
+    color: Colors.info, // Illuminating Emerald
     venues: [
-      { id: 1, title: "TD Garden", color: "#FF9E4A" }, // Royal Orange
-      { id: 2, title: "Fenway Park", color: "#DCFF00" }, // Chartreuse
-      { id: 3, title: "Gillette Stadium", color: "#47C686" }, // Ocean Green
+      { id: 1, title: "TD Garden", color: Colors.warning }, // Royal Orange
+      { id: 2, title: "Fenway Park", color: Colors.accent }, // Chartreuse
+      { id: 3, title: "Gillette Stadium", color: Colors.primaryLight }, // Ocean Green
     ],
   },
   {
     id: 5,
     title: "Miami",
     description: "Magic City",
-    color: "#FF7700", // Safety Orange
+    color: Colors.error, // Safety Orange
     venues: [
-      { id: 1, title: "American Airlines Arena", color: "#003D1E" }, // Forest Green
-      { id: 2, title: "Marlins Park", color: "#DCFF00" }, // Chartreuse
-      { id: 3, title: "Hard Rock Stadium", color: "#47C686" }, // Ocean Green
+      { id: 1, title: "American Airlines Arena", color: Colors.primary }, // Forest Green
+      { id: 2, title: "Marlins Park", color: Colors.accent }, // Chartreuse
+      { id: 3, title: "Hard Rock Stadium", color: Colors.primaryLight }, // Ocean Green
     ],
   },
 ];
