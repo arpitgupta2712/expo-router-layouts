@@ -17,13 +17,21 @@ export const Typography = {
     // Tertiary font for captions and secondary text (custom brand font)
     archivoExtraCondensed: {
       thin: 'ArchivoExtraCondensed-Thin',
+      thinItalic: 'ArchivoExtraCondensed-ThinItalic',
       light: 'ArchivoExtraCondensed-Light',
+      lightItalic: 'ArchivoExtraCondensed-LightItalic',
       regular: 'ArchivoExtraCondensed-Regular',
+      italic: 'ArchivoExtraCondensed-Italic',
       medium: 'ArchivoExtraCondensed-Medium',
+      mediumItalic: 'ArchivoExtraCondensed-MediumItalic',
       semibold: 'ArchivoExtraCondensed-SemiBold',
+      semiboldItalic: 'ArchivoExtraCondensed-SemiBoldItalic',
       bold: 'ArchivoExtraCondensed-Bold',
+      boldItalic: 'ArchivoExtraCondensed-BoldItalic',
       extrabold: 'ArchivoExtraCondensed-ExtraBold',
+      extraboldItalic: 'ArchivoExtraCondensed-ExtraBoldItalic',
       black: 'ArchivoExtraCondensed-Black',
+      blackItalic: 'ArchivoExtraCondensed-BlackItalic',
     }
   },
 
@@ -145,23 +153,23 @@ export const Typography = {
       letterSpacing: 0.5,
     },
 
-    // Captions and Secondary Text - Archivo Extra Condensed
+    // Captions and Secondary Text - Archivo Extra Condensed (Italics)
     caption: {
-      fontFamily: 'ArchivoExtraCondensed-Regular',
+      fontFamily: 'ArchivoExtraCondensed-Italic',
       fontSize: 12,
       fontWeight: '400',
       lineHeight: 18, // 12 * 1.5
       letterSpacing: 0.5,
     },
     captionBold: {
-      fontFamily: 'ArchivoExtraCondensed-Bold',
+      fontFamily: 'ArchivoExtraCondensed-BoldItalic',
       fontSize: 12,
       fontWeight: '700',
       lineHeight: 18, // 12 * 1.5
       letterSpacing: 0.5,
     },
     overline: {
-      fontFamily: 'ArchivoExtraCondensed-Bold',
+      fontFamily: 'ArchivoExtraCondensed-BoldItalic',
       fontSize: 10,
       fontWeight: '700',
       lineHeight: 15, // 10 * 1.5
@@ -169,16 +177,16 @@ export const Typography = {
       textTransform: 'uppercase',
     },
 
-    // Brand/Logo Text - Archivo Extra Condensed for brand identity
+    // Brand/Logo Text - Archivo Extra Condensed for brand identity (Italics)
     brandName: {
-      fontFamily: 'ArchivoExtraCondensed-Light',
+      fontFamily: 'ArchivoExtraCondensed-LightItalic',
       fontSize: 28,
       fontWeight: '300',
       lineHeight: 39.2, // 28 * 1.4
       letterSpacing: 6,
     },
     tagline: {
-      fontFamily: 'ArchivoExtraCondensed-Regular',
+      fontFamily: 'ArchivoExtraCondensed-Italic',
       fontSize: 14,
       fontWeight: '400',
       lineHeight: 21, // 14 * 1.5
@@ -187,16 +195,16 @@ export const Typography = {
     },
 
     // Page-specific styles
-    // Hero page - Archivo Extra Condensed for brand, PT Sans for body
+    // Hero page - Archivo Extra Condensed for brand (Italics), PT Sans for body
     heroBrandName: {
-      fontFamily: 'ArchivoExtraCondensed-Light',
+      fontFamily: 'ArchivoExtraCondensed-LightItalic',
       fontSize: 28,
       fontWeight: '300',
       lineHeight: 39.2, // 28 * 1.4
       letterSpacing: 6,
     },
     heroTagline: {
-      fontFamily: 'ArchivoExtraCondensed-Regular',
+      fontFamily: 'ArchivoExtraCondensed-Italic',
       fontSize: 14,
       fontWeight: '400',
       lineHeight: 21, // 14 * 1.5
@@ -248,7 +256,7 @@ export const Typography = {
       letterSpacing: 0,
     },
     dashboardCardSize: {
-      fontFamily: 'ArchivoExtraCondensed-Regular',
+      fontFamily: 'ArchivoExtraCondensed-Italic',
       fontSize: 12,
       fontWeight: '400',
       lineHeight: 18, // 12 * 1.5
@@ -278,7 +286,7 @@ export const Typography = {
       letterSpacing: -0.5,
     },
     venuesBackButton: {
-      fontFamily: 'ArchivoExtraCondensed-Bold',
+      fontFamily: 'ArchivoExtraCondensed-BoldItalic',
       fontSize: 24,
       fontWeight: '700',
       lineHeight: 33.6, // 24 * 1.4
