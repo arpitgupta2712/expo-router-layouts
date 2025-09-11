@@ -10,7 +10,7 @@ import {
   Platform,
 } from "react-native";
 import { Link } from "expo-router";
-import { NavigationDots } from "@/components";
+import Dots from "react-native-dots-pagination";
 import { Typography } from "@/constants/Typography";
 import { Colors } from "@/constants/Colors";
 
@@ -268,26 +268,35 @@ export default function VenuesScreen() {
 
       {/* City indicators - bottom center */}
       <View style={styles.cityIndicatorsContainer}>
-        <NavigationDots
-          count={cities.length}
-          activeIndex={currentCityIndex}
-          orientation="horizontal"
-          size="large"
-          activeColor="#007AFF"
-          inactiveColor="#E5E5EA"
+        <Dots
+          length={cities.length}
+          active={currentCityIndex}
+          activeColor={Colors.accent}
+          passiveColor={Colors.gray[300]}
+          activeDotWidth={12}
+          activeDotHeight={12}
+          passiveDotWidth={8}
+          passiveDotHeight={8}
+          marginHorizontal={8}
         />
       </View>
 
       {/* Venue indicators - middle right */}
       <View style={styles.venueIndicatorsContainer}>
-        <NavigationDots
-          count={currentCity.venues.length}
-          activeIndex={venueIndex}
-          orientation="vertical"
-          size="medium"
-          activeColor="#007AFF"
-          inactiveColor="#E5E5EA"
-        />
+        {currentCity.venues.map((_, index) => (
+          <View
+            key={index}
+            style={[
+              styles.verticalDot,
+              {
+                backgroundColor: index === venueIndex ? Colors.accent : Colors.gray[300],
+                width: index === venueIndex ? 10 : 6,
+                height: index === venueIndex ? 10 : 6,
+                borderRadius: index === venueIndex ? 5 : 3,
+              },
+            ]}
+          />
+        ))}
       </View>
     </View>
   );
@@ -358,6 +367,20 @@ const styles = StyleSheet.create({
     top: "50%",
     transform: [{ translateY: -50 }],
     backgroundColor: "transparent",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  verticalDot: {
+    marginVertical: 4,
+    shadowColor: Colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   backButton: {
     position: "absolute",
