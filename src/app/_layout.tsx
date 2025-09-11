@@ -1,13 +1,8 @@
+import React from 'react';
 import { Stack } from "expo-router";
 import Head from "expo-router/head";
 import { useFonts } from 'expo-font';
-import {
-  Archivo_300Light,
-  Archivo_400Regular,
-  Archivo_500Medium,
-  Archivo_600SemiBold,
-  Archivo_700Bold,
-} from '@expo-google-fonts/archivo';
+// Custom Archivo Extra Condensed fonts loaded from assets
 import {
   Poppins_300Light,
   Poppins_400Regular,
@@ -22,11 +17,16 @@ import {
 
 export default function Layout() {
   const [fontsLoaded] = useFonts({
-    Archivo_300Light,
-    Archivo_400Regular,
-    Archivo_500Medium,
-    Archivo_600SemiBold,
-    Archivo_700Bold,
+    // Custom Archivo Extra Condensed fonts from assets
+    'ArchivoExtraCondensed-Thin': require('../../assets/fonts/Archivo_ExtraCondensed/Archivo_ExtraCondensed-Thin.ttf'),
+    'ArchivoExtraCondensed-Light': require('../../assets/fonts/Archivo_ExtraCondensed/Archivo_ExtraCondensed-Light.ttf'),
+    'ArchivoExtraCondensed-Regular': require('../../assets/fonts/Archivo_ExtraCondensed/Archivo_ExtraCondensed-Regular.ttf'),
+    'ArchivoExtraCondensed-Medium': require('../../assets/fonts/Archivo_ExtraCondensed/Archivo_ExtraCondensed-Medium.ttf'),
+    'ArchivoExtraCondensed-SemiBold': require('../../assets/fonts/Archivo_ExtraCondensed/Archivo_ExtraCondensed-SemiBold.ttf'),
+    'ArchivoExtraCondensed-Bold': require('../../assets/fonts/Archivo_ExtraCondensed/Archivo_ExtraCondensed-Bold.ttf'),
+    'ArchivoExtraCondensed-ExtraBold': require('../../assets/fonts/Archivo_ExtraCondensed/Archivo_ExtraCondensed-ExtraBold.ttf'),
+    'ArchivoExtraCondensed-Black': require('../../assets/fonts/Archivo_ExtraCondensed/Archivo_ExtraCondensed-Black.ttf'),
+    // Google Fonts - Poppins and PT Sans
     Poppins_300Light,
     Poppins_400Regular,
     Poppins_500Medium,
@@ -36,7 +36,20 @@ export default function Layout() {
     PTSans_700Bold,
   });
 
+  // Log font loading status
+  React.useEffect(() => {
+    console.log('🎨 Fonts loaded:', fontsLoaded);
+    if (fontsLoaded) {
+      console.log('✅ All fonts successfully loaded!');
+      console.log('📝 Available fonts: Archivo Extra Condensed (custom), Poppins, PT Sans');
+      console.log('🎯 Font hierarchy: Poppins (titles), PT Sans (body), Archivo Extra Condensed (captions)');
+    } else {
+      console.log('⏳ Loading fonts...');
+    }
+  }, [fontsLoaded]);
+
   if (!fontsLoaded) {
+    console.log('🔄 Waiting for fonts to load...');
     return null; // Or a loading screen
   }
 

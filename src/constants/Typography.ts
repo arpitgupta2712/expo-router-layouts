@@ -1,15 +1,7 @@
 export const Typography = {
   // Font Families
   fontFamily: {
-    // Primary font for headings and titles
-    archivo: {
-      light: 'Archivo_300Light',
-      regular: 'Archivo_400Regular',
-      medium: 'Archivo_500Medium',
-      semibold: 'Archivo_600SemiBold',
-      bold: 'Archivo_700Bold',
-    },
-    // Secondary font for body text and UI elements
+    // Primary font for titles and subtitles
     poppins: {
       light: 'Poppins_300Light',
       regular: 'Poppins_400Regular',
@@ -17,10 +9,21 @@ export const Typography = {
       semibold: 'Poppins_600SemiBold',
       bold: 'Poppins_700Bold',
     },
-    // Tertiary font for captions and secondary text
+    // Secondary font for body text and UI elements
     ptSans: {
       regular: 'PTSans_400Regular',
       bold: 'PTSans_700Bold',
+    },
+    // Tertiary font for captions and secondary text (custom brand font)
+    archivoExtraCondensed: {
+      thin: 'ArchivoExtraCondensed-Thin',
+      light: 'ArchivoExtraCondensed-Light',
+      regular: 'ArchivoExtraCondensed-Regular',
+      medium: 'ArchivoExtraCondensed-Medium',
+      semibold: 'ArchivoExtraCondensed-SemiBold',
+      bold: 'ArchivoExtraCondensed-Bold',
+      extrabold: 'ArchivoExtraCondensed-ExtraBold',
+      black: 'ArchivoExtraCondensed-Black',
     }
   },
 
@@ -66,60 +69,60 @@ export const Typography = {
 
   // Predefined Typography Styles
   styles: {
-    // Headings
+    // Headings - Poppins for titles and subtitles
     h1: {
-      fontFamily: 'Archivo_700Bold',
+      fontFamily: 'Poppins_700Bold',
       fontSize: 36,
       fontWeight: '700',
       lineHeight: 43.2, // 36 * 1.2
       letterSpacing: -0.5,
     },
     h2: {
-      fontFamily: 'Archivo_600SemiBold',
+      fontFamily: 'Poppins_600SemiBold',
       fontSize: 28,
       fontWeight: '600',
       lineHeight: 39.2, // 28 * 1.4
       letterSpacing: -0.5,
     },
     h3: {
-      fontFamily: 'Archivo_500Medium',
+      fontFamily: 'Poppins_500Medium',
       fontSize: 24,
       fontWeight: '500',
       lineHeight: 33.6, // 24 * 1.4
       letterSpacing: 0,
     },
     h4: {
-      fontFamily: 'Archivo_400Regular',
+      fontFamily: 'Poppins_400Regular',
       fontSize: 20,
       fontWeight: '400',
       lineHeight: 28, // 20 * 1.4
       letterSpacing: 0,
     },
     
-    // Body Text
+    // Body Text - PT Sans for body text
     bodyLarge: {
-      fontFamily: 'Poppins_400Regular',
+      fontFamily: 'PTSans_400Regular',
       fontSize: 18,
       fontWeight: '400',
       lineHeight: 28.8, // 18 * 1.6
       letterSpacing: 0,
     },
     bodyMedium: {
-      fontFamily: 'Poppins_400Regular',
+      fontFamily: 'PTSans_400Regular',
       fontSize: 16,
       fontWeight: '400',
       lineHeight: 25.6, // 16 * 1.6
       letterSpacing: 0,
     },
     bodySmall: {
-      fontFamily: 'Poppins_400Regular',
+      fontFamily: 'PTSans_400Regular',
       fontSize: 14,
       fontWeight: '400',
       lineHeight: 22.4, // 14 * 1.6
       letterSpacing: 0,
     },
 
-    // UI Elements
+    // UI Elements - Poppins for buttons
     button: {
       fontFamily: 'Poppins_600SemiBold',
       fontSize: 16,
@@ -142,23 +145,23 @@ export const Typography = {
       letterSpacing: 0.5,
     },
 
-    // Captions and Secondary Text
+    // Captions and Secondary Text - Archivo Extra Condensed
     caption: {
-      fontFamily: 'PTSans_400Regular',
+      fontFamily: 'ArchivoExtraCondensed-Regular',
       fontSize: 12,
       fontWeight: '400',
       lineHeight: 18, // 12 * 1.5
       letterSpacing: 0.5,
     },
     captionBold: {
-      fontFamily: 'PTSans_700Bold',
+      fontFamily: 'ArchivoExtraCondensed-Bold',
       fontSize: 12,
       fontWeight: '700',
       lineHeight: 18, // 12 * 1.5
       letterSpacing: 0.5,
     },
     overline: {
-      fontFamily: 'PTSans_700Bold',
+      fontFamily: 'ArchivoExtraCondensed-Bold',
       fontSize: 10,
       fontWeight: '700',
       lineHeight: 15, // 10 * 1.5
@@ -166,16 +169,16 @@ export const Typography = {
       textTransform: 'uppercase',
     },
 
-    // Brand/Logo Text
+    // Brand/Logo Text - Archivo Extra Condensed for brand identity
     brandName: {
-      fontFamily: 'Archivo_300Light',
+      fontFamily: 'ArchivoExtraCondensed-Light',
       fontSize: 28,
       fontWeight: '300',
       lineHeight: 39.2, // 28 * 1.4
       letterSpacing: 6,
     },
     tagline: {
-      fontFamily: 'PTSans_400Regular',
+      fontFamily: 'ArchivoExtraCondensed-Regular',
       fontSize: 14,
       fontWeight: '400',
       lineHeight: 21, // 14 * 1.5
@@ -184,16 +187,16 @@ export const Typography = {
     },
 
     // Page-specific styles
-    // Hero page - Archivo fonts
+    // Hero page - Archivo Extra Condensed for brand, PT Sans for body
     heroBrandName: {
-      fontFamily: 'Archivo_300Light',
+      fontFamily: 'ArchivoExtraCondensed-Light',
       fontSize: 28,
       fontWeight: '300',
       lineHeight: 39.2, // 28 * 1.4
       letterSpacing: 6,
     },
     heroTagline: {
-      fontFamily: 'Archivo_400Regular',
+      fontFamily: 'ArchivoExtraCondensed-Regular',
       fontSize: 14,
       fontWeight: '400',
       lineHeight: 21, // 14 * 1.5
@@ -201,21 +204,21 @@ export const Typography = {
       textTransform: 'uppercase',
     },
     heroCtaText: {
-      fontFamily: 'Archivo_400Regular',
+      fontFamily: 'PTSans_400Regular',
       fontSize: 18,
       fontWeight: '400',
       lineHeight: 28.8, // 18 * 1.6
       letterSpacing: 0,
     },
     heroButtonText: {
-      fontFamily: 'Archivo_600SemiBold',
+      fontFamily: 'Poppins_600SemiBold',
       fontSize: 18,
       fontWeight: '600',
       lineHeight: 27, // 18 * 1.5
       letterSpacing: 0.5,
     },
 
-    // Dashboard page - PT Sans fonts
+    // Dashboard page - Poppins for titles, PT Sans for body, Archivo for captions
     dashboardGreeting: {
       fontFamily: 'PTSans_400Regular',
       fontSize: 14,
@@ -224,11 +227,11 @@ export const Typography = {
       letterSpacing: 0,
     },
     dashboardTitle: {
-      fontFamily: 'PTSans_700Bold',
+      fontFamily: 'Poppins_700Bold',
       fontSize: 28,
       fontWeight: '700',
       lineHeight: 39.2, // 28 * 1.4
-      letterSpacing: 0,
+      letterSpacing: -0.5,
     },
     dashboardDate: {
       fontFamily: 'PTSans_400Regular',
@@ -238,21 +241,21 @@ export const Typography = {
       letterSpacing: 0,
     },
     dashboardCardTitle: {
-      fontFamily: 'PTSans_700Bold',
+      fontFamily: 'Poppins_600SemiBold',
       fontSize: 20,
-      fontWeight: '700',
+      fontWeight: '600',
       lineHeight: 28, // 20 * 1.4
       letterSpacing: 0,
     },
     dashboardCardSize: {
-      fontFamily: 'PTSans_400Regular',
+      fontFamily: 'ArchivoExtraCondensed-Regular',
       fontSize: 12,
       fontWeight: '400',
       lineHeight: 18, // 12 * 1.5
       letterSpacing: 0.5,
     },
 
-    // Venues page - Poppins fonts
+    // Venues page - Poppins for titles, PT Sans for descriptions
     venuesCityTitle: {
       fontFamily: 'Poppins_700Bold',
       fontSize: 36,
@@ -261,7 +264,7 @@ export const Typography = {
       letterSpacing: -0.5,
     },
     venuesCityDescription: {
-      fontFamily: 'Poppins_400Regular',
+      fontFamily: 'PTSans_400Regular',
       fontSize: 20,
       fontWeight: '400',
       lineHeight: 28, // 20 * 1.4
@@ -275,7 +278,7 @@ export const Typography = {
       letterSpacing: -0.5,
     },
     venuesBackButton: {
-      fontFamily: 'Poppins_700Bold',
+      fontFamily: 'ArchivoExtraCondensed-Bold',
       fontSize: 24,
       fontWeight: '700',
       lineHeight: 33.6, // 24 * 1.4

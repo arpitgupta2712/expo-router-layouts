@@ -800,11 +800,6 @@
   dependencies:
     "@types/hammerjs" "^2.0.36"
 
-"@expo-google-fonts/archivo@^0.4.2":
-  version "0.4.2"
-  resolved "https://registry.npmjs.org/@expo-google-fonts/archivo/-/archivo-0.4.2.tgz"
-  integrity sha512-FLhI4/ZVIFSHHxx15Z7Rr4QX/4ZrJozEebBEFSdHSRRwULGCuSIpbb3dz56Hslux6LZEnJ1mVpZ6CyVpUzLwIg==
-
 "@expo-google-fonts/poppins@^0.4.0":
   version "0.4.0"
   resolved "https://registry.npmjs.org/@expo-google-fonts/poppins/-/poppins-0.4.0.tgz"
