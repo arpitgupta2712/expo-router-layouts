@@ -2,6 +2,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions, StatusBar 
 import { Link } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { Typography } from "@/constants/Typography";
+import { Colors } from "@/constants/Colors";
 
 const { width, height } = Dimensions.get("window");
 
@@ -11,7 +12,7 @@ export default function HeroPage() {
       <StatusBar barStyle="light-content" />
       
       <LinearGradient
-        colors={["#0A1F1B", "#1B4D3E", "#2A6F57"]}
+        colors={[Colors.darkGreen, Colors.forestGreen, Colors.illuminatingEmerald]}
         style={styles.gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -51,7 +52,7 @@ export default function HeroPage() {
                 activeOpacity={0.9}
               >
                 <LinearGradient
-                  colors={["#4ADE80", "#22C55E"]}
+                  colors={[Colors.oceanGreen, Colors.illuminatingEmerald]}
                   style={styles.buttonGradient}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
@@ -74,7 +75,7 @@ export default function HeroPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0A1F1B",
+    backgroundColor: Colors.darkGreen,
   },
   gradient: {
     flex: 1,
@@ -117,7 +118,7 @@ const styles = StyleSheet.create({
   divider: {
     width: 60,
     height: 1,
-    backgroundColor: "#4ADE80",
+    backgroundColor: Colors.chartreuse,
     marginBottom: 12,
   },
   tagline: {
