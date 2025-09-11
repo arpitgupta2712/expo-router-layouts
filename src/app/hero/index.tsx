@@ -135,14 +135,6 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   logoGlow: {
-    shadowColor: "#4ADE80",
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 30,
-    elevation: 10,
     padding: 20,
   },
   logo: {
@@ -164,14 +156,6 @@ const styles = StyleSheet.create({
   getStartedButton: {
     width: "100%",
     maxWidth: 280,
-    shadowColor: "#4ADE80",
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    elevation: 12,
     marginBottom: 20,
   },
   buttonGradient: {

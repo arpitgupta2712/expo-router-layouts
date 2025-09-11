@@ -4,18 +4,33 @@ import {
   Text, 
   StyleSheet, 
   ScrollView,
-  Dimensions 
+  Dimensions,
+  Platform,
+  TouchableOpacity 
 } from "react-native";
+import { Link } from "expo-router";
 import { Layout } from "@/constants/Layout";
 import { Colors } from "@/constants/Colors";
 
 const { width } = Dimensions.get("window");
 const CARD_GAP = 12;
 const CONTAINER_PADDING = 20;
-const CARD_SIZE = (width - CONTAINER_PADDING * 2 - CARD_GAP) / 2;
+
+// Responsive card sizing for web vs mobile
+const getCardSize = () => {
+  if (Platform.OS === 'web') {
+    // For web, use a fixed max width and center the grid
+    const maxWidth = Math.min(width, 800); // Max 800px width
+    return (maxWidth - CONTAINER_PADDING * 2 - CARD_GAP) / 2;
+  }
+  // For mobile, use full width
+  return (width - CONTAINER_PADDING * 2 - CARD_GAP) / 2;
+};
+
+const CARD_SIZE = getCardSize();
 
 // Simple card component with 3 sizes
-const GridCard = ({ size, title, color }) => {
+const GridCard = ({ size, title, color, href = null }) => {
   const getCardStyle = () => {
     switch (size) {
       case 'small':
@@ -45,12 +60,24 @@ const GridCard = ({ size, title, color }) => {
     }
   };
 
-  return (
+  const cardContent = (
     <View style={[styles.card, getCardStyle()]}>
       <Text style={styles.cardTitle}>{title}</Text>
       <Text style={styles.cardSize}>{size}</Text>
     </View>
   );
+
+  if (href) {
+    return (
+      <Link href={href} asChild>
+        <TouchableOpacity activeOpacity={0.8}>
+          {cardContent}
+        </TouchableOpacity>
+      </Link>
+    );
+  }
+
+  return cardContent;
 };
 
 export default function DashboardPage() {
@@ -75,7 +102,7 @@ export default function DashboardPage() {
 
         {/* Row 2: One rectangle card */}
         <View style={styles.row}>
-          <GridCard size="rectangle" title="Card 3" color="#45B7D1" />
+          <GridCard size="rectangle" title="Sports Venues" color="#45B7D1" href="/venues" />
         </View>
 
         {/* Row 3: Two small cards */}
@@ -116,6 +143,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
+    ...(Platform.OS === 'web' && {
+      maxWidth: 800,
+      alignSelf: 'center',
+      width: '100%',
+    }),
   },
   greeting: {
     fontSize: Layout.fontSize.sm,
@@ -136,6 +168,11 @@ const styles = StyleSheet.create({
     padding: CONTAINER_PADDING,
     paddingTop: Layout.spacing.lg,
     paddingBottom: Layout.spacing.xxl,
+    ...(Platform.OS === 'web' && {
+      maxWidth: 800,
+      alignSelf: 'center',
+      width: '100%',
+    }),
   },
   row: {
     flexDirection: "row",
@@ -148,7 +185,14 @@ const styles = StyleSheet.create({
     padding: Layout.spacing.lg,
     justifyContent: "center",
     alignItems: "center",
-    ...Layout.shadow.md,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   cardTitle: {
     fontSize: Layout.fontSize.lg,

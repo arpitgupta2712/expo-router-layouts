@@ -191,6 +191,13 @@ export default function VenuesScreen() {
         <View style={styles.headerSpacer} />
       </View>
 
+      {/* Floating Back Button */}
+      <Link href="/dashboard" asChild>
+        <TouchableOpacity style={styles.backButton} activeOpacity={0.8}>
+          <Text style={styles.backButtonText}>←</Text>
+        </TouchableOpacity>
+      </Link>
+
       <View style={styles.cardContainer} {...panResponder.panHandlers}>
         <Animated.View 
           style={[
@@ -272,14 +279,6 @@ const styles = StyleSheet.create({
     borderRadius: 0,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
   },
   cityTitle: {
     fontSize: 36,
@@ -336,5 +335,30 @@ const styles = StyleSheet.create({
   },
   activeChildIndicator: {
     backgroundColor: "#007AFF",
+  },
+  backButton: {
+    position: "absolute",
+    top: 60,
+    left: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  backButtonText: {
+    fontSize: 24,
+    color: "white",
+    fontWeight: "bold",
   },
 });
