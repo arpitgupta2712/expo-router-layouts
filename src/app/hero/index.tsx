@@ -1,6 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions, StatusBar } from "react-native";
 import { Link } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
 import { Typography } from "@/constants/Typography";
 import { Colors } from "@/constants/Colors";
 
@@ -11,12 +10,7 @@ export default function HeroPage() {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       
-      <LinearGradient
-        colors={[Colors.primaryDark, Colors.primary, Colors.primaryLight]}
-        style={styles.gradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      >
+      <View style={styles.background}>
         {/* Decorative circles for visual interest */}
         <View style={styles.decorativeCircle1} />
         <View style={styles.decorativeCircle2} />
@@ -51,14 +45,7 @@ export default function HeroPage() {
                 style={styles.getStartedButton}
                 activeOpacity={0.9}
               >
-                <LinearGradient
-                  colors={[Colors.accent, Colors.accentLight]}
-                  style={styles.buttonGradient}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                >
-                  <Text style={styles.getStartedText}>Get Started</Text>
-                </LinearGradient>
+                <Text style={styles.getStartedText}>Get Started</Text>
               </TouchableOpacity>
             </Link>
             
@@ -67,7 +54,7 @@ export default function HeroPage() {
             </Text>
           </View>
         </View>
-      </LinearGradient>
+      </View>
     </View>
   );
 }
@@ -77,8 +64,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.primaryDark,
   },
-  gradient: {
+  background: {
     flex: 1,
+    backgroundColor: Colors.primary,
     position: "relative",
   },
   decorativeCircle1: {
@@ -153,8 +141,7 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 280,
     marginBottom: 20,
-  },
-  buttonGradient: {
+    backgroundColor: Colors.accent,
     paddingHorizontal: 48,
     paddingVertical: 18,
     borderRadius: 30,
@@ -162,7 +149,7 @@ const styles = StyleSheet.create({
   },
   getStartedText: {
     ...Typography.styles.heroButtonText,
-    color: "white",
+    color: Colors.black,
   },
   subText: {
     ...Typography.styles.caption,
