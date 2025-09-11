@@ -4,14 +4,13 @@ import { Link } from "expo-router";
 export default function DemoPage() {
   const demos = [
     { name: "Swipable Cards", path: "/demo/swipable-cards", description: "Card-based interface with swipe gestures" },
-    { name: "Material Top Tabs", path: "/demo/material-top-tabs", description: "Material Design top tabs" },
   ];
 
   return (
     <View style={styles.container}>
       <View style={styles.main}>
-        <Text style={styles.title}>Navigation Demos</Text>
-        <Text style={styles.subtitle}>Reference implementations for your main app:</Text>
+        <Text style={styles.title}>Swipable Cards Demo</Text>
+        <Text style={styles.subtitle}>Reference implementation for your main app:</Text>
         
         <View style={styles.demoList}>
           {demos.map((demo, index) => (
