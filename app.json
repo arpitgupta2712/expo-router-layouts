@@ -9,7 +9,8 @@
       [
         "expo-router",
         {
-          "origin": "https://a"
+          "origin": "https://a",
+          "root": "./src/app"
         }
       ]
     ],
