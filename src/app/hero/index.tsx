@@ -1,14 +1,13 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions, StatusBar, ScrollView } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions, StatusBar } from "react-native";
 import { Link } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { Typography } from "@/constants/Typography";
-import FontTest from "@/components/FontTest";
 
 const { width, height } = Dimensions.get("window");
 
 export default function HeroPage() {
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       
       <LinearGradient
@@ -68,10 +67,7 @@ export default function HeroPage() {
           </View>
         </View>
       </LinearGradient>
-      
-      {/* Font Test Section */}
-      <FontTest />
-    </ScrollView>
+    </View>
   );
 }
 
