@@ -1,23 +1,38 @@
 export const Colors = {
-  // Brand Colors - Yellow/Lime Family
-  chartreuse: "#DCFF00",
+  // PRIMARY BRAND COLORS (from brand guidelines)
+  forestGreen: "#003D1E",    // Primary brand color
+  chartreuse: "#DCFF00",     // Accent color
+  black: "#000000",          // Base color
+  white: "#FFFFFF",          // Base color
+  
+  // EXTENDED PALETTE (from extended palette)
   keyLime: "#EDFD8A", 
   lightGoldenrodYellow: "#F9FFD0",
-  
-  // Brand Colors - Green Family
   oceanGreen: "#47C686",
   illuminatingEmerald: "#2CA166",
-  forestGreen: "#003D1E",
   darkGreen: "#032516",
-  
-  // Brand Colors - Orange Family
   veryLightTangelo: "#FFB777",
   royalOrange: "#FF9E4A",
   safetyOrange: "#FF7700",
   
-  // Essential Neutrals
-  white: "#FFFFFF",
-  black: "#000000",
+  // SEMANTIC COLORS (mapped to primary palette)
+  primary: "#003D1E",        // Forest Green - PRIMARY BRAND
+  primaryLight: "#47C686",   // Ocean Green - lighter variant
+  primaryDark: "#032516",    // Dark Green - darker variant
+  
+  accent: "#DCFF00",         // Chartreuse - ACCENT COLOR
+  accentLight: "#EDFD8A",    // Key Lime - lighter accent
+  accentDark: "#F9FFD0",     // Light Goldenrod Yellow - darker accent
+  
+  // Base colors
+  base: "#FFFFFF",           // White - BASE COLOR
+  baseDark: "#000000",       // Black - BASE COLOR
+  
+  // Status Colors (using extended palette appropriately)
+  success: "#47C686",        // Ocean Green
+  warning: "#FF9E4A",        // Royal Orange
+  error: "#FF7700",          // Safety Orange
+  info: "#2CA166",           // Illuminating Emerald
   
   // Minimal Neutrals (for UI elements)
   gray: {
@@ -28,33 +43,14 @@ export const Colors = {
     900: "#111827",  // Dark text
   },
   
-  // Semantic Colors (using brand colors)
-  primary: "#47C686",        // Ocean Green as primary
-  primaryLight: "#2CA166",   // Illuminating Emerald
-  primaryDark: "#003D1E",    // Forest Green
-  
-  secondary: "#FF9E4A",      // Royal Orange as secondary
-  secondaryLight: "#FFB777", // Very Light Tangelo
-  secondaryDark: "#FF7700",  // Safety Orange
-  
-  accent: "#DCFF00",         // Chartreuse as accent
-  accentLight: "#EDFD8A",    // Key Lime
-  accentDark: "#F9FFD0",     // Light Goldenrod Yellow
-  
-  // Status Colors (using brand colors where appropriate)
-  success: "#47C686",        // Ocean Green
-  warning: "#FF9E4A",        // Royal Orange
-  error: "#FF7700",          // Safety Orange
-  info: "#2CA166",           // Illuminating Emerald
-  
-  // Background Colors (using neutrals)
-  background: "#FFFFFF",
-  surface: "#F3F4F6",
+  // Background Colors
+  background: "#FFFFFF",     // White background
+  surface: "#F3F4F6",        // Light surface
   
   // Text Colors
   text: {
-    primary: "#111827",      // Dark gray for primary text
-    secondary: "#6B7280",    // Medium gray for secondary text
+    primary: "#000000",      // Black for primary text
+    secondary: "#6B7280",    // Gray for secondary text
     tertiary: "#9CA3AF",     // Light gray for tertiary text
     inverse: "#FFFFFF",      // White for text on dark backgrounds
     brand: "#003D1E",        // Forest Green for brand text

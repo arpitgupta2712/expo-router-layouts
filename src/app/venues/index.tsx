@@ -12,6 +12,7 @@ import {
 import { Link } from "expo-router";
 import { NavigationDots } from "@/components";
 import { Typography } from "@/constants/Typography";
+import { Colors } from "@/constants/Colors";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -20,55 +21,55 @@ const cities = [
     id: 1,
     title: "New York",
     description: "The Big Apple",
-    color: "#FF6B6B",
+    color: "#003D1E", // Forest Green
     venues: [
-      { id: 1, title: "Madison Square Garden", color: "#4ECDC4" },
-      { id: 2, title: "Yankee Stadium", color: "#45B7D1" },
-      { id: 3, title: "MetLife Stadium", color: "#96CEB4" },
+      { id: 1, title: "Madison Square Garden", color: "#47C686" }, // Ocean Green
+      { id: 2, title: "Yankee Stadium", color: "#2CA166" }, // Illuminating Emerald
+      { id: 3, title: "MetLife Stadium", color: "#032516" }, // Dark Green
     ],
   },
   {
     id: 2,
     title: "Los Angeles",
     description: "City of Angels",
-    color: "#4ECDC4",
+    color: "#DCFF00", // Chartreuse
     venues: [
-      { id: 1, title: "Staples Center", color: "#FFEAA7" },
-      { id: 2, title: "Dodger Stadium", color: "#DDA0DD" },
-      { id: 3, title: "SoFi Stadium", color: "#98D8C8" },
+      { id: 1, title: "Staples Center", color: "#EDFD8A" }, // Key Lime
+      { id: 2, title: "Dodger Stadium", color: "#F9FFD0" }, // Light Goldenrod Yellow
+      { id: 3, title: "SoFi Stadium", color: "#FF9E4A" }, // Royal Orange
     ],
   },
   {
     id: 3,
     title: "Chicago",
     description: "Windy City",
-    color: "#45B7D1",
+    color: "#47C686", // Ocean Green
     venues: [
-      { id: 1, title: "United Center", color: "#F7DC6F" },
-      { id: 2, title: "Wrigley Field", color: "#BB8FCE" },
-      { id: 3, title: "Soldier Field", color: "#85C1E9" },
+      { id: 1, title: "United Center", color: "#FFB777" }, // Very Light Tangelo
+      { id: 2, title: "Wrigley Field", color: "#FF7700" }, // Safety Orange
+      { id: 3, title: "Soldier Field", color: "#2CA166" }, // Illuminating Emerald
     ],
   },
   {
     id: 4,
     title: "Boston",
     description: "Beantown",
-    color: "#96CEB4",
+    color: "#2CA166", // Illuminating Emerald
     venues: [
-      { id: 1, title: "TD Garden", color: "#F8C471" },
-      { id: 2, title: "Fenway Park", color: "#FF6B6B" },
-      { id: 3, title: "Gillette Stadium", color: "#4ECDC4" },
+      { id: 1, title: "TD Garden", color: "#FF9E4A" }, // Royal Orange
+      { id: 2, title: "Fenway Park", color: "#DCFF00" }, // Chartreuse
+      { id: 3, title: "Gillette Stadium", color: "#47C686" }, // Ocean Green
     ],
   },
   {
     id: 5,
     title: "Miami",
     description: "Magic City",
-    color: "#FFEAA7",
+    color: "#FF7700", // Safety Orange
     venues: [
-      { id: 1, title: "American Airlines Arena", color: "#45B7D1" },
-      { id: 2, title: "Marlins Park", color: "#96CEB4" },
-      { id: 3, title: "Hard Rock Stadium", color: "#DDA0DD" },
+      { id: 1, title: "American Airlines Arena", color: "#003D1E" }, // Forest Green
+      { id: 2, title: "Marlins Park", color: "#DCFF00" }, // Chartreuse
+      { id: 3, title: "Hard Rock Stadium", color: "#47C686" }, // Ocean Green
     ],
   },
 ];
@@ -295,7 +296,7 @@ export default function VenuesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: Colors.background,
   },
   header: {
     position: "absolute",
@@ -326,20 +327,20 @@ const styles = StyleSheet.create({
   },
   cityTitle: {
     ...Typography.styles.venuesCityTitle,
-    color: "white",
+    color: Colors.base,
     marginBottom: 16,
     textAlign: "center",
   },
   cityDescription: {
     ...Typography.styles.venuesCityDescription,
-    color: "white",
+    color: Colors.base,
     textAlign: "center",
     marginBottom: 60,
     opacity: 0.9,
   },
   venueTitle: {
     ...Typography.styles.venuesVenueTitle,
-    color: "white",
+    color: Colors.base,
     textAlign: "center",
   },
   cityIndicatorsContainer: {
@@ -380,6 +381,6 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     ...Typography.styles.venuesBackButton,
-    color: "white",
+    color: Colors.base,
   },
 });

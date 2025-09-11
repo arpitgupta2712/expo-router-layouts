@@ -12,7 +12,7 @@ export default function HeroPage() {
       <StatusBar barStyle="light-content" />
       
       <LinearGradient
-        colors={[Colors.darkGreen, Colors.forestGreen, Colors.illuminatingEmerald]}
+        colors={[Colors.primaryDark, Colors.primary, Colors.primaryLight]}
         style={styles.gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -52,7 +52,7 @@ export default function HeroPage() {
                 activeOpacity={0.9}
               >
                 <LinearGradient
-                  colors={[Colors.oceanGreen, Colors.illuminatingEmerald]}
+                  colors={[Colors.accent, Colors.accentLight]}
                   style={styles.buttonGradient}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
@@ -75,7 +75,7 @@ export default function HeroPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.darkGreen,
+    backgroundColor: Colors.primaryDark,
   },
   gradient: {
     flex: 1,

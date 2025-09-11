@@ -97,35 +97,35 @@ export default function DashboardPage() {
       <View style={styles.grid}>
         {/* Row 1: Two small cards */}
         <View style={styles.row}>
-          <GridCard size="small" title="Card 1" color="#FF6B6B" />
-          <GridCard size="small" title="Card 2" color="#4ECDC4" />
+          <GridCard size="small" title="Card 1" color={Colors.primary} />
+          <GridCard size="small" title="Card 2" color={Colors.primaryLight} />
         </View>
 
         {/* Row 2: One rectangle card */}
         <View style={styles.row}>
-          <GridCard size="rectangle" title="Sports Venues" color="#45B7D1" href="/venues" />
+          <GridCard size="rectangle" title="Sports Venues" color={Colors.accent} href="/venues" />
         </View>
 
         {/* Row 3: Two small cards */}
         <View style={styles.row}>
-          <GridCard size="small" title="Card 4" color="#96CEB4" />
-          <GridCard size="small" title="Card 5" color="#FFEAA7" />
+          <GridCard size="small" title="Card 4" color={Colors.warning} />
+          <GridCard size="small" title="Card 5" color={Colors.accentLight} />
         </View>
 
         {/* Row 4: One big card */}
         <View style={styles.row}>
-          <GridCard size="big" title="Card 6" color="#DDA0DD" />
+          <GridCard size="big" title="Card 6" color={Colors.success} />
         </View>
 
         {/* Row 5: Two small cards */}
         <View style={styles.row}>
-          <GridCard size="small" title="Card 7" color="#98D8C8" />
-          <GridCard size="small" title="Card 8" color="#F7DC6F" />
+          <GridCard size="small" title="Card 7" color={Colors.info} />
+          <GridCard size="small" title="Card 8" color={Colors.primaryDark} />
         </View>
 
         {/* Row 6: One rectangle card */}
         <View style={styles.row}>
-          <GridCard size="rectangle" title="Card 9" color="#BB8FCE" />
+          <GridCard size="rectangle" title="Card 9" color={Colors.error} />
         </View>
       </View>
     </ScrollView>
@@ -135,15 +135,15 @@ export default function DashboardPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.gray[50],
+    backgroundColor: Colors.background,
   },
   header: {
     paddingHorizontal: CONTAINER_PADDING,
     paddingTop: 60,
     paddingBottom: Layout.spacing.lg,
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.base,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: Colors.gray[300],
     ...(Platform.OS === 'web' && {
       maxWidth: 800,
       alignSelf: 'center',
@@ -196,12 +196,12 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     ...Typography.styles.dashboardCardTitle,
-    color: Colors.white,
+    color: Colors.base,
     marginBottom: Layout.spacing.xs,
   },
   cardSize: {
     ...Typography.styles.dashboardCardSize,
-    color: Colors.white,
+    color: Colors.base,
     opacity: 0.8,
   },
 });
