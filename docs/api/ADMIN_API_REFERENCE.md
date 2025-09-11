@@ -5,6 +5,13 @@ The Admin API provides comprehensive access to admin, venue, and facility data w
 
 **Base URL:** `https://claygrounds-6d703322b3bc.herokuapp.com/api/hudle/admins`
 
+### 🚀 Key Features
+- **Enhanced Cities Structure**: Cities returned as objects with both `id` and `name` for efficient frontend queries
+- **Nested Data Organization**: Venues are nested within admin objects for better data structure
+- **Facilities Under Venues**: Complete facility details nested under their respective venues
+- **Multi-Admin Support**: Combine data from multiple admins with efficient deduplication
+- **Flexible Search**: Search by phone, email, name, venue, city, address, or sport
+
 ---
 
 ## 🔍 Search Endpoints
@@ -59,7 +66,13 @@ GET /search?venue_name=ClayGrounds
       "total_venues": 21,
       "total_facilities": 32,
       "sports": ["Box Cricket", "Football", "Volleyball", "Pickleball"],
-      "cities": ["Delhi", "Faridabad", "Gurgaon", "Noida", "Kolkata"],
+      "cities": [
+        {"id": "1", "name": "Delhi"},
+        {"id": "6", "name": "Faridabad"},
+        {"id": "4", "name": "Gurgaon"},
+        {"id": "5", "name": "Noida"},
+        {"id": "7", "name": "Kolkata"}
+      ],
       "regions": ["city_1", "city_11", "city_43"],
       "venues": [
         {
@@ -103,6 +116,8 @@ GET /search?venue_name=ClayGrounds
   "timestamp": "2025-09-11T20:16:30.203Z"
 }
 ```
+
+**Note:** Venues are now nested within the admin object for better data organization. The `venues` field is also available separately for backward compatibility.
 
 ---
 
@@ -164,11 +179,16 @@ GET /multiple?admin_ids=9999099867,9910545678
         "total_venues": 21,
         "total_facilities": 32,
         "sports": ["Box Cricket", "Football", "Volleyball", "Pickleball"],
-        "cities": ["Delhi", "Faridabad", "Gurgaon"],
-        "regions": ["city_1", "city_11", "city_43"]
+        "cities": [
+          {"id": "1", "name": "Delhi"},
+          {"id": "6", "name": "Faridabad"},
+          {"id": "4", "name": "Gurgaon"}
+        ],
+        "regions": ["city_1", "city_11", "city_43"],
+        "venues": [ /* venues nested in each admin object */ ]
       }
     ],
-    "venues": [ /* all venues from all admins */ ],
+    "venues": [ /* all venues from all admins (also available separately for backward compatibility) */ ],
     "summary": {
       "total_admins": 2,
       "total_venues": 23,
@@ -177,7 +197,13 @@ GET /multiple?admin_ids=9999099867,9910545678
       "regions_covered": 6,
       "sports_offered": 5,
       "unique_sports": ["Box Cricket", "Football", "Volleyball", "Pickleball", "Badminton"],
-      "unique_cities": ["Delhi", "Faridabad", "Gurgaon", "Noida", "Kolkata"],
+      "unique_cities": [
+        {"id": "1", "name": "Delhi"},
+        {"id": "6", "name": "Faridabad"},
+        {"id": "4", "name": "Gurgaon"},
+        {"id": "5", "name": "Noida"},
+        {"id": "7", "name": "Kolkata"}
+      ],
       "unique_regions": ["city_1", "city_11", "city_43", "city_66", "city_68"]
     }
   },
@@ -217,8 +243,13 @@ GET /
         "total_venues": 21,
         "total_facilities": 32,
         "sports": ["Box Cricket", "Football", "Volleyball", "Pickleball"],
-        "cities": ["Delhi", "Faridabad", "Gurgaon"],
-        "regions": ["city_1", "city_11", "city_43"]
+        "cities": [
+          {"id": "1", "name": "Delhi"},
+          {"id": "6", "name": "Faridabad"},
+          {"id": "4", "name": "Gurgaon"}
+        ],
+        "regions": ["city_1", "city_11", "city_43"],
+        "venues": [ /* venues nested in each admin object */ ]
       }
     ],
     "summary": {
@@ -276,7 +307,7 @@ interface Admin {
   total_venues: number;          // Total venues managed
   total_facilities: number;      // Total facilities across all venues
   sports: string[];              // All sports offered across venues
-  cities: string[];              // All cities where venues are located
+  cities: Array<{id: string, name: string}>; // All cities where venues are located
   regions: string[];             // All regions where venues are located
   venues: Venue[];               // Array of venue objects
 }
@@ -362,7 +393,9 @@ const searchAdmin = async (phone) => {
       console.log(`Found admin: ${admin.name}`);
       console.log(`Venues: ${admin.total_venues}`);
       console.log(`Sports: ${admin.sports.join(', ')}`);
-      console.log(`Cities: ${admin.cities.join(', ')}`);
+      console.log(`Cities: ${admin.cities.map(c => c.name).join(', ')}`);
+      console.log(`First venue: ${admin.venues[0]?.name}`);
+      console.log(`City IDs: ${admin.cities.map(c => c.id).join(', ')}`);
     }
   } catch (error) {
     console.error('Error searching admin:', error);
@@ -379,6 +412,7 @@ const getMultipleAdmins = async (adminIds) => {
       const summary = data.data.summary;
       console.log(`Total venues: ${summary.total_venues}`);
       console.log(`Cities covered: ${summary.cities_covered}`);
+      console.log(`City IDs: ${summary.unique_cities.map(c => c.id).join(', ')}`);
       console.log(`Sports offered: ${summary.unique_sports.join(', ')}`);
     }
   } catch (error) {
