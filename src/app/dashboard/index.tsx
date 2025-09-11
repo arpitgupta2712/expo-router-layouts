@@ -11,6 +11,7 @@ import {
 import { Link } from "expo-router";
 import { Layout } from "@/constants/Layout";
 import { Colors } from "@/constants/Colors";
+import { Typography } from "@/constants/Typography";
 
 const { width } = Dimensions.get("window");
 const CARD_GAP = 12;
@@ -150,18 +151,17 @@ const styles = StyleSheet.create({
     }),
   },
   greeting: {
-    fontSize: Layout.fontSize.sm,
+    ...Typography.styles.dashboardGreeting,
     color: Colors.text.secondary,
     marginBottom: Layout.spacing.xs,
   },
   title: {
-    fontSize: Layout.fontSize.xxxl,
-    fontWeight: Layout.fontWeight.bold,
+    ...Typography.styles.dashboardTitle,
     color: Colors.text.primary,
     marginBottom: Layout.spacing.sm,
   },
   date: {
-    fontSize: Layout.fontSize.sm,
+    ...Typography.styles.dashboardDate,
     color: Colors.text.tertiary,
   },
   grid: {
@@ -195,13 +195,12 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   cardTitle: {
-    fontSize: Layout.fontSize.lg,
-    fontWeight: Layout.fontWeight.bold,
+    ...Typography.styles.dashboardCardTitle,
     color: Colors.white,
     marginBottom: Layout.spacing.xs,
   },
   cardSize: {
-    fontSize: Layout.fontSize.sm,
+    ...Typography.styles.dashboardCardSize,
     color: Colors.white,
     opacity: 0.8,
   },

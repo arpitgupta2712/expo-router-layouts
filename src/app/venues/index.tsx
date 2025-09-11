@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { Link } from "expo-router";
 import { NavigationDots } from "@/components";
+import { Typography } from "@/constants/Typography";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -324,22 +325,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cityTitle: {
-    fontSize: 36,
-    fontWeight: "bold",
+    ...Typography.styles.venuesCityTitle,
     color: "white",
     marginBottom: 16,
     textAlign: "center",
   },
   cityDescription: {
-    fontSize: 20,
+    ...Typography.styles.venuesCityDescription,
     color: "white",
     textAlign: "center",
     marginBottom: 60,
     opacity: 0.9,
   },
   venueTitle: {
-    fontSize: 36,
-    fontWeight: "bold",
+    ...Typography.styles.venuesVenueTitle,
     color: "white",
     textAlign: "center",
   },
@@ -380,8 +379,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   backButtonText: {
-    fontSize: 24,
+    ...Typography.styles.venuesBackButton,
     color: "white",
-    fontWeight: "bold",
   },
 });

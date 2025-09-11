@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions, StatusBar } from "react-native";
 import { Link } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
+import { Typography } from "@/constants/Typography";
 
 const { width, height } = Dimensions.get("window");
 
@@ -109,10 +110,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   brandName: {
-    fontSize: 28,
-    fontWeight: "300",
+    ...Typography.styles.heroBrandName,
     color: "white",
-    letterSpacing: 6,
     marginBottom: 12,
   },
   divider: {
@@ -122,11 +121,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   tagline: {
-    fontSize: 14,
+    ...Typography.styles.heroTagline,
     color: "rgba(255, 255, 255, 0.7)",
-    letterSpacing: 1.5,
-    textTransform: "uppercase",
-    fontWeight: "400",
   },
   logoContainer: {
     flex: 1,
@@ -148,10 +144,9 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   ctaText: {
-    fontSize: 18,
+    ...Typography.styles.heroCtaText,
     color: "rgba(255, 255, 255, 0.9)",
     marginBottom: 24,
-    fontWeight: "400",
   },
   getStartedButton: {
     width: "100%",
@@ -165,13 +160,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   getStartedText: {
+    ...Typography.styles.heroButtonText,
     color: "white",
-    fontSize: 18,
-    fontWeight: "600",
-    letterSpacing: 0.5,
   },
   subText: {
-    fontSize: 13,
+    ...Typography.styles.caption,
     color: "rgba(255, 255, 255, 0.5)",
     fontStyle: "italic",
   },

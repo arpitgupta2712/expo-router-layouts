@@ -800,6 +800,21 @@
   dependencies:
     "@types/hammerjs" "^2.0.36"
 
+"@expo-google-fonts/archivo@^0.4.2":
+  version "0.4.2"
+  resolved "https://registry.npmjs.org/@expo-google-fonts/archivo/-/archivo-0.4.2.tgz"
+  integrity sha512-FLhI4/ZVIFSHHxx15Z7Rr4QX/4ZrJozEebBEFSdHSRRwULGCuSIpbb3dz56Hslux6LZEnJ1mVpZ6CyVpUzLwIg==
+
+"@expo-google-fonts/poppins@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.npmjs.org/@expo-google-fonts/poppins/-/poppins-0.4.0.tgz"
+  integrity sha512-mY+z56ai1p01EltWCPEDc2EZR+yq7qAMpgDa+SP16j3vwETOLG3pl+W74oUhZayHw0uYdQjTXkm4ZO4QvX1I7w==
+
+"@expo-google-fonts/pt-sans@^0.4.1":
+  version "0.4.1"
+  resolved "https://registry.npmjs.org/@expo-google-fonts/pt-sans/-/pt-sans-0.4.1.tgz"
+  integrity sha512-Es20zwpN948YN2GdrsGIlCuqjeF+RGfGgunvcbSMjow/wQzglyisesyuhf8MU2fMpbMBVfY0modhrytumstycg==
+
 "@expo/cli@54.0.1":
   version "54.0.1"
   resolved "https://registry.npmjs.org/@expo/cli/-/cli-54.0.1.tgz"
