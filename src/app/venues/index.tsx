@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,8 +7,10 @@ import {
   PanResponder,
   TouchableOpacity,
   Animated,
+  Platform,
 } from "react-native";
 import { Link } from "expo-router";
+import { NavigationDots } from "@/components";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -185,6 +187,49 @@ export default function VenuesScreen() {
     },
   });
 
+  // Handle scroll wheel events for web
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      const handleWheel = (event: WheelEvent) => {
+        if (isAnimating) return;
+        
+        event.preventDefault();
+        
+        const { deltaX, deltaY } = event;
+        const threshold = 50; // Minimum scroll distance to trigger navigation
+        
+        // Horizontal scroll (cities)
+        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > threshold) {
+          if (deltaX > 0) {
+            // Scroll right - next city
+            goToNextCity();
+          } else {
+            // Scroll left - previous city
+            goToPreviousCity();
+          }
+        }
+        // Vertical scroll (venues)
+        else if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > threshold) {
+          if (deltaY > 0) {
+            // Scroll down - next venue
+            goToNextVenue();
+          } else {
+            // Scroll up - previous venue
+            goToPreviousVenue();
+          }
+        }
+      };
+
+      // Add wheel event listener
+      document.addEventListener('wheel', handleWheel, { passive: false });
+
+      // Cleanup
+      return () => {
+        document.removeEventListener('wheel', handleWheel);
+      };
+    }
+  }, [isAnimating, currentCityIndex, venueIndex, isShowingVenue]);
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -219,30 +264,28 @@ export default function VenuesScreen() {
         </Animated.View>
       </View>
 
-      <View style={styles.indicators}>
-        <View style={styles.cityIndicators}>
-          {cities.map((_, index) => (
-            <View
-              key={index}
-              style={[
-                styles.indicator,
-                index === currentCityIndex && styles.activeIndicator,
-              ]}
-            />
-          ))}
-        </View>
-        
-        <View style={styles.venueIndicators}>
-          {currentCity.venues.map((_, index) => (
-            <View
-              key={index}
-              style={[
-                styles.childIndicator,
-                index === venueIndex && styles.activeChildIndicator,
-              ]}
-            />
-          ))}
-        </View>
+      {/* City indicators - bottom center */}
+      <View style={styles.cityIndicatorsContainer}>
+        <NavigationDots
+          count={cities.length}
+          activeIndex={currentCityIndex}
+          orientation="horizontal"
+          size="large"
+          activeColor="#007AFF"
+          inactiveColor="#E5E5EA"
+        />
+      </View>
+
+      {/* Venue indicators - middle right */}
+      <View style={styles.venueIndicatorsContainer}>
+        <NavigationDots
+          count={currentCity.venues.length}
+          activeIndex={venueIndex}
+          orientation="vertical"
+          size="medium"
+          activeColor="#007AFF"
+          inactiveColor="#E5E5EA"
+        />
       </View>
     </View>
   );
@@ -300,7 +343,7 @@ const styles = StyleSheet.create({
     color: "white",
     textAlign: "center",
   },
-  indicators: {
+  cityIndicatorsContainer: {
     position: "absolute",
     bottom: 50,
     left: 0,
@@ -309,32 +352,12 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     backgroundColor: "transparent",
   },
-  cityIndicators: {
-    flexDirection: "row",
-    marginBottom: 12,
-  },
-  indicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#E5E5EA",
-    marginHorizontal: 4,
-  },
-  activeIndicator: {
-    backgroundColor: "#007AFF",
-  },
-  venueIndicators: {
-    flexDirection: "row",
-  },
-  childIndicator: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#E5E5EA",
-    marginHorizontal: 3,
-  },
-  activeChildIndicator: {
-    backgroundColor: "#007AFF",
+  venueIndicatorsContainer: {
+    position: "absolute",
+    right: 20,
+    top: "50%",
+    transform: [{ translateY: -50 }],
+    backgroundColor: "transparent",
   },
   backButton: {
     position: "absolute",
