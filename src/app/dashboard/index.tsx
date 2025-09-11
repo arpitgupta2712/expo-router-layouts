@@ -6,7 +6,8 @@ import {
   ScrollView,
   Dimensions,
   Platform,
-  TouchableOpacity 
+  TouchableOpacity,
+  Image 
 } from "react-native";
 import { Link } from "expo-router";
 import { Layout } from "@/constants/Layout";
@@ -31,7 +32,7 @@ const getCardSize = () => {
 const CARD_SIZE = getCardSize();
 
 // Simple card component with 3 sizes
-const GridCard = ({ size, title, color, href = null }) => {
+const GridCard = ({ size, title, color, href = null, image = null }) => {
   const getCardStyle = () => {
     switch (size) {
       case 'small':
@@ -63,6 +64,13 @@ const GridCard = ({ size, title, color, href = null }) => {
 
   const cardContent = (
     <View style={[styles.card, getCardStyle()]}>
+      {image ? (
+        <Image 
+          source={{ uri: image }} 
+          style={styles.cardImage}
+          resizeMode="cover"
+        />
+      ) : null}
       <Text style={styles.cardTitle}>{title}</Text>
       <Text style={styles.cardSize}>{size}</Text>
     </View>
@@ -97,7 +105,13 @@ export default function DashboardPage() {
       <View style={styles.grid}>
         {/* Row 1: Two small cards */}
         <View style={styles.row}>
-          <GridCard size="small" title="Card 1" color={Colors.primary} />
+          <GridCard 
+            size="small" 
+            title="Hero" 
+            color={Colors.primary} 
+            href="/hero"
+            image="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop"
+          />
           <GridCard size="small" title="Card 2" color={Colors.primaryLight} />
         </View>
 
@@ -193,15 +207,23 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    overflow: "hidden",
+  },
+  cardImage: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   cardTitle: {
     ...Typography.styles.dashboardCardTitle,
-    color: Colors.base,
+    color: Colors.primary,
     marginBottom: Layout.spacing.xs,
   },
   cardSize: {
     ...Typography.styles.dashboardCardSize,
-    color: Colors.base,
+    color: Colors.primary,
     opacity: 0.8,
   },
 });
