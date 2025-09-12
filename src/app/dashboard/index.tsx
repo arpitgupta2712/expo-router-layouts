@@ -13,6 +13,7 @@ import { Link } from "expo-router";
 import { Layout } from "@/constants/Layout";
 import { Colors } from "@/constants/Colors";
 import { Typography } from "@/constants/Typography";
+import { useCitiesAndVenues } from "@/hooks";
 
 const { width } = Dimensions.get("window");
 const CARD_GAP = 12;
@@ -31,8 +32,8 @@ const getCardSize = () => {
 
 const CARD_SIZE = getCardSize();
 
-// Simple card component with 3 sizes
-const GridCard = ({ size, title, color, href = null, image = null }) => {
+// City card component for bento grid
+const CityCard = ({ city, venueCount, color, size = 'small' }) => {
   const getCardStyle = () => {
     switch (size) {
       case 'small':
@@ -64,15 +65,58 @@ const GridCard = ({ size, title, color, href = null, image = null }) => {
 
   const cardContent = (
     <View style={[styles.card, getCardStyle()]}>
-      {image ? (
-        <Image 
-          source={{ uri: image }} 
-          style={styles.cardImage}
-          resizeMode="cover"
-        />
-      ) : null}
-      <Text style={styles.cardTitle}>{title}</Text>
-      <Text style={styles.cardSize}>{size}</Text>
+      <View style={styles.cardContent}>
+        <Text style={styles.cityName}>{city.name}</Text>
+        <Text style={styles.venueCount}>{venueCount} venues</Text>
+      </View>
+    </View>
+  );
+
+  return (
+    <Link href={`/venues?city=${city.id}`} asChild>
+      <TouchableOpacity activeOpacity={0.8}>
+        {cardContent}
+      </TouchableOpacity>
+    </Link>
+  );
+};
+
+// Static card component for other features
+const FeatureCard = ({ size, title, color, href = null }) => {
+  const getCardStyle = () => {
+    switch (size) {
+      case 'small':
+        return {
+          width: CARD_SIZE,
+          height: CARD_SIZE,
+          backgroundColor: color,
+        };
+      case 'rectangle':
+        return {
+          width: CARD_SIZE * 2 + CARD_GAP,
+          height: CARD_SIZE,
+          backgroundColor: color,
+        };
+      case 'big':
+        return {
+          width: CARD_SIZE * 2 + CARD_GAP,
+          height: CARD_SIZE * 2 + CARD_GAP,
+          backgroundColor: color,
+        };
+      default:
+        return {
+          width: CARD_SIZE,
+          height: CARD_SIZE,
+          backgroundColor: color,
+        };
+    }
+  };
+
+  const cardContent = (
+    <View style={[styles.card, getCardStyle()]}>
+      <View style={styles.cardContent}>
+        <Text style={styles.featureTitle}>{title}</Text>
+      </View>
     </View>
   );
 
@@ -90,6 +134,54 @@ const GridCard = ({ size, title, color, href = null, image = null }) => {
 };
 
 export default function DashboardPage() {
+  const { cities, getVenuesByCity, loading, error } = useCitiesAndVenues();
+
+  // Color palette for city cards [[memory:8782456]]
+  const cityColors = [
+    Colors.primary,        // Forest Green
+    Colors.accent,         // Chartreuse
+    Colors.primaryLight,   // Ocean Green
+    Colors.info,           // Illuminating Emerald
+    Colors.warning,        // Royal Orange
+    Colors.error,          // Safety Orange
+    Colors.accentLight,    // Key Lime
+    Colors.primaryDark,    // Dark Green
+  ];
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.greeting}>Good morning</Text>
+          <Text style={styles.title}>Dashboard</Text>
+          <Text style={styles.date}>{new Date().toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            month: 'long', 
+            day: 'numeric' 
+          })}</Text>
+        </View>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Loading cities...</Text>
+        </View>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.greeting}>Good morning</Text>
+          <Text style={styles.title}>Dashboard</Text>
+        </View>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Unable to load cities</Text>
+          <Text style={styles.errorSubtext}>{error}</Text>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
@@ -103,43 +195,57 @@ export default function DashboardPage() {
       </View>
 
       <View style={styles.grid}>
-        {/* Row 1: Two small cards */}
+        {/* Hero Feature Card */}
         <View style={styles.row}>
-          <GridCard 
-            size="small" 
-            title="Hero" 
+          <FeatureCard 
+            size="rectangle" 
+            title="Sports Hero" 
             color={Colors.primary} 
             href="/hero"
-            image="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop"
           />
-          <GridCard size="small" title="Card 2" color={Colors.primaryLight} />
         </View>
 
-        {/* Row 2: One rectangle card */}
+        {/* Dynamic City Cards */}
+        {cities.map((city, index) => {
+          const venueCount = getVenuesByCity(city.id).length;
+          const color = cityColors[index % cityColors.length];
+          
+          // Render cities in pairs
+          if (index % 2 === 0) {
+            const nextCity = cities[index + 1];
+            const nextVenueCount = nextCity ? getVenuesByCity(nextCity.id).length : 0;
+            const nextColor = nextCity ? cityColors[(index + 1) % cityColors.length] : null;
+            
+            return (
+              <View key={`row-${index}`} style={styles.row}>
+                <CityCard 
+                  city={city}
+                  venueCount={venueCount}
+                  color={color}
+                  size="small"
+                />
+                {nextCity && (
+                  <CityCard 
+                    city={nextCity}
+                    venueCount={nextVenueCount}
+                    color={nextColor}
+                    size="small"
+                  />
+                )}
+              </View>
+            );
+          }
+          return null;
+        })}
+
+        {/* Additional Feature Cards */}
         <View style={styles.row}>
-          <GridCard size="rectangle" title="Sports Venues" color={Colors.accent} href="/venues" />
+          <FeatureCard size="small" title="Bookings" color={Colors.accentLight} />
+          <FeatureCard size="small" title="Favorites" color={Colors.info} />
         </View>
 
-        {/* Row 3: Two small cards */}
         <View style={styles.row}>
-          <GridCard size="small" title="Card 4" color={Colors.warning} />
-          <GridCard size="small" title="Card 5" color={Colors.accentLight} />
-        </View>
-
-        {/* Row 4: One big card */}
-        <View style={styles.row}>
-          <GridCard size="big" title="Card 6" color={Colors.success} />
-        </View>
-
-        {/* Row 5: Two small cards */}
-        <View style={styles.row}>
-          <GridCard size="small" title="Card 7" color={Colors.info} />
-          <GridCard size="small" title="Card 8" color={Colors.primaryDark} />
-        </View>
-
-        {/* Row 6: One rectangle card */}
-        <View style={styles.row}>
-          <GridCard size="rectangle" title="Card 9" color={Colors.error} />
+          <FeatureCard size="big" title="Analytics" color={Colors.success} />
         </View>
       </View>
     </ScrollView>
@@ -208,22 +314,57 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 6,
     overflow: "hidden",
+    position: 'relative',
   },
-  cardImage: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+  cardContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
   },
-  cardTitle: {
+  cityName: {
     ...Typography.styles.dashboardCardTitle,
-    color: Colors.primary,
+    color: Colors.base,
+    fontWeight: '700',
+    textAlign: 'center',
     marginBottom: Layout.spacing.xs,
   },
-  cardSize: {
+  venueCount: {
     ...Typography.styles.dashboardCardSize,
-    color: Colors.primary,
-    opacity: 0.8,
+    color: Colors.base,
+    opacity: 0.9,
+    textAlign: 'center',
+  },
+  featureTitle: {
+    ...Typography.styles.dashboardCardTitle,
+    color: Colors.base,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: Layout.spacing.xl,
+  },
+  loadingText: {
+    ...Typography.styles.dashboardCardTitle,
+    color: Colors.text.secondary,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: Layout.spacing.xl,
+  },
+  errorText: {
+    ...Typography.styles.dashboardCardTitle,
+    color: Colors.error,
+    textAlign: 'center',
+    marginBottom: Layout.spacing.sm,
+  },
+  errorSubtext: {
+    ...Typography.styles.dashboardCardSize,
+    color: Colors.text.secondary,
+    textAlign: 'center',
   },
 });

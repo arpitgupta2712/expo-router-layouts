@@ -4,22 +4,21 @@ import {
   Text,
   StyleSheet,
   Dimensions,
-  PanResponder,
   TouchableOpacity,
-  Animated,
   Platform,
   ActivityIndicator,
   Alert,
   Image,
   Linking,
+  Animated,
+  PanResponder,
 } from "react-native";
-import { Link } from "expo-router";
-import Dots from "react-native-dots-pagination";
+import { Link, useLocalSearchParams } from "expo-router";
 import { Typography, Colors, Layout, AnimationSequences } from "@/constants";
 import { useCitiesAndVenues } from "@/hooks";
 import { Venue } from "@/types/AdminTypes";
 import { formatRating } from "@/utils";
-import { Globe, MapPin, Calendar } from "lucide-react-native";
+import { VenueCard, VenueIndicators, CityHeader } from "./components";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -47,45 +46,78 @@ const venueColors = [
 ];
 
 export default function VenuesScreen() {
-  const [currentCityIndex, setCurrentCityIndex] = useState(0);
+  // Get city parameter from route
+  const { city: cityParam } = useLocalSearchParams();
+  const targetCityId = cityParam as string;
+
   const [venueIndex, setVenueIndex] = useState(0);
-  const [isShowingVenue, setIsShowingVenue] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   
-  // Simple animation value for smooth transitions
-  const cardTranslateY = useRef(new Animated.Value(0)).current;
+  // Basic Animated values (stable and reliable)
+  const translateY = useRef(new Animated.Value(0)).current;
+  const scale = useRef(new Animated.Value(1)).current;
+  const opacity = useRef(new Animated.Value(1)).current;
 
   // Fetch data from API - single hook call for efficiency
   const { cities, venues, loading, error, getVenuesByCity } = useCitiesAndVenues();
 
-  // Transform API data to match the expected format
-  const transformedCities = cities.map((city, index) => {
-    const cityVenues = getVenuesByCity(city.id);
-    return {
-      id: city.id,
-      title: city.name,
-      description: `${cityVenues.length} venues available`,
-      color: cityColors[index % cityColors.length],
-      venues: cityVenues.map((venue, venueIndex) => ({
-        id: venue.id,
-        title: venue.name || 'Unnamed Venue',
-        color: venueColors[venueIndex % venueColors.length],
-        address: venue.address || 'Address not available',
-        sports: venue.sports || [],
-        facilities_count: venue.facilities_count || 0,
-        image_url: venue.image_url,
-        rating: venue.rating,
-        rating_count: venue.rating_count,
-        closest_metro: venue.closest_metro,
-        offer_text: venue.offer_text,
-        web_url: venue.web_url,
-        coordinates: venue.coordinates,
-      })),
-    };
-  });
+  // Get target city and its venues
+  const targetCity = cities.find(city => city.id.toString() === targetCityId) || cities[0];
+  const cityVenues = targetCity ? getVenuesByCity(targetCity.id) : [];
 
-  const currentCity = transformedCities[currentCityIndex];
-  const currentVenue = currentCity?.venues[venueIndex];
+  // Transform venue data
+  const transformedVenues = cityVenues.map((venue, index) => ({
+    id: venue.id,
+    title: venue.name || 'Unnamed Venue',
+    color: venueColors[index % venueColors.length],
+    address: venue.address || 'Address not available',
+    sports: venue.sports || [],
+    facilities_count: venue.facilities_count || 0,
+    image_url: venue.image_url,
+    rating: venue.rating,
+    rating_count: venue.rating_count,
+    closest_metro: venue.closest_metro,
+    offer_text: venue.offer_text,
+    web_url: venue.web_url,
+    coordinates: venue.coordinates,
+  }));
+
+  const currentVenue = transformedVenues[venueIndex];
+
+  // Animation functions using basic Animated API
+  const animateToNext = (direction: 'up' | 'down', callback: () => void) => {
+    const targetY = direction === 'up' ? -screenHeight : screenHeight;
+    
+    Animated.sequence([
+      Animated.timing(opacity, {
+        toValue: 0.8,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(translateY, {
+        toValue: targetY,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start((finished) => {
+      if (finished) {
+        callback();
+        translateY.setValue(0);
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 150,
+          useNativeDriver: true,
+        }).start();
+      }
+    });
+  };
+
+  const resetAnimationState = () => {
+    translateY.setValue(0);
+    scale.setValue(1);
+    opacity.setValue(1);
+    setIsAnimating(false);
+  };
 
   // Render star rating in brand colors
   const renderStars = (rating: number) => {
@@ -115,125 +147,112 @@ export default function VenuesScreen() {
     return stars;
   };
 
-  const animateCardChange = (direction: 'up' | 'down' = 'up') => {
-    if (isAnimating) return;
+  // Simplified venue navigation functions
+  const goToNextVenue = () => {
+    if (isAnimating || !transformedVenues.length || transformedVenues.length <= 1) return;
     
     setIsAnimating(true);
+    const nextVenueIdx = (venueIndex + 1) % transformedVenues.length;
     
-    const animation = direction === 'up' 
-      ? AnimationSequences.cardSlideUpTransition(cardTranslateY)
-      : AnimationSequences.cardSlideDownTransition(cardTranslateY);
-    
-    animation.start(() => {
+    animateToNext('up', () => {
+      setVenueIndex(nextVenueIdx);
       setIsAnimating(false);
     });
   };
 
-  const goToNextCity = () => {
-    if (isAnimating || !transformedCities.length) return;
-    animateCardChange('up');
-    setCurrentCityIndex((prev) => (prev + 1) % transformedCities.length);
-    setVenueIndex(0);
-    setIsShowingVenue(false);
-  };
-
-  const goToPreviousCity = () => {
-    if (isAnimating || !transformedCities.length) return;
-    animateCardChange('down');
-    setCurrentCityIndex((prev) => (prev - 1 + transformedCities.length) % transformedCities.length);
-    setVenueIndex(0);
-    setIsShowingVenue(false);
-  };
-
-  const goToNextVenue = () => {
-    if (isAnimating || !currentCity?.venues.length) return;
-    animateCardChange('up');
-    setVenueIndex((prev) => (prev + 1) % currentCity.venues.length);
-    setIsShowingVenue(true);
-  };
-
   const goToPreviousVenue = () => {
-    if (isAnimating || !currentCity?.venues.length) return;
-    animateCardChange('down');
-    setVenueIndex((prev) => (prev - 1 + currentCity.venues.length) % currentCity.venues.length);
-    setIsShowingVenue(true);
+    if (isAnimating || !transformedVenues.length || transformedVenues.length <= 1) return;
+    
+    setIsAnimating(true);
+    const prevVenueIdx = (venueIndex - 1 + transformedVenues.length) % transformedVenues.length;
+    
+    animateToNext('down', () => {
+      setVenueIndex(prevVenueIdx);
+      setIsAnimating(false);
+    });
   };
 
+  // Simplified PanResponder for venue navigation only
   const panResponder = PanResponder.create({
     onMoveShouldSetPanResponder: (_, gestureState) => {
-      return !isAnimating && (Math.abs(gestureState.dx) > 5 || Math.abs(gestureState.dy) > 5);
+      // Only respond to vertical gestures for venue navigation
+      return !isAnimating && Math.abs(gestureState.dy) > 5;
+    },
+    onPanResponderGrant: () => {
+      if (isAnimating) return;
+      Animated.spring(scale, {
+        toValue: 0.95,
+        useNativeDriver: true,
+      }).start();
+    },
+    onPanResponderMove: (_, gestureState) => {
+      if (isAnimating) return;
+      
+      // Limit gesture distance for better feel
+      const maxDistance = screenHeight * 0.3;
+      const clampedY = Math.max(-maxDistance, Math.min(maxDistance, gestureState.dy));
+      
+      translateY.setValue(clampedY);
+      
+      // Add opacity effect based on distance
+      const opacityValue = 1 - (Math.abs(clampedY) / maxDistance) * 0.3;
+      opacity.setValue(Math.max(0.7, opacityValue));
     },
     onPanResponderRelease: (_, gestureState) => {
       if (isAnimating) return;
       
-      const { dx, dy } = gestureState;
+      Animated.spring(scale, {
+        toValue: 1,
+        useNativeDriver: true,
+      }).start();
+      
+      const { dy, vy } = gestureState;
       const minSwipeDistance = 50;
-      const minSwipeVelocity = 0.3;
-
-      // Check if it's a horizontal swipe (cities)
-      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > minSwipeDistance) {
-        if (dx > 0) {
-          // Swipe right - previous city
-          goToPreviousCity();
-        } else {
-          // Swipe left - next city
-          goToNextCity();
-        }
-      }
-      // Check if it's a vertical swipe (venues)
-      else if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > minSwipeDistance) {
+      const minVelocity = 0.5;
+      
+      // Check if it's a significant vertical swipe for venues
+      const isVerticalSwipe = Math.abs(dy) > minSwipeDistance || Math.abs(vy) > minVelocity;
+      
+      if (isVerticalSwipe) {
+        // Vertical swipe - venues only
         if (dy > 0) {
-          // Swipe down - previous venue
           goToPreviousVenue();
         } else {
-          // Swipe up - next venue
           goToNextVenue();
         }
+      } else {
+        // Reset if no significant swipe
+        Animated.parallel([
+          Animated.spring(translateY, {
+            toValue: 0,
+            useNativeDriver: true,
+          }),
+          Animated.timing(opacity, {
+            toValue: 1,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+        ]).start();
       }
-      // Check for velocity-based swipes (faster swipes)
-      else if (Math.abs(gestureState.vx) > minSwipeVelocity || Math.abs(gestureState.vy) > minSwipeVelocity) {
-        if (Math.abs(gestureState.vx) > Math.abs(gestureState.vy)) {
-          // Horizontal velocity swipe
-          if (gestureState.vx > 0) {
-            goToPreviousCity();
-          } else {
-            goToNextCity();
-          }
-        } else {
-          // Vertical velocity swipe
-          if (gestureState.vy > 0) {
-            goToPreviousVenue();
-          } else {
-            goToNextVenue();
-          }
-        }
-      }
+    },
+    onPanResponderTerminate: () => {
+      resetAnimationState();
     },
   });
 
-  // Handle scroll wheel events for web
+  // Handle scroll wheel events for web (venues only)
   useEffect(() => {
     if (Platform.OS === 'web') {
       const handleWheel = (event: WheelEvent) => {
-        if (isAnimating || !transformedCities.length) return;
+        if (isAnimating || !transformedVenues.length) return;
         
         event.preventDefault();
         
-        const { deltaX, deltaY } = event;
+        const { deltaY } = event;
         const threshold = 50; // Minimum scroll distance to trigger navigation
         
-        // Horizontal scroll (cities)
-        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > threshold) {
-          if (deltaX > 0) {
-            // Scroll right - next city
-            goToNextCity();
-          } else {
-            // Scroll left - previous city
-            goToPreviousCity();
-          }
-        }
-        // Vertical scroll (venues)
-        else if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > threshold) {
+        // Vertical scroll for venues only
+        if (Math.abs(deltaY) > threshold) {
           if (deltaY > 0) {
             // Scroll down - next venue
             goToNextVenue();
@@ -252,7 +271,7 @@ export default function VenuesScreen() {
         document.removeEventListener('wheel', handleWheel);
       };
     }
-  }, [isAnimating, currentCityIndex, venueIndex, isShowingVenue, transformedCities.length]);
+  }, [isAnimating, venueIndex, transformedVenues.length]);
 
   // Show error state
   if (error) {
@@ -285,12 +304,25 @@ export default function VenuesScreen() {
   }
 
   // Show empty state
-  if (!transformedCities.length) {
+  if (!transformedVenues.length) {
     return (
       <View style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.headerSpacer} />
+        </View>
+
+        {/* Floating Back Button */}
+        <Link href="/dashboard" asChild>
+          <TouchableOpacity style={styles.backButton} activeOpacity={0.8}>
+            <Text style={styles.backButtonText}>←</Text>
+          </TouchableOpacity>
+        </Link>
+
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>No venues available</Text>
-          <Text style={styles.emptySubtext}>Check back later for new venues</Text>
+          <Text style={styles.emptySubtext}>
+            {targetCity ? `No venues found in ${targetCity.name}` : 'Check back later for new venues'}
+          </Text>
         </View>
       </View>
     );
@@ -310,128 +342,39 @@ export default function VenuesScreen() {
       </Link>
 
       <View style={styles.cardContainer} {...panResponder.panHandlers}>
+        {/* Animated Card */}
         <Animated.View 
           style={[
-            styles.fullScreenCard, 
-            { 
-              backgroundColor: isShowingVenue ? Colors.base : currentCity.color,
-              transform: [{ translateY: cardTranslateY }],
+            styles.fullScreenCard,
+            {
+              backgroundColor: Colors.base,
+              transform: [
+                { translateY: translateY },
+                { scale: scale }
+              ],
+              opacity: opacity,
             }
           ]}
         >
-          {isShowingVenue ? (
-            <View style={styles.venueCard}>
-              {/* Venue Image - 60% of top space */}
-              {currentVenue.image_url && (
-                <View style={styles.venueImageContainer}>
-                  <Image 
-                    source={{ uri: currentVenue.image_url }} 
-                    style={styles.venueImage}
-                    resizeMode="cover"
-                  />
-                  {/* Rating overlay at bottom of image */}
-                  {currentVenue.rating && (
-                    <View style={styles.ratingOverlay}>
-                      {renderStars(parseFloat(currentVenue.rating))}
-                    </View>
-                  )}
-                </View>
-              )}
-              
-              {/* Venue Details - 40% of space */}
-              <View style={styles.venueDetails}>
-                <Text style={styles.venueTitle}>{currentVenue.title}</Text>
-                
-                {/* Venue Info Container */}
-                <View style={styles.venueInfoContainer}>
-                  {/* Action Buttons */}
-                  <View style={styles.actionButtonsContainer}>
-                    {/* Web URL Button */}
-                    {currentVenue.web_url && (
-                      <TouchableOpacity 
-                        style={styles.actionButton}
-                        onPress={() => Linking.openURL(currentVenue.web_url)}
-                        activeOpacity={0.7}
-                      >
-                        <Globe size={20} color={Colors.base} />
-                      </TouchableOpacity>
-                    )}
-                    
-                    {/* Google Maps Button */}
-                    {currentVenue.coordinates && (
-                      <TouchableOpacity 
-                        style={styles.actionButton}
-                        onPress={() => {
-                          const { latitude, longitude } = currentVenue.coordinates;
-                          const url = `https://www.google.com/maps?q=${latitude},${longitude}`;
-                          Linking.openURL(url);
-                        }}
-                        activeOpacity={0.7}
-                      >
-                        <MapPin size={20} color={Colors.base} />
-                      </TouchableOpacity>
-                    )}
-                    
-                    {/* Booking Button - Temporary link to dashboard */}
-                    <TouchableOpacity 
-                      style={styles.actionButton}
-                      onPress={() => {
-                        // Temporary: Navigate to dashboard
-                        // Later: Navigate to booking page
-                        window.location.href = '/dashboard';
-                      }}
-                      activeOpacity={0.7}
-                    >
-                      <Calendar size={20} color={Colors.base} />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-            </View>
-          ) : (
-            <>
-              <Text style={styles.cityTitle}>{currentCity.title}</Text>
-              <Text style={styles.cityDescription}>{currentCity.description}</Text>
-            </>
+          {currentVenue && (
+            <VenueCard venue={currentVenue} renderStars={renderStars} />
           )}
         </Animated.View>
       </View>
 
-      {/* City indicators - bottom center */}
-      <View style={[
-        styles.cityIndicatorsContainer,
-        isShowingVenue && styles.cityIndicatorsOverlay
-      ]}>
-        <Dots
-          length={transformedCities.length}
-          active={currentCityIndex}
-          activeColor={Colors.accent}
-          passiveColor={Colors.gray[300]}
-          activeDotWidth={12}
-          activeDotHeight={12}
-          passiveDotWidth={8}
-          passiveDotHeight={8}
-          marginHorizontal={8}
+      {/* City Header */}
+      {targetCity && (
+        <CityHeader 
+          cityName={targetCity.name} 
+          venuesCount={transformedVenues.length} 
         />
-      </View>
+      )}
 
       {/* Venue indicators - middle right */}
-      <View style={styles.venueIndicatorsContainer}>
-        {currentCity?.venues.map((_, index) => (
-          <View
-            key={index}
-            style={[
-              styles.verticalDot,
-              {
-                backgroundColor: index === venueIndex ? Colors.accent : Colors.gray[300],
-                width: index === venueIndex ? 10 : 6,
-                height: index === venueIndex ? 10 : 6,
-                borderRadius: index === venueIndex ? 5 : 3,
-              },
-            ]}
-          />
-        ))}
-      </View>
+      <VenueIndicators 
+        venuesCount={transformedVenues.length}
+        currentIndex={venueIndex}
+      />
     </View>
   );
 }
@@ -439,7 +382,7 @@ export default function VenuesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.forestGreen,
   },
   header: {
     position: "absolute",
@@ -464,9 +407,11 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: screenWidth,
     height: screenHeight, // Full screen height
-    borderRadius: 0,
+    borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: Colors.primary,
   },
   cityTitle: {
     ...Typography.styles.venuesCityTitle,
@@ -481,54 +426,6 @@ const styles = StyleSheet.create({
     marginBottom: 60,
     opacity: 0.9,
   },
-  venueTitle: {
-    ...Typography.styles.venuesVenueTitle,
-    color: Colors.primary,
-    textAlign: "center",
-  },
-  // Venue Card Styles
-  venueCard: {
-    flex: 1,
-    width: '100%',
-  },
-  venueImageContainer: {
-    height: '60%',
-    position: 'relative',
-  },
-  venueImage: {
-    width: '100%',
-    height: '100%',
-  },
-  ratingOverlay: {
-    position: 'absolute',
-    bottom: Layout.spacing.xs,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: Layout.spacing.sm,
-    paddingHorizontal: Layout.spacing.md,
-    borderRadius: Layout.borderRadius.md,
-    marginHorizontal: Layout.spacing.md,
-  },
-  venueDetails: {
-    height: '40%',
-    padding: Layout.spacing.lg,
-    paddingBottom: 120, // Add bottom padding to avoid overlap with indicators
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  venueInfoContainer: {
-    alignItems: 'center',
-    gap: Layout.spacing.sm,
-    marginTop: Layout.spacing.md,
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   star: {
     fontSize: 16,
     color: Colors.accent,
@@ -538,63 +435,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.accentLight,
     marginHorizontal: 1,
-  },
-  actionButtonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: Layout.spacing.lg,
-  },
-  actionButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 10,
-    backgroundColor: Colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: Colors.black,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  cityIndicatorsContainer: {
-    position: "absolute",
-    bottom: 50,
-    left: 0,
-    right: 0,
-    alignItems: "center",
-    paddingVertical: 20,
-    backgroundColor: "transparent",
-  },
-  cityIndicatorsOverlay: {
-    backgroundColor: "transparent",
-    borderRadius: Layout.borderRadius.lg,
-    marginHorizontal: Layout.spacing.lg,
-    paddingVertical: Layout.spacing.sm,
-  },
-  venueIndicatorsContainer: {
-    position: "absolute",
-    right: 20,
-    top: "30%",
-    transform: [{ translateY: -50 }],
-    backgroundColor: "transparent",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  verticalDot: {
-    marginVertical: 4,
-    shadowColor: Colors.black,
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
   },
   backButton: {
     position: "absolute",
