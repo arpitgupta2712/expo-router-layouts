@@ -324,7 +324,6 @@ const styles = StyleSheet.create({
   cityName: {
     ...Typography.styles.dashboardCardTitle,
     color: Colors.base,
-    fontWeight: '700',
     textAlign: 'left',
     textTransform: 'uppercase',
   },
@@ -338,7 +337,6 @@ const styles = StyleSheet.create({
   featureTitle: {
     ...Typography.styles.dashboardCardTitle,
     color: Colors.base,
-    fontWeight: '600',
     textAlign: 'left',
     textTransform: 'uppercase',
   },

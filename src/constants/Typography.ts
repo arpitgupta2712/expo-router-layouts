@@ -187,14 +187,12 @@ export const Typography = {
     captionBold: {
       fontFamily: 'ArchivoExtraCondensed-BoldItalic',
       fontSize: getResponsiveFontSize(12, 0.8),
-      fontWeight: '700',
       lineHeight: getResponsiveLineHeight(getResponsiveFontSize(12, 0.8), 1.5),
       letterSpacing: 0.5,
     },
     overline: {
       fontFamily: 'ArchivoExtraCondensed-BoldItalic',
       fontSize: getResponsiveFontSize(10, 0.8),
-      fontWeight: '700',
       lineHeight: getResponsiveLineHeight(getResponsiveFontSize(10, 0.8), 1.5),
       letterSpacing: 1.5,
       textTransform: 'uppercase',
@@ -222,7 +220,6 @@ export const Typography = {
     heroBrandName: {
       fontFamily: 'ArchivoExtraCondensed-ExtraBoldItalic',
       fontSize: getResponsiveFontSize(48, 0.7), // Scale from 70% to 100% based on screen size
-      fontWeight: '800',
       lineHeight: getResponsiveLineHeight(getResponsiveFontSize(48, 0.7), 1.2),
       letterSpacing: -1,
     },
@@ -274,7 +271,6 @@ export const Typography = {
     dashboardCardTitle: {
       fontFamily: 'ArchivoExtraCondensed-BoldItalic',
       fontSize: getResponsiveFontSize(20, 0.8),
-      fontWeight: '700',
       lineHeight: getResponsiveLineHeight(getResponsiveFontSize(20, 0.8), 1.4),
       letterSpacing: 0.5,
     },
@@ -311,7 +307,6 @@ export const Typography = {
     venuesBackButton: {
       fontFamily: 'ArchivoExtraCondensed-BoldItalic',
       fontSize: getResponsiveFontSize(20, 0.8),
-      fontWeight: '700',
       lineHeight: getResponsiveLineHeight(getResponsiveFontSize(20, 0.8), 1.4),
       letterSpacing: 0,
     },

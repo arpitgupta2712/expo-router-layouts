@@ -50,8 +50,9 @@ export default function Layout() {
     console.log('🎨 Fonts loaded:', fontsLoaded);
     if (fontsLoaded) {
       console.log('✅ All fonts successfully loaded!');
-      console.log('📝 Available fonts: Archivo Extra Condensed (custom, including italics), Poppins, PT Sans');
-      console.log('🎯 Font hierarchy: Poppins (titles), PT Sans (body), Archivo Extra Condensed Italics (captions)');
+      console.log('📝 Available fonts: Archivo Extra Condensed (custom, non-italic variants), Poppins, PT Sans');
+      console.log('🎯 Font hierarchy: Poppins (titles), PT Sans (body), Archivo Extra Condensed (captions)');
+      console.log('🔧 Android compatibility: Using non-italic Archivo variants with fallbacks');
     } else {
       console.log('⏳ Loading fonts...');
     }
