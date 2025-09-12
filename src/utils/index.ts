@@ -16,7 +16,6 @@ export * from './core/dates';
 export * from './app/data';
 export * from './app/sports';
 export * from './app/images';
-export * from './app/colors';
 
 // UI utilities
 export * from './ui/cards';

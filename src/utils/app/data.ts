@@ -176,11 +176,10 @@ export const cleanVenueTitle = (title: string): string => {
 /**
  * Transform venue data for UI consumption
  */
-export const transformVenueData = (venue: Venue, index: number, colors: string[]) => {
+export const transformVenueData = (venue: Venue) => {
   return {
     id: venue.id,
     title: cleanVenueTitle(venue.name || 'Unnamed Venue'),
-    color: colors[index % colors.length],
     address: venue.address || 'Address not available',
     sports: venue.sports || [],
     facilities_count: venue.facilities_count || 0,

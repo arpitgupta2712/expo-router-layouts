@@ -21,7 +21,6 @@ import {
   getCardSize, 
   getCardStyle,
   DASHBOARD_CONFIG,
-  getBorderColor,
   filterCitiesWithVenues
 } from "@/utils";
 
@@ -169,13 +168,13 @@ export default function DashboardPage() {
         {/* Dynamic City Cards */}
         {cities.map((city, index) => {
           const venueCount = getVenuesByCity(city.id).length;
-          const borderColor = getBorderColor(index);
+          const borderColor = Colors.primary;
           
           // Render cities in pairs
           if (index % 2 === 0) {
             const nextCity = cities[index + 1];
             const nextVenueCount = nextCity ? getVenuesByCity(nextCity.id).length : 0;
-            const nextBorderColor = nextCity ? getBorderColor(index + 1) : null;
+            const nextBorderColor = Colors.primary;
             
             return (
               <View key={`row-${index}`} style={styles.row}>
@@ -291,9 +290,9 @@ const styles = StyleSheet.create({
   },
   cardFooter: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+    bottom: -1,
+    left: -1,
+    right: -1,
     backgroundColor: Colors.primary,
     paddingLeft: Layout.spacing.md,
     paddingRight: Layout.spacing.md,

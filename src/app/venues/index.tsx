@@ -13,11 +13,9 @@ import { Typography, Colors, Layout } from "@/constants";
 import { useCitiesAndVenues } from "@/hooks";
 import { VenueCard, VenueIndicators, VenueHeader, VenueFooter } from "./components";
 import { 
-  venueColors, 
   renderStars, 
   createNavigationHelpers,
-  transformVenueData,
-  formatDisplayDate
+  transformVenueData
 } from "@/utils";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
@@ -39,8 +37,8 @@ export default function VenuesScreen() {
   const cityVenues = targetCity ? getVenuesByCity(targetCity.id) : [];
 
   // Transform venue data using extracted utility
-  const transformedVenues = cityVenues.map((venue, index) => 
-    transformVenueData(venue, index, venueColors)
+  const transformedVenues = cityVenues.map(venue => 
+    transformVenueData(venue)
   );
 
   const currentVenue = transformedVenues[venueIndex];
