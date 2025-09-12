@@ -280,14 +280,14 @@ export const Typography = {
     },
     venuesVenueTitle: {
       fontFamily: 'Poppins_700Bold',
-      fontSize: 36,
+      fontSize: 28,
       fontWeight: '700',
-      lineHeight: 43.2, // 36 * 1.2
+      lineHeight: 33.6, // 36 * 1.2
       letterSpacing: -0.5,
     },
     venuesBackButton: {
       fontFamily: 'ArchivoExtraCondensed-BoldItalic',
-      fontSize: 24,
+      fontSize: 20,
       fontWeight: '700',
       lineHeight: 33.6, // 24 * 1.4
       letterSpacing: 0,

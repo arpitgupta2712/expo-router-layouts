@@ -10,6 +10,8 @@ import {
   Platform,
   ActivityIndicator,
   Alert,
+  Image,
+  Linking,
 } from "react-native";
 import { Link } from "expo-router";
 import Dots from "react-native-dots-pagination";
@@ -18,6 +20,8 @@ import { Colors } from "@/constants/Colors";
 import { Layout } from "@/constants/Layout";
 import { useCities, useVenues } from "@/hooks";
 import { Venue } from "@/types/AdminTypes";
+import { formatRating } from "@/utils";
+import { Globe, MapPin, Calendar } from "lucide-react-native";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -75,12 +79,47 @@ export default function VenuesScreen() {
         address: venue.address || 'Address not available',
         sports: venue.sports || [],
         facilities_count: venue.facilities_count || 0,
+        image_url: venue.image_url,
+        rating: venue.rating,
+        rating_count: venue.rating_count,
+        closest_metro: venue.closest_metro,
+        offer_text: venue.offer_text,
+        web_url: venue.web_url,
+        coordinates: venue.coordinates,
       })),
     };
   });
 
   const currentCity = transformedCities[currentCityIndex];
   const currentVenue = currentCity?.venues[venueIndex];
+
+  // Render star rating in brand colors
+  const renderStars = (rating: number) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(
+        <Text key={i} style={styles.star}>★</Text>
+      );
+    }
+    
+    if (hasHalfStar) {
+      stars.push(
+        <Text key="half" style={styles.star}>☆</Text>
+      );
+    }
+    
+    const emptyStars = 5 - Math.ceil(rating);
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(
+        <Text key={`empty-${i}`} style={styles.emptyStar}>☆</Text>
+      );
+    }
+    
+    return stars;
+  };
 
   const animateCardChange = () => {
     if (isAnimating) return;
@@ -288,13 +327,80 @@ export default function VenuesScreen() {
           style={[
             styles.fullScreenCard, 
             { 
-              backgroundColor: isShowingVenue ? currentVenue.color : currentCity.color,
+              backgroundColor: isShowingVenue ? Colors.base : currentCity.color,
               opacity: cardOpacity,
             }
           ]}
         >
           {isShowingVenue ? (
-            <Text style={styles.venueTitle}>{currentVenue.title}</Text>
+            <View style={styles.venueCard}>
+              {/* Venue Image - 60% of top space */}
+              {currentVenue.image_url && (
+                <View style={styles.venueImageContainer}>
+                  <Image 
+                    source={{ uri: currentVenue.image_url }} 
+                    style={styles.venueImage}
+                    resizeMode="cover"
+                  />
+                  {/* Rating overlay at bottom of image */}
+                  {currentVenue.rating && (
+                    <View style={styles.ratingOverlay}>
+                      {renderStars(parseFloat(currentVenue.rating))}
+                    </View>
+                  )}
+                </View>
+              )}
+              
+              {/* Venue Details - 40% of space */}
+              <View style={styles.venueDetails}>
+                <Text style={styles.venueTitle}>{currentVenue.title}</Text>
+                
+                {/* Venue Info Container */}
+                <View style={styles.venueInfoContainer}>
+                  {/* Action Buttons */}
+                  <View style={styles.actionButtonsContainer}>
+                    {/* Web URL Button */}
+                    {currentVenue.web_url && (
+                      <TouchableOpacity 
+                        style={styles.actionButton}
+                        onPress={() => Linking.openURL(currentVenue.web_url)}
+                        activeOpacity={0.7}
+                      >
+                        <Globe size={20} color={Colors.base} />
+                      </TouchableOpacity>
+                    )}
+                    
+                    {/* Google Maps Button */}
+                    {currentVenue.coordinates && (
+                      <TouchableOpacity 
+                        style={styles.actionButton}
+                        onPress={() => {
+                          const { latitude, longitude } = currentVenue.coordinates;
+                          const url = `https://www.google.com/maps?q=${latitude},${longitude}`;
+                          Linking.openURL(url);
+                        }}
+                        activeOpacity={0.7}
+                      >
+                        <MapPin size={20} color={Colors.base} />
+                      </TouchableOpacity>
+                    )}
+                    
+                    {/* Booking Button - Temporary link to dashboard */}
+                    <TouchableOpacity 
+                      style={styles.actionButton}
+                      onPress={() => {
+                        // Temporary: Navigate to dashboard
+                        // Later: Navigate to booking page
+                        window.location.href = '/dashboard';
+                      }}
+                      activeOpacity={0.7}
+                    >
+                      <Calendar size={20} color={Colors.base} />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </View>
           ) : (
             <>
               <Text style={styles.cityTitle}>{currentCity.title}</Text>
@@ -305,7 +411,10 @@ export default function VenuesScreen() {
       </View>
 
       {/* City indicators - bottom center */}
-      <View style={styles.cityIndicatorsContainer}>
+      <View style={[
+        styles.cityIndicatorsContainer,
+        isShowingVenue && styles.cityIndicatorsOverlay
+      ]}>
         <Dots
           length={transformedCities.length}
           active={currentCityIndex}
@@ -387,8 +496,82 @@ const styles = StyleSheet.create({
   },
   venueTitle: {
     ...Typography.styles.venuesVenueTitle,
-    color: Colors.base,
+    color: Colors.primary,
     textAlign: "center",
+  },
+  // Venue Card Styles
+  venueCard: {
+    flex: 1,
+    width: '100%',
+  },
+  venueImageContainer: {
+    height: '60%',
+    position: 'relative',
+  },
+  venueImage: {
+    width: '100%',
+    height: '100%',
+  },
+  ratingOverlay: {
+    position: 'absolute',
+    bottom: Layout.spacing.xs,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Layout.spacing.sm,
+    paddingHorizontal: Layout.spacing.md,
+    borderRadius: Layout.borderRadius.md,
+    marginHorizontal: Layout.spacing.md,
+  },
+  venueDetails: {
+    height: '40%',
+    padding: Layout.spacing.lg,
+    paddingBottom: 120, // Add bottom padding to avoid overlap with indicators
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  venueInfoContainer: {
+    alignItems: 'center',
+    gap: Layout.spacing.sm,
+    marginTop: Layout.spacing.md,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  star: {
+    fontSize: 16,
+    color: Colors.accent,
+    marginHorizontal: 1,
+  },
+  emptyStar: {
+    fontSize: 16,
+    color: Colors.accentLight,
+    marginHorizontal: 1,
+  },
+  actionButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: Layout.spacing.lg,
+  },
+  actionButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 10,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: Colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   cityIndicatorsContainer: {
     position: "absolute",
@@ -399,10 +582,16 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     backgroundColor: "transparent",
   },
+  cityIndicatorsOverlay: {
+    backgroundColor: "transparent",
+    borderRadius: Layout.borderRadius.lg,
+    marginHorizontal: Layout.spacing.lg,
+    paddingVertical: Layout.spacing.sm,
+  },
   venueIndicatorsContainer: {
     position: "absolute",
     right: 20,
-    top: "50%",
+    top: "30%",
     transform: [{ translateY: -50 }],
     backgroundColor: "transparent",
     flexDirection: "column",
