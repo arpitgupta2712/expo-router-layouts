@@ -1,10 +1,10 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions, StatusBar, ActivityIndicator } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions, StatusBar, ActivityIndicator, Animated } from "react-native";
 import { useRouter } from "expo-router";
-import { LogIn } from "lucide-react-native";
+import { MapPin } from "lucide-react-native";
 import { Typography } from "@/constants/Typography";
 import { Colors } from "@/constants/Colors";
 import { useAdminData } from "@/hooks";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const { width, height } = Dimensions.get("window");
 
@@ -12,6 +12,56 @@ export default function HeroPage() {
   const router = useRouter();
   const { refetch, loading } = useAdminData();
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Animation values for smooth transitions
+  const iconOpacity = useRef(new Animated.Value(1)).current;
+  const loadingOpacity = useRef(new Animated.Value(0)).current;
+  const scaleAnimation = useRef(new Animated.Value(1)).current;
+
+  // Animation effect for loading state changes
+  useEffect(() => {
+    if (isLoading) {
+      // Fade out icon and fade in loading spinner with scale effect
+      Animated.parallel([
+        Animated.timing(iconOpacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(loadingOpacity, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.sequence([
+          Animated.timing(scaleAnimation, {
+            toValue: 0.8,
+            duration: 100,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scaleAnimation, {
+            toValue: 1,
+            duration: 100,
+            useNativeDriver: true,
+          }),
+        ]),
+      ]).start();
+    } else {
+      // Fade out loading and fade in icon
+      Animated.parallel([
+        Animated.timing(loadingOpacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(iconOpacity, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [isLoading]);
 
   const handleGetStarted = async () => {
     try {
@@ -72,14 +122,13 @@ export default function HeroPage() {
               onPress={handleGetStarted}
               disabled={isLoading}
             >
-              {isLoading ? (
-                <View style={styles.loadingContainer}>
-                  <ActivityIndicator size="small" color={Colors.black} />
-                  <Text style={[styles.getStartedText, styles.loadingText]}>Loading...</Text>
-                </View>
-              ) : (
-                <LogIn size={36} color={Colors.base} strokeWidth={2} />
-              )}
+              <Animated.View style={[styles.iconContainer, { opacity: iconOpacity, transform: [{ scale: scaleAnimation }] }]}>
+                <MapPin size={48} color={Colors.accent} strokeWidth={2} />
+              </Animated.View>
+              
+              <Animated.View style={[styles.loadingContainer, { opacity: loadingOpacity }]}>
+                <ActivityIndicator size="large" color={Colors.accent} />
+              </Animated.View>
             </TouchableOpacity>
           </View>
         </View>
@@ -150,10 +199,10 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   logo: {
-    width: width * 0.5,
-    height: width * 0.5,
-    maxWidth: 220,
-    maxHeight: 220,
+    width: width * 0.4,
+    height: width * 0.4,
+    maxWidth: 180,
+    maxHeight: 180,
   },
   ctaSection: {
     alignItems: "center",
@@ -168,13 +217,8 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     marginBottom: 20,
-    backgroundColor: Colors.primary,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: Colors.base,
     alignItems: "center",
     justifyContent: "center",
-    opacity: 0.8,
   },
   getStartedText: {
     ...Typography.styles.heroButtonText,
@@ -183,13 +227,15 @@ const styles = StyleSheet.create({
   getStartedButtonLoading: {
     opacity: 0.8,
   },
-  loadingContainer: {
-    flexDirection: 'row',
+  iconContainer: {
+    position: 'absolute',
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'center',
   },
-  loadingText: {
-    marginLeft: 0,
+  loadingContainer: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   subText: {
     ...Typography.styles.caption,
