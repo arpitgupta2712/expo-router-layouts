@@ -31,7 +31,6 @@ const styles = StyleSheet.create({
   cityHeaderTitle: {
     ...Typography.styles.venuesCityTitle,
     color: Colors.accent,
-    fontSize: 24,
     fontWeight: '700',
     textAlign: 'center',
   },
@@ -39,7 +38,6 @@ const styles = StyleSheet.create({
     ...Typography.styles.venuesCityDescription,
     color: Colors.accent,
     textAlign: 'center',
-    fontSize: 14,
   },
 });
 

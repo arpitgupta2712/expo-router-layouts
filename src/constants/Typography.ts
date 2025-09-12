@@ -1,3 +1,26 @@
+import { Dimensions } from "react-native";
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+
+// Responsive font scaling based on screen width
+const getResponsiveFontSize = (baseSize: number, scaleFactor: number = 0.8) => {
+  // Use screen width to determine scaling
+  // iPhone SE (375px) gets smaller fonts, iPhone 16 Pro Max (430px) gets larger fonts
+  const minWidth = 320; // iPhone SE width
+  const maxWidth = 430; // iPhone 16 Pro Max width
+  const normalizedWidth = Math.max(minWidth, Math.min(SCREEN_WIDTH, maxWidth));
+  
+  // Scale factor: 0.8 for smallest screens, 1.0 for largest screens
+  const scale = scaleFactor + (1 - scaleFactor) * ((normalizedWidth - minWidth) / (maxWidth - minWidth));
+  
+  return Math.round(baseSize * scale);
+};
+
+// Responsive line height scaling
+const getResponsiveLineHeight = (fontSize: number, lineHeightRatio: number = 1.2) => {
+  return Math.round(fontSize * lineHeightRatio);
+};
+
 export const Typography = {
   // Font Families
   fontFamily: {
@@ -80,99 +103,99 @@ export const Typography = {
     // Headings - Poppins for titles and subtitles
     h1: {
       fontFamily: 'Poppins_700Bold',
-      fontSize: 36,
+      fontSize: getResponsiveFontSize(36, 0.8),
       fontWeight: '700',
-      lineHeight: 43.2, // 36 * 1.2
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(36, 0.8), 1.2),
       letterSpacing: -0.5,
     },
     h2: {
       fontFamily: 'Poppins_600SemiBold',
-      fontSize: 28,
+      fontSize: getResponsiveFontSize(28, 0.8),
       fontWeight: '600',
-      lineHeight: 39.2, // 28 * 1.4
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(28, 0.8), 1.4),
       letterSpacing: -0.5,
     },
     h3: {
       fontFamily: 'Poppins_500Medium',
-      fontSize: 24,
+      fontSize: getResponsiveFontSize(24, 0.8),
       fontWeight: '500',
-      lineHeight: 33.6, // 24 * 1.4
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(24, 0.8), 1.4),
       letterSpacing: 0,
     },
     h4: {
       fontFamily: 'Poppins_400Regular',
-      fontSize: 20,
+      fontSize: getResponsiveFontSize(20, 0.8),
       fontWeight: '400',
-      lineHeight: 28, // 20 * 1.4
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(20, 0.8), 1.4),
       letterSpacing: 0,
     },
     
     // Body Text - PT Sans for body text
     bodyLarge: {
       fontFamily: 'PTSans_400Regular',
-      fontSize: 18,
+      fontSize: getResponsiveFontSize(18, 0.8),
       fontWeight: '400',
-      lineHeight: 28.8, // 18 * 1.6
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(18, 0.8), 1.6),
       letterSpacing: 0,
     },
     bodyMedium: {
       fontFamily: 'PTSans_400Regular',
-      fontSize: 16,
+      fontSize: getResponsiveFontSize(16, 0.8),
       fontWeight: '400',
-      lineHeight: 25.6, // 16 * 1.6
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(16, 0.8), 1.6),
       letterSpacing: 0,
     },
     bodySmall: {
       fontFamily: 'PTSans_400Regular',
-      fontSize: 14,
+      fontSize: getResponsiveFontSize(14, 0.8),
       fontWeight: '400',
-      lineHeight: 22.4, // 14 * 1.6
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(14, 0.8), 1.6),
       letterSpacing: 0,
     },
 
     // UI Elements - Poppins for buttons
     button: {
       fontFamily: 'Poppins_600SemiBold',
-      fontSize: 16,
+      fontSize: getResponsiveFontSize(16, 0.8),
       fontWeight: '600',
-      lineHeight: 24, // 16 * 1.5
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(16, 0.8), 1.5),
       letterSpacing: 0.5,
     },
     buttonLarge: {
       fontFamily: 'Poppins_600SemiBold',
-      fontSize: 18,
+      fontSize: getResponsiveFontSize(18, 0.8),
       fontWeight: '600',
-      lineHeight: 27, // 18 * 1.5
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(18, 0.8), 1.5),
       letterSpacing: 0.5,
     },
     buttonSmall: {
       fontFamily: 'Poppins_500Medium',
-      fontSize: 14,
+      fontSize: getResponsiveFontSize(14, 0.8),
       fontWeight: '500',
-      lineHeight: 21, // 14 * 1.5
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(14, 0.8), 1.5),
       letterSpacing: 0.5,
     },
 
     // Captions and Secondary Text - Archivo Extra Condensed (Italics)
     caption: {
       fontFamily: 'ArchivoExtraCondensed-Italic',
-      fontSize: 12,
+      fontSize: getResponsiveFontSize(12, 0.8),
       fontWeight: '400',
-      lineHeight: 18, // 12 * 1.5
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(12, 0.8), 1.5),
       letterSpacing: 0.5,
     },
     captionBold: {
       fontFamily: 'ArchivoExtraCondensed-BoldItalic',
-      fontSize: 12,
+      fontSize: getResponsiveFontSize(12, 0.8),
       fontWeight: '700',
-      lineHeight: 18, // 12 * 1.5
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(12, 0.8), 1.5),
       letterSpacing: 0.5,
     },
     overline: {
       fontFamily: 'ArchivoExtraCondensed-BoldItalic',
-      fontSize: 10,
+      fontSize: getResponsiveFontSize(10, 0.8),
       fontWeight: '700',
-      lineHeight: 15, // 10 * 1.5
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(10, 0.8), 1.5),
       letterSpacing: 1.5,
       textTransform: 'uppercase',
     },
@@ -180,16 +203,16 @@ export const Typography = {
     // Brand/Logo Text - Archivo Extra Condensed for brand identity (Italics)
     brandName: {
       fontFamily: 'ArchivoExtraCondensed-LightItalic',
-      fontSize: 28,
+      fontSize: getResponsiveFontSize(28, 0.8),
       fontWeight: '300',
-      lineHeight: 39.2, // 28 * 1.4
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(28, 0.8), 1.4),
       letterSpacing: 6,
     },
     tagline: {
       fontFamily: 'ArchivoExtraCondensed-Italic',
-      fontSize: 14,
+      fontSize: getResponsiveFontSize(14, 0.8),
       fontWeight: '400',
-      lineHeight: 21, // 14 * 1.5
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(14, 0.8), 1.5),
       letterSpacing: 1.5,
       textTransform: 'uppercase',
     },
@@ -198,98 +221,98 @@ export const Typography = {
     // Hero page - Archivo Extra Condensed for brand (Italics), PT Sans for body
     heroBrandName: {
       fontFamily: 'ArchivoExtraCondensed-ExtraBoldItalic',
-      fontSize: 48,
+      fontSize: getResponsiveFontSize(48, 0.7), // Scale from 70% to 100% based on screen size
       fontWeight: '800',
-      lineHeight: 57.6, // 48 * 1.2
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(48, 0.7), 1.2),
       letterSpacing: -1,
     },
     heroTagline: {
       fontFamily: 'Poppins_400Regular',
-      fontSize: 14,
+      fontSize: getResponsiveFontSize(14, 0.8),
       fontWeight: '400',
-      lineHeight: 21, // 14 * 1.5
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(14, 0.8), 1.5),
       letterSpacing: 0,
       textTransform: 'uppercase',
     },
     heroCtaText: {
       fontFamily: 'PTSans_400Regular',
-      fontSize: 18,
+      fontSize: getResponsiveFontSize(18, 0.8),
       fontWeight: '400',
-      lineHeight: 28.8, // 18 * 1.6
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(18, 0.8), 1.6),
       letterSpacing: 0,
     },
     heroButtonText: {
       fontFamily: 'Poppins_600SemiBold',
-      fontSize: 18,
+      fontSize: getResponsiveFontSize(18, 0.8),
       fontWeight: '600',
-      lineHeight: 27, // 18 * 1.5
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(18, 0.8), 1.5),
       letterSpacing: 0.5,
     },
 
     // Dashboard page - Poppins for titles, PT Sans for body, Archivo for captions
     dashboardGreeting: {
       fontFamily: 'PTSans_400Regular',
-      fontSize: 14,
+      fontSize: getResponsiveFontSize(14, 0.8),
       fontWeight: '400',
-      lineHeight: 22.4, // 14 * 1.6
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(14, 0.8), 1.6),
       letterSpacing: 0,
     },
     dashboardTitle: {
       fontFamily: 'Poppins_700Bold',
-      fontSize: 28,
+      fontSize: getResponsiveFontSize(28, 0.8),
       fontWeight: '700',
-      lineHeight: 39.2, // 28 * 1.4
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(28, 0.8), 1.4),
       letterSpacing: -0.5,
     },
     dashboardDate: {
       fontFamily: 'PTSans_400Regular',
-      fontSize: 14,
+      fontSize: getResponsiveFontSize(14, 0.8),
       fontWeight: '400',
-      lineHeight: 22.4, // 14 * 1.6
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(14, 0.8), 1.6),
       letterSpacing: 0,
     },
     dashboardCardTitle: {
       fontFamily: 'ArchivoExtraCondensed-BoldItalic',
-      fontSize: 20,
+      fontSize: getResponsiveFontSize(20, 0.8),
       fontWeight: '700',
-      lineHeight: 28, // 20 * 1.4
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(20, 0.8), 1.4),
       letterSpacing: 0.5,
     },
     dashboardCardSize: {
       fontFamily: 'Poppins_400Regular',
-      fontSize: 12,
+      fontSize: getResponsiveFontSize(12, 0.8),
       fontWeight: '500',
-      lineHeight: 18, // 12 * 1.5
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(12, 0.8), 1.5),
       letterSpacing: 0,
     },
 
     // Venues page - Poppins for titles, PT Sans for descriptions
     venuesCityTitle: {
       fontFamily: 'Poppins_700Bold',
-      fontSize: 36,
+      fontSize: getResponsiveFontSize(36, 0.8),
       fontWeight: '700',
-      lineHeight: 43.2, // 36 * 1.2
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(36, 0.8), 1.2),
       letterSpacing: -0.5,
     },
     venuesCityDescription: {
       fontFamily: 'PTSans_400Regular',
-      fontSize: 20,
+      fontSize: getResponsiveFontSize(20, 0.8),
       fontWeight: '400',
-      lineHeight: 28, // 20 * 1.4
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(20, 0.8), 1.4),
       letterSpacing: 0,
     },
     venuesVenueTitle: {
       fontFamily: 'Poppins_700Bold',
-      fontSize: 28,
+      fontSize: getResponsiveFontSize(28, 0.8),
       fontWeight: '700',
-      lineHeight: 33.6, // 36 * 1.2
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(28, 0.8), 1.2),
       letterSpacing: -0.5,
     },
     venuesBackButton: {
       fontFamily: 'ArchivoExtraCondensed-BoldItalic',
-      fontSize: 20,
+      fontSize: getResponsiveFontSize(20, 0.8),
       fontWeight: '700',
-      lineHeight: 33.6, // 24 * 1.4
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(20, 0.8), 1.4),
       letterSpacing: 0,
     },
   },

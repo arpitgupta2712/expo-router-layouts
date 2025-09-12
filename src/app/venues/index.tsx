@@ -427,12 +427,12 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   star: {
-    fontSize: 16,
+    fontSize: Typography.styles.bodyMedium.fontSize,
     color: Colors.accent,
     marginHorizontal: 1,
   },
   emptyStar: {
-    fontSize: 16,
+    fontSize: Typography.styles.bodyMedium.fontSize,
     color: Colors.accentLight,
     marginHorizontal: 1,
   },

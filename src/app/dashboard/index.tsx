@@ -414,7 +414,6 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     opacity: 0.9,
     textAlign: 'left',
-    fontSize: 12,
     textTransform: 'uppercase',
   },
   featureTitle: {
