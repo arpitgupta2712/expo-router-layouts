@@ -1,31 +1,56 @@
 import React from 'react';
-import { Text, StyleSheet } from 'react-native';
+import { Image, StyleSheet, Text } from 'react-native';
 import { Colors } from '@/constants';
 
-// Sports abbreviation mapping
+// Sport image mapping
 export const getSportIcon = (sportName: string) => {
   const normalizedSport = sportName.toLowerCase().trim();
   
   switch (normalizedSport) {
     case 'badminton':
-      return React.createElement(Text, { style: styles.sportIcon }, 'BD');
+      return React.createElement(Image, {
+        source: require('../../../assets/sports/badminton_2.png'),
+        style: styles.sportIcon,
+        resizeMode: 'contain'
+      });
     case 'box cricket':
     case 'cricket':
-      return React.createElement(Text, { style: styles.sportIcon }, 'CR');
+      return React.createElement(Image, {
+        source: require('../../../assets/sports/cricket_2.png'),
+        style: styles.sportIcon,
+        resizeMode: 'contain'
+      });
     case 'football':
     case 'soccer':
-      return React.createElement(Text, { style: styles.sportIcon }, 'FB');
+      return React.createElement(Image, {
+        source: require('../../../assets/sports/football_2.png'),
+        style: styles.sportIcon,
+        resizeMode: 'contain'
+      });
     case 'volleyball':
-      return React.createElement(Text, { style: styles.sportIcon }, 'VB');
+      return React.createElement(Image, {
+        source: require('../../../assets/sports/volleyball_2.png'),
+        style: styles.sportIcon,
+        resizeMode: 'contain'
+      });
     case 'pickleball':
-      return React.createElement(Text, { style: styles.sportIcon }, 'PB');
+      return React.createElement(Image, {
+        source: require('../../../assets/sports/pickleball_2.png'),
+        style: styles.sportIcon,
+        resizeMode: 'contain'
+      });
     default:
-      return React.createElement(Text, { style: styles.sportIcon }, sportName.substring(0, 2).toUpperCase());
+      // Fallback to text for unknown sports
+      return React.createElement(Text, { style: styles.fallbackText }, sportName.substring(0, 2).toUpperCase());
   }
 };
 
 const styles = StyleSheet.create({
   sportIcon: {
+    width: 24,
+    height: 24,
+  },
+  fallbackText: {
     fontSize: 12,
     fontWeight: '700',
     color: Colors.base,
