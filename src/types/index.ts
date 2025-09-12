@@ -1,3 +1,6 @@
+// Export Admin Types
+export * from './AdminTypes';
+
 // Navigation Types
 export interface NavigationProps {
   navigation?: any;

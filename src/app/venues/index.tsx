@@ -8,70 +8,40 @@ import {
   TouchableOpacity,
   Animated,
   Platform,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import { Link } from "expo-router";
 import Dots from "react-native-dots-pagination";
 import { Typography } from "@/constants/Typography";
 import { Colors } from "@/constants/Colors";
+import { Layout } from "@/constants/Layout";
+import { useCities, useVenues } from "@/hooks";
+import { Venue } from "@/types/AdminTypes";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
-const cities = [
-  {
-    id: 1,
-    title: "New York",
-    description: "The Big Apple",
-    color: Colors.primary, // Forest Green
-    venues: [
-      { id: 1, title: "Madison Square Garden", color: Colors.primaryLight }, // Ocean Green
-      { id: 2, title: "Yankee Stadium", color: Colors.info }, // Illuminating Emerald
-      { id: 3, title: "MetLife Stadium", color: Colors.primaryDark }, // Dark Green
-    ],
-  },
-  {
-    id: 2,
-    title: "Los Angeles",
-    description: "City of Angels",
-    color: Colors.accent, // Chartreuse
-    venues: [
-      { id: 1, title: "Staples Center", color: Colors.accentLight }, // Key Lime
-      { id: 2, title: "Dodger Stadium", color: Colors.accentDark }, // Light Goldenrod Yellow
-      { id: 3, title: "SoFi Stadium", color: Colors.warning }, // Royal Orange
-    ],
-  },
-  {
-    id: 3,
-    title: "Chicago",
-    description: "Windy City",
-    color: Colors.primaryLight, // Ocean Green
-    venues: [
-      { id: 1, title: "United Center", color: Colors.veryLightTangelo }, // Very Light Tangelo
-      { id: 2, title: "Wrigley Field", color: Colors.error }, // Safety Orange
-      { id: 3, title: "Soldier Field", color: Colors.info }, // Illuminating Emerald
-    ],
-  },
-  {
-    id: 4,
-    title: "Boston",
-    description: "Beantown",
-    color: Colors.info, // Illuminating Emerald
-    venues: [
-      { id: 1, title: "TD Garden", color: Colors.warning }, // Royal Orange
-      { id: 2, title: "Fenway Park", color: Colors.accent }, // Chartreuse
-      { id: 3, title: "Gillette Stadium", color: Colors.primaryLight }, // Ocean Green
-    ],
-  },
-  {
-    id: 5,
-    title: "Miami",
-    description: "Magic City",
-    color: Colors.error, // Safety Orange
-    venues: [
-      { id: 1, title: "American Airlines Arena", color: Colors.primary }, // Forest Green
-      { id: 2, title: "Marlins Park", color: Colors.accent }, // Chartreuse
-      { id: 3, title: "Hard Rock Stadium", color: Colors.primaryLight }, // Ocean Green
-    ],
-  },
+// Color palette for cities and venues
+const cityColors = [
+  Colors.primary,        // Forest Green
+  Colors.accent,         // Chartreuse
+  Colors.primaryLight,   // Ocean Green
+  Colors.info,           // Illuminating Emerald
+  Colors.error,          // Safety Orange
+  Colors.warning,        // Royal Orange
+  Colors.accentLight,    // Key Lime
+  Colors.primaryDark,    // Dark Green
+];
+
+const venueColors = [
+  Colors.primaryLight,   // Ocean Green
+  Colors.info,           // Illuminating Emerald
+  Colors.primaryDark,    // Dark Green
+  Colors.veryLightTangelo, // Very Light Tangelo
+  Colors.accentLight,    // Key Lime
+  Colors.accentDark,     // Light Goldenrod Yellow
+  Colors.warning,        // Royal Orange
+  Colors.error,          // Safety Orange
 ];
 
 export default function VenuesScreen() {
@@ -83,8 +53,34 @@ export default function VenuesScreen() {
   // Simple animation values
   const cardOpacity = useRef(new Animated.Value(1)).current;
 
-  const currentCity = cities[currentCityIndex];
-  const currentVenue = currentCity.venues[venueIndex];
+  // Fetch data from API
+  const { cities, loading: citiesLoading, error: citiesError } = useCities();
+  const { venues, loading: venuesLoading, error: venuesError, getVenuesByCity } = useVenues();
+
+  const loading = citiesLoading || venuesLoading;
+  const error = citiesError || venuesError;
+
+  // Transform API data to match the expected format
+  const transformedCities = cities.map((city, index) => {
+    const cityVenues = getVenuesByCity(city.id);
+    return {
+      id: city.id,
+      title: city.name,
+      description: `${cityVenues.length} venues available`,
+      color: cityColors[index % cityColors.length],
+      venues: cityVenues.map((venue, venueIndex) => ({
+        id: venue.id,
+        title: venue.name || 'Unnamed Venue',
+        color: venueColors[venueIndex % venueColors.length],
+        address: venue.address || 'Address not available',
+        sports: venue.sports || [],
+        facilities_count: venue.facilities_count || 0,
+      })),
+    };
+  });
+
+  const currentCity = transformedCities[currentCityIndex];
+  const currentVenue = currentCity?.venues[venueIndex];
 
   const animateCardChange = () => {
     if (isAnimating) return;
@@ -108,30 +104,30 @@ export default function VenuesScreen() {
   };
 
   const goToNextCity = () => {
-    if (isAnimating) return;
+    if (isAnimating || !transformedCities.length) return;
     animateCardChange();
-    setCurrentCityIndex((prev) => (prev + 1) % cities.length);
+    setCurrentCityIndex((prev) => (prev + 1) % transformedCities.length);
     setVenueIndex(0);
     setIsShowingVenue(false);
   };
 
   const goToPreviousCity = () => {
-    if (isAnimating) return;
+    if (isAnimating || !transformedCities.length) return;
     animateCardChange();
-    setCurrentCityIndex((prev) => (prev - 1 + cities.length) % cities.length);
+    setCurrentCityIndex((prev) => (prev - 1 + transformedCities.length) % transformedCities.length);
     setVenueIndex(0);
     setIsShowingVenue(false);
   };
 
   const goToNextVenue = () => {
-    if (isAnimating) return;
+    if (isAnimating || !currentCity?.venues.length) return;
     animateCardChange();
     setVenueIndex((prev) => (prev + 1) % currentCity.venues.length);
     setIsShowingVenue(true);
   };
 
   const goToPreviousVenue = () => {
-    if (isAnimating) return;
+    if (isAnimating || !currentCity?.venues.length) return;
     animateCardChange();
     setVenueIndex((prev) => (prev - 1 + currentCity.venues.length) % currentCity.venues.length);
     setIsShowingVenue(true);
@@ -193,7 +189,7 @@ export default function VenuesScreen() {
   useEffect(() => {
     if (Platform.OS === 'web') {
       const handleWheel = (event: WheelEvent) => {
-        if (isAnimating) return;
+        if (isAnimating || !transformedCities.length) return;
         
         event.preventDefault();
         
@@ -230,7 +226,49 @@ export default function VenuesScreen() {
         document.removeEventListener('wheel', handleWheel);
       };
     }
-  }, [isAnimating, currentCityIndex, venueIndex, isShowingVenue]);
+  }, [isAnimating, currentCityIndex, venueIndex, isShowingVenue, transformedCities.length]);
+
+  // Show error state
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Failed to load venues</Text>
+          <Text style={styles.errorSubtext}>{error}</Text>
+          <TouchableOpacity 
+            style={styles.retryButton} 
+            onPress={() => window.location.reload()}
+          >
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
+  // Show loading state
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+          <Text style={styles.loadingText}>Loading venues...</Text>
+        </View>
+      </View>
+    );
+  }
+
+  // Show empty state
+  if (!transformedCities.length) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>No venues available</Text>
+          <Text style={styles.emptySubtext}>Check back later for new venues</Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -269,7 +307,7 @@ export default function VenuesScreen() {
       {/* City indicators - bottom center */}
       <View style={styles.cityIndicatorsContainer}>
         <Dots
-          length={cities.length}
+          length={transformedCities.length}
           active={currentCityIndex}
           activeColor={Colors.accent}
           passiveColor={Colors.gray[300]}
@@ -283,7 +321,7 @@ export default function VenuesScreen() {
 
       {/* Venue indicators - middle right */}
       <View style={styles.venueIndicatorsContainer}>
-        {currentCity.venues.map((_, index) => (
+        {currentCity?.venues.map((_, index) => (
           <View
             key={index}
             style={[
@@ -405,5 +443,67 @@ const styles = StyleSheet.create({
   backButtonText: {
     ...Typography.styles.venuesBackButton,
     color: Colors.base,
+  },
+  // Loading state styles
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.background,
+  },
+  loadingText: {
+    ...Typography.styles.venuesCityDescription,
+    color: Colors.text.secondary,
+    marginTop: Layout.spacing.md,
+  },
+  // Error state styles
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.background,
+    paddingHorizontal: Layout.spacing.xl,
+  },
+  errorText: {
+    ...Typography.styles.venuesCityTitle,
+    color: Colors.error,
+    textAlign: "center",
+    marginBottom: Layout.spacing.sm,
+  },
+  errorSubtext: {
+    ...Typography.styles.venuesCityDescription,
+    color: Colors.text.secondary,
+    textAlign: "center",
+    marginBottom: Layout.spacing.lg,
+  },
+  retryButton: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: Layout.spacing.lg,
+    paddingVertical: Layout.spacing.md,
+    borderRadius: Layout.borderRadius.lg,
+  },
+  retryButtonText: {
+    ...Typography.styles.venuesCityDescription,
+    color: Colors.base,
+    fontWeight: "600",
+  },
+  // Empty state styles
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.background,
+    paddingHorizontal: Layout.spacing.xl,
+  },
+  emptyText: {
+    ...Typography.styles.venuesCityTitle,
+    color: Colors.text.primary,
+    textAlign: "center",
+    marginBottom: Layout.spacing.sm,
+  },
+  emptySubtext: {
+    ...Typography.styles.venuesCityDescription,
+    color: Colors.text.secondary,
+    textAlign: "center",
   },
 });

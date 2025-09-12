@@ -12,6 +12,8 @@ This guide provides comprehensive integration instructions for the multi-admin s
 GET /api/hudle/admins/multiple?admin_ids=9910545678,9999099867
 ```
 
+**Base URL:** `https://claygrounds-6d703322b3bc.herokuapp.com`
+
 ## TypeScript Interfaces
 
 ### Core Data Types
