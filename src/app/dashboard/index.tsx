@@ -266,12 +266,12 @@ export default function DashboardPage() {
 
         {/* Additional Feature Cards */}
         <View style={styles.row}>
-          <FeatureCard size="small" title="Bookings" />
-          <FeatureCard size="small" title="Favorites" />
+          <FeatureCard size="small" title="Players" />
+          <FeatureCard size="small" title="Employees" />
         </View>
 
         <View style={styles.row}>
-          <FeatureCard size="big" title="Analytics" />
+          <FeatureCard size="big" title="Gallery" />
         </View>
       </View>
     </ScrollView>

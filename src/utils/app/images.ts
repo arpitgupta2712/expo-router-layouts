@@ -18,10 +18,10 @@ export const getCityImage = (cityName: string) => {
 
 export const getFeatureImage = (title: string) => {
   const featureImages = {
+    'Gallery': require('../../../assets/images/Stadium.png'),
+    'Players': require('../../../assets/graphics/Player.png'),
+    'Employees': require('../../../assets/graphics/Referee.png'),
     'ClayGrounds': require('../../../assets/images/ClayGrounds-IMS.png'),
-    'Bookings': require('../../../assets/images/Bookings.jpg'),
-    'Favorites': require('../../../assets/images/Favorites.jpg'),
-    'Analytics': require('../../../assets/images/Stadium.jpg'),
   };
   
   return featureImages[title as keyof typeof featureImages] || { 
