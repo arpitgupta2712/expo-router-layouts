@@ -47,8 +47,9 @@ export const getSportIcon = (sportName: string) => {
 
 const styles = StyleSheet.create({
   sportIcon: {
-    width: 24,
-    height: 24,
+    width: 48,
+    height: 48,
+    tintColor: Colors.accent,
   },
   fallbackText: {
     fontSize: 12,
