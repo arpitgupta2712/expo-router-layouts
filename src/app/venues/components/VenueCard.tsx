@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Linking, Alert, Platform } from 'react-native';
 import { Globe, MapPin, Calendar } from 'lucide-react-native';
 import { Typography, Colors, Layout } from '@/constants';
+import { router } from 'expo-router';
 
 interface VenueCardProps {
   venue: {
@@ -17,6 +18,29 @@ interface VenueCardProps {
   };
   renderStars: (rating: number) => React.ReactNode[];
 }
+
+// Helper function to safely open URLs
+const openURL = async (url: string, fallbackMessage?: string) => {
+  try {
+    const supported = await Linking.canOpenURL(url);
+    if (supported) {
+      await Linking.openURL(url);
+    } else {
+      Alert.alert(
+        'Cannot Open Link',
+        fallbackMessage || `Unable to open the link: ${url}`,
+        [{ text: 'OK' }]
+      );
+    }
+  } catch (error) {
+    console.error('Error opening URL:', error);
+    Alert.alert(
+      'Error',
+      fallbackMessage || 'Unable to open the link. Please try again.',
+      [{ text: 'OK' }]
+    );
+  }
+};
 
 export const VenueCard: React.FC<VenueCardProps> = ({ venue, renderStars }) => {
   return (
@@ -50,7 +74,10 @@ export const VenueCard: React.FC<VenueCardProps> = ({ venue, renderStars }) => {
             {venue.web_url && (
               <TouchableOpacity 
                 style={styles.actionButton}
-                onPress={() => Linking.openURL(venue.web_url!)}
+                onPress={() => openURL(
+                  venue.web_url!, 
+                  'Unable to open the venue website. Please check your internet connection.'
+                )}
                 activeOpacity={0.7}
               >
                 <Globe size={20} color={Colors.primary} />
@@ -63,8 +90,17 @@ export const VenueCard: React.FC<VenueCardProps> = ({ venue, renderStars }) => {
                 style={styles.actionButton}
                 onPress={() => {
                   const { latitude, longitude } = venue.coordinates!;
-                  const url = `https://www.google.com/maps?q=${latitude},${longitude}`;
-                  Linking.openURL(url);
+                  // Try different map URL formats for better compatibility
+                  const googleMapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+                  const appleMapsUrl = `http://maps.apple.com/?q=${latitude},${longitude}`;
+                  
+                  // Use platform-specific URL or fallback to Google Maps
+                  const mapUrl = Platform.OS === 'ios' ? appleMapsUrl : googleMapsUrl;
+                  
+                  openURL(
+                    mapUrl,
+                    'Unable to open maps. Please try opening the location manually.'
+                  );
                 }}
                 activeOpacity={0.7}
               >
@@ -72,14 +108,20 @@ export const VenueCard: React.FC<VenueCardProps> = ({ venue, renderStars }) => {
               </TouchableOpacity>
             )}
             
-            {/* Booking Button - Temporary link to dashboard */}
+            {/* Booking Button */}
             <TouchableOpacity 
               style={styles.actionButton}
               onPress={() => {
-                // Temporary: Navigate to dashboard
-                // Later: Navigate to booking page
-                if (typeof window !== 'undefined') {
-                  window.location.href = '/dashboard';
+                // Navigate to booking page or dashboard
+                try {
+                  router.push('/dashboard');
+                } catch (error) {
+                  console.error('Navigation error:', error);
+                  Alert.alert(
+                    'Navigation Error',
+                    'Unable to navigate. Please try again.',
+                    [{ text: 'OK' }]
+                  );
                 }
               }}
               activeOpacity={0.7}

@@ -18,6 +18,7 @@ import { Typography, Colors, Layout, AnimationSequences } from "@/constants";
 import { useCitiesAndVenues } from "@/hooks";
 import { Venue } from "@/types/AdminTypes";
 import { formatRating } from "@/utils";
+import { ArrowLeft } from "lucide-react-native";
 import { VenueCard, VenueIndicators, CityHeader } from "./components";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
@@ -314,7 +315,7 @@ export default function VenuesScreen() {
         {/* Floating Back Button */}
         <Link href="/dashboard" asChild>
           <TouchableOpacity style={styles.backButton} activeOpacity={0.8}>
-            <Text style={styles.backButtonText}>←</Text>
+            <ArrowLeft size={24} color={Colors.text.inverse} />
           </TouchableOpacity>
         </Link>
 
@@ -337,7 +338,7 @@ export default function VenuesScreen() {
       {/* Floating Back Button */}
       <Link href="/dashboard" asChild>
         <TouchableOpacity style={styles.backButton} activeOpacity={0.8}>
-          <Text style={styles.backButtonText}>←</Text>
+          <ArrowLeft size={24} color={Colors.text.primary} />
         </TouchableOpacity>
       </Link>
 
@@ -443,7 +444,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    backgroundColor: Colors.accent,
     justifyContent: "center",
     alignItems: "center",
     zIndex: 20,
@@ -455,10 +456,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-  },
-  backButtonText: {
-    ...Typography.styles.venuesBackButton,
-    color: Colors.base,
   },
   // Loading state styles
   loadingContainer: {
