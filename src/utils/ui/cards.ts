@@ -47,3 +47,34 @@ export const getCardStyle = (size: string, cardSize: number, cardGap = 20) => {
       };
   }
 };
+
+// Layout utility for city cards in bento grid
+export const getCityCardLayout = (totalCities: number, currentIndex: number) => {
+  const isLastCity = currentIndex === totalCities - 1;
+  const isOddTotal = totalCities % 2 !== 0;
+  
+  // If it's the last city in an odd-numbered list, make it a rectangle
+  if (isLastCity && isOddTotal) {
+    return {
+      size: 'rectangle' as const,
+      shouldRender: true,
+      isSolo: true
+    };
+  }
+  
+  // For pairs, render only on even indices
+  if (currentIndex % 2 === 0) {
+    return {
+      size: 'small' as const,
+      shouldRender: true,
+      isSolo: false
+    };
+  }
+  
+  // Skip odd indices (handled by the even index above)
+  return {
+    size: 'small' as const,
+    shouldRender: false,
+    isSolo: false
+  };
+};

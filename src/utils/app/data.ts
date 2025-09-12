@@ -1,4 +1,4 @@
-import { Venue, Facility, Admin, City } from '../types/AdminTypes';
+import { Venue, Facility, Admin, City } from '@/types/AdminTypes';
 
 /**
  * Utility functions to work with the API data structure

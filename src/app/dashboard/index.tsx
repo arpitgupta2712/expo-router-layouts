@@ -20,6 +20,7 @@ import {
   getFeatureImage, 
   getCardSize, 
   getCardStyle,
+  getCityCardLayout,
   DASHBOARD_CONFIG,
   filterCitiesWithVenues
 } from "@/utils";
@@ -169,33 +170,50 @@ export default function DashboardPage() {
         {cities.map((city, index) => {
           const venueCount = getVenuesByCity(city.id).length;
           const borderColor = Colors.primary;
+          const layout = getCityCardLayout(cities.length, index);
           
-          // Render cities in pairs
-          if (index % 2 === 0) {
-            const nextCity = cities[index + 1];
-            const nextVenueCount = nextCity ? getVenuesByCity(nextCity.id).length : 0;
-            const nextBorderColor = Colors.primary;
-            
+          // Only render if the utility says we should
+          if (!layout.shouldRender) {
+            return null;
+          }
+          
+          // If it's a solo rectangle (last city in odd list)
+          if (layout.isSolo) {
             return (
               <View key={`row-${index}`} style={styles.row}>
                 <CityCard 
                   city={city}
                   venueCount={venueCount}
                   borderColor={borderColor}
-                  size="small"
+                  size={layout.size}
                 />
-                {nextCity && (
-                  <CityCard 
-                    city={nextCity}
-                    venueCount={nextVenueCount}
-                    borderColor={nextBorderColor}
-                    size="small"
-                  />
-                )}
               </View>
             );
           }
-          return null;
+          
+          // Regular pair rendering
+          const nextCity = cities[index + 1];
+          const nextVenueCount = nextCity ? getVenuesByCity(nextCity.id).length : 0;
+          const nextBorderColor = Colors.primary;
+          
+          return (
+            <View key={`row-${index}`} style={styles.row}>
+              <CityCard 
+                city={city}
+                venueCount={venueCount}
+                borderColor={borderColor}
+                size={layout.size}
+              />
+              {nextCity && (
+                <CityCard 
+                  city={nextCity}
+                  venueCount={nextVenueCount}
+                  borderColor={nextBorderColor}
+                  size="small"
+                />
+              )}
+            </View>
+          );
         })}
 
         {/* Additional Feature Cards */}
