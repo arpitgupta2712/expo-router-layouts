@@ -255,11 +255,11 @@ export const Typography = {
       letterSpacing: 0,
     },
     dashboardTitle: {
-      fontFamily: 'Poppins_700Bold',
-      fontSize: getResponsiveFontSize(28, 0.8),
-      fontWeight: '700',
+      fontFamily: 'ArchivoExtraCondensed-BoldItalic',
+      fontSize: getResponsiveFontSize(32, 0.8),
+      fontWeight: '600',
       lineHeight: getResponsiveLineHeight(getResponsiveFontSize(28, 0.8), 1.4),
-      letterSpacing: -0.5,
+      letterSpacing: 0,
     },
     dashboardDate: {
       fontFamily: 'PTSans_400Regular',
@@ -272,10 +272,10 @@ export const Typography = {
       fontFamily: 'ArchivoExtraCondensed-BoldItalic',
       fontSize: getResponsiveFontSize(20, 0.8),
       lineHeight: getResponsiveLineHeight(getResponsiveFontSize(20, 0.8), 1.4),
-      letterSpacing: 0.5,
+      letterSpacing: 0,
     },
     dashboardCardSize: {
-      fontFamily: 'Poppins_400Regular',
+      fontFamily: 'ArchivoExtraCondensed-BoldItalic',
       fontSize: getResponsiveFontSize(12, 0.8),
       fontWeight: '500',
       lineHeight: getResponsiveLineHeight(getResponsiveFontSize(12, 0.8), 1.5),

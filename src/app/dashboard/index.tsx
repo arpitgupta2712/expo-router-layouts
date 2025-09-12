@@ -45,10 +45,14 @@ const CityCard = ({ city, venueCount, borderColor, size = 'small' }) => {
         resizeMode="cover"
       />
       
-      {/* Footer with title and venue count */}
+      {/* Floating venue count badge */}
+      <View style={styles.venueBadge}>
+        <Text style={styles.venueBadgeText}>{venueCount}</Text>
+      </View>
+      
+      {/* Footer with title only */}
       <View style={styles.cardFooter}>
         <Text style={styles.cityName}>{city.name}</Text>
-        <Text style={styles.venueCount}>{venueCount} venues</Text>
       </View>
     </View>
   );
@@ -233,7 +237,7 @@ export default function DashboardPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.gray[100],
+    backgroundColor: Colors.base,
   },
   header: {
     paddingHorizontal: CONTAINER_PADDING,
@@ -255,7 +259,7 @@ const styles = StyleSheet.create({
   },
   title: {
     ...Typography.styles.dashboardTitle,
-    color: Colors.text.inverse,
+    color: Colors.accent,
     marginBottom: Layout.spacing.sm,
   },
   date: {
@@ -327,12 +331,31 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     textTransform: 'uppercase',
   },
-  venueCount: {
+  venueBadge: {
+    position: 'absolute',
+    top: Layout.spacing.sm,
+    right: Layout.spacing.sm,
+    backgroundColor: Colors.primary,
+    borderRadius: Layout.borderRadius.full,
+    paddingHorizontal: Layout.spacing.sm,
+    paddingVertical: Layout.spacing.xs,
+    minWidth: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: Colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  venueBadgeText: {
     ...Typography.styles.dashboardCardSize,
-    color: Colors.base,
-    opacity: 0.9,
-    textAlign: 'left',
-    textTransform: 'uppercase',
+    color: Colors.accent,
+    fontWeight: '600',
+    fontSize: 12,
   },
   featureTitle: {
     ...Typography.styles.dashboardCardTitle,
