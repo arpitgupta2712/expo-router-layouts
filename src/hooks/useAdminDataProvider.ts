@@ -18,7 +18,7 @@ const AdminDataContext = createContext<UseAdminDataReturn | null>(null);
  */
 export const AdminDataProvider = ({ children }: { children: ReactNode }) => {
   const [data, setData] = useState<MultiAdminResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Start with false, only load when requested
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
@@ -38,9 +38,7 @@ export const AdminDataProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  // Don't automatically fetch on mount - only when explicitly requested
 
   const value: UseAdminDataReturn = {
     data,

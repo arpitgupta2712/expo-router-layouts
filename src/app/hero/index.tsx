@@ -1,11 +1,33 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions, StatusBar } from "react-native";
-import { Link } from "expo-router";
+import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions, StatusBar, ActivityIndicator } from "react-native";
+import { Link, useRouter } from "expo-router";
 import { Typography } from "@/constants/Typography";
 import { Colors } from "@/constants/Colors";
+import { useAdminData } from "@/hooks";
+import { useState } from "react";
 
 const { width, height } = Dimensions.get("window");
 
 export default function HeroPage() {
+  const router = useRouter();
+  const { refetch, loading } = useAdminData();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleGetStarted = async () => {
+    try {
+      setIsLoading(true);
+      console.log('🚀 Preloading admin data from Hero section...');
+      await refetch();
+      console.log('✅ Admin data preloaded successfully!');
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('❌ Failed to preload admin data:', error);
+      // Still navigate to dashboard even if preload fails
+      router.push('/dashboard');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
@@ -40,14 +62,21 @@ export default function HeroPage() {
               Book your perfect pitch today
             </Text>
             
-            <Link href="/dashboard" asChild>
-              <TouchableOpacity 
-                style={styles.getStartedButton}
-                activeOpacity={0.9}
-              >
+            <TouchableOpacity 
+              style={[styles.getStartedButton, isLoading && styles.getStartedButtonLoading]}
+              activeOpacity={0.9}
+              onPress={handleGetStarted}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="small" color={Colors.black} />
+                  <Text style={[styles.getStartedText, styles.loadingText]}>Loading...</Text>
+                </View>
+              ) : (
                 <Text style={styles.getStartedText}>Get Started</Text>
-              </TouchableOpacity>
-            </Link>
+              )}
+            </TouchableOpacity>
             
             <Text style={styles.subText}>
               Experience the difference
@@ -150,6 +179,17 @@ const styles = StyleSheet.create({
   getStartedText: {
     ...Typography.styles.heroButtonText,
     color: Colors.black,
+  },
+  getStartedButtonLoading: {
+    opacity: 0.8,
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  loadingText: {
+    marginLeft: 0,
   },
   subText: {
     ...Typography.styles.caption,
