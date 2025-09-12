@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions, StatusBar, ActivityIndicator } from "react-native";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
+import { LogIn } from "lucide-react-native";
 import { Typography } from "@/constants/Typography";
 import { Colors } from "@/constants/Colors";
 import { useAdminData } from "@/hooks";
@@ -33,9 +34,15 @@ export default function HeroPage() {
       <StatusBar barStyle="light-content" />
       
       <View style={styles.background}>
-        {/* Decorative circles for visual interest */}
-        <View style={styles.decorativeCircle1} />
-        <View style={styles.decorativeCircle2} />
+        {/* City Map Background - Creative overlay */}
+        <Image 
+          source={require("../../../assets/images/DL-map.jpg")} 
+          style={styles.mapBackground}
+          resizeMode="cover"
+        />
+        
+        {/* Map overlay for better text readability */}
+        <View style={styles.mapOverlay} />
         
         <View style={styles.content}>
           {/* Brand section */}
@@ -71,7 +78,7 @@ export default function HeroPage() {
                   <Text style={[styles.getStartedText, styles.loadingText]}>Loading...</Text>
                 </View>
               ) : (
-                <Text style={styles.getStartedText}>Get Started</Text>
+                <LogIn size={36} color={Colors.base} strokeWidth={2} />
               )}
             </TouchableOpacity>
           </View>
@@ -91,23 +98,21 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     position: "relative",
   },
-  decorativeCircle1: {
+  mapBackground: {
     position: "absolute",
-    width: width * 0.8,
-    height: width * 0.8,
-    borderRadius: width * 0.4,
-    backgroundColor: "rgba(255, 255, 255, 0.02)",
-    top: -width * 0.3,
-    left: -width * 0.2,
+    width: width,
+    height: height,
+    top: 0,
+    left: 0,
+    opacity: 0.15,
   },
-  decorativeCircle2: {
+  mapOverlay: {
     position: "absolute",
-    width: width * 0.6,
-    height: width * 0.6,
-    borderRadius: width * 0.3,
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
-    bottom: -width * 0.2,
-    right: -width * 0.3,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   content: {
     flex: 1,
@@ -160,14 +165,15 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   getStartedButton: {
-    width: "100%",
-    maxWidth: 280,
+    width: 80,
+    height: 80,
     marginBottom: 20,
-    backgroundColor: Colors.base,
-    paddingHorizontal: 48,
-    paddingVertical: 18,
-    borderRadius: 30,
+    backgroundColor: Colors.primary,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: Colors.base,
     alignItems: "center",
+    justifyContent: "center",
     opacity: 0.8,
   },
   getStartedText: {
