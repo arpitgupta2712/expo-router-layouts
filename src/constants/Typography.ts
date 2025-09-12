@@ -303,7 +303,7 @@ export const Typography = {
     },
     venuesVenueTitle: {
       fontFamily: 'Poppins_700Bold',
-      fontSize: getResponsiveFontSize(28, 0.8),
+      fontSize: getResponsiveFontSize(24, 0.8),
       fontWeight: '700',
       lineHeight: getResponsiveLineHeight(getResponsiveFontSize(28, 0.8), 1.2),
       letterSpacing: -0.5,

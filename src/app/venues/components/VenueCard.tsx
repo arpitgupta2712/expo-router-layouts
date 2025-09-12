@@ -30,23 +30,31 @@ interface VenueCardProps {
 // Helper function to safely open URLs
 const openURL = async (url: string, fallbackMessage?: string) => {
   try {
-    const supported = await Linking.canOpenURL(url);
-    if (supported) {
-      await Linking.openURL(url);
-    } else {
+    // For real devices, try opening directly first (canOpenURL can be unreliable)
+    await Linking.openURL(url);
+  } catch (error) {
+    console.error('Direct URL opening failed, trying with canOpenURL check:', error);
+    
+    // Fallback to canOpenURL check if direct opening fails
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert(
+          'Cannot Open Link',
+          fallbackMessage || `Unable to open the link: ${url}`,
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (fallbackError) {
+      console.error('Fallback URL opening also failed:', fallbackError);
       Alert.alert(
-        'Cannot Open Link',
-        fallbackMessage || `Unable to open the link: ${url}`,
+        'Error',
+        fallbackMessage || 'Unable to open the link. Please try again.',
         [{ text: 'OK' }]
       );
     }
-  } catch (error) {
-    console.error('Error opening URL:', error);
-    Alert.alert(
-      'Error',
-      fallbackMessage || 'Unable to open the link. Please try again.',
-      [{ text: 'OK' }]
-    );
   }
 };
 
@@ -74,12 +82,14 @@ export const VenueCard: React.FC<VenueCardProps> = ({ venue, renderStars, onFaci
       <View style={styles.venueDetails}>
         <Text style={styles.venueTitle}>{venue.title}</Text>
         
+        {/* Simple Separator */}
+        <View style={styles.separator} />
+        
         {/* Venue Info Container */}
         <View style={styles.venueInfoContainer}>
           {/* Available Sports */}
           {venue.sports && venue.sports.length > 0 && (
             <View style={styles.sportsContainer}>
-              <Text style={styles.sportsTitle}>Available Sports</Text>
               <View style={styles.sportsList}>
                 {venue.sports.map((sport, index) => (
                   <View key={index} style={styles.sportChip}>
@@ -112,11 +122,20 @@ export const VenueCard: React.FC<VenueCardProps> = ({ venue, renderStars, onFaci
             {venue.web_url && (
               <TouchableOpacity 
                 style={styles.actionButton}
-                onPress={() => openURL(
-                  venue.web_url!, 
-                  'Unable to open the venue website. Please check your internet connection.'
-                )}
+                onPress={() => {
+                  let url = venue.web_url!;
+                  // Ensure URL has proper protocol for real devices
+                  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    url = 'https://' + url;
+                  }
+                  openURL(
+                    url, 
+                    'Unable to open the venue website. Please check your internet connection.'
+                  );
+                }}
                 activeOpacity={0.7}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                delayPressIn={0}
               >
                 <Globe size={20} color={Colors.primary} />
               </TouchableOpacity>
@@ -141,6 +160,8 @@ export const VenueCard: React.FC<VenueCardProps> = ({ venue, renderStars, onFaci
                   );
                 }}
                 activeOpacity={0.7}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                delayPressIn={0}
               >
                 <MapPin size={20} color={Colors.primary} />
               </TouchableOpacity>
@@ -183,8 +204,7 @@ const styles = StyleSheet.create({
   venueDetails: {
     height: '50%',
     padding: Layout.spacing.lg,
-    paddingBottom: 60, // Add bottom padding to avoid overlap with indicators
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     alignItems: 'center',
   },
   venueInfoContainer: {
@@ -196,6 +216,14 @@ const styles = StyleSheet.create({
     ...Typography.styles.venuesVenueTitle,
     color: Colors.primary,
     textAlign: 'center',
+  },
+  separator: {
+    width: '80%',
+    height: 2,
+    backgroundColor: Colors.primary,
+    opacity: 1,
+    marginTop: Layout.spacing.md,
+    marginBottom: Layout.spacing.xs,
   },
   actionButtonsContainer: {
     flexDirection: 'row',

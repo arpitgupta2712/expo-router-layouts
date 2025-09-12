@@ -30,13 +30,13 @@ const styles = StyleSheet.create({
   },
   cityHeaderTitle: {
     ...Typography.styles.venuesCityTitle,
-    color: Colors.accent,
+    color: Colors.base,
     fontWeight: '700',
     textAlign: 'center',
   },
   cityHeaderSubtitle: {
     ...Typography.styles.venuesCityDescription,
-    color: Colors.accent,
+    color: Colors.base,
     textAlign: 'center',
   },
 });
