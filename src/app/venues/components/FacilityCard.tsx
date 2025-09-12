@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Typography, Colors, Layout, Responsive } from '@/constants';
 
@@ -18,10 +18,15 @@ export const FacilityCard: React.FC<FacilityCardProps> = ({
 }) => {
   const primarySport = facility.sports?.[0];
 
+  
+  const handlePress = () => {
+    onPress();
+  };
+
   return (
     <TouchableOpacity
       style={styles.facilityCard}
-      onPress={onPress}
+      onPress={handlePress}
       activeOpacity={0.7}
     >
       {/* Facility Name and Price in same line */}
@@ -54,6 +59,8 @@ const styles = StyleSheet.create({
     elevation: 2,
     width: Responsive.screen.width - (Responsive.grid.containerPadding * 2),
     marginBottom: Responsive.spacing.sm,
+    minHeight: 48, // Ensure minimum touch target
+    zIndex: 100, // Ensure it's above other elements
   },
   contentRow: {
     flexDirection: 'row',
@@ -65,7 +72,7 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontSize: Responsive.fontSize.sm,
     fontWeight: '600',
-    lineHeight: 20,
+    lineHeight: 32,
     flex: 1,
     marginRight: Responsive.spacing.sm,
   },
@@ -74,7 +81,7 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontSize: Responsive.fontSize.sm,
     fontWeight: '700',
-    lineHeight: 20,
+    lineHeight: 32,
     textAlign: 'right',
   },
 });

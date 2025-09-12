@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -10,8 +10,6 @@ import {
   Alert,
   Image,
   Linking,
-  Animated,
-  PanResponder,
 } from "react-native";
 import { Link, useLocalSearchParams } from "expo-router";
 import { Typography, Colors, Layout, AnimationSequences } from "@/constants";
@@ -52,12 +50,6 @@ export default function VenuesScreen() {
   const targetCityId = cityParam as string;
 
   const [venueIndex, setVenueIndex] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
-  
-  // Basic Animated values (stable and reliable)
-  const translateX = useRef(new Animated.Value(0)).current;
-  const scale = useRef(new Animated.Value(1)).current;
-  const opacity = useRef(new Animated.Value(1)).current;
 
   // Fetch data from API - single hook call for efficiency
   const { cities, venues, loading, error, getVenuesByCity } = useCitiesAndVenues();
@@ -86,9 +78,10 @@ export default function VenuesScreen() {
 
   const currentVenue = transformedVenues[venueIndex];
   
+  
 
-  // Handle facility selection
-  const handleFacilitySelect = (facilityId: string, venueId: string) => {
+  // Handle facility selection - memoized to prevent callback reference changes
+  const handleFacilitySelect = useCallback((facilityId: string, venueId: string) => {
     // For now, show an alert with facility details
     const venue = cityVenues.find(v => v.id === venueId);
     const facility = venue?.facilities?.find(f => f.id === facilityId);
@@ -106,42 +99,8 @@ export default function VenuesScreen() {
         ]
       );
     }
-  };
+  }, [cityVenues]);
 
-  // Animation functions using basic Animated API
-  const animateToNext = (direction: 'left' | 'right', callback: () => void) => {
-    const targetX = direction === 'left' ? -screenWidth : screenWidth;
-    
-    Animated.sequence([
-      Animated.timing(opacity, {
-        toValue: 0.8,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-      Animated.timing(translateX, {
-        toValue: targetX,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start((finished) => {
-      if (finished) {
-        callback();
-        translateX.setValue(0);
-        Animated.timing(opacity, {
-          toValue: 1,
-          duration: 150,
-          useNativeDriver: true,
-        }).start();
-      }
-    });
-  };
-
-  const resetAnimationState = () => {
-    translateX.setValue(0);
-    scale.setValue(1);
-    opacity.setValue(1);
-    setIsAnimating(false);
-  };
 
   // Render star rating in brand colors
   const renderStars = (rating: number) => {
@@ -173,129 +132,18 @@ export default function VenuesScreen() {
 
   // Simplified venue navigation functions
   const goToNextVenue = () => {
-    if (isAnimating || !transformedVenues.length || transformedVenues.length <= 1) return;
-    
-    setIsAnimating(true);
+    if (!transformedVenues.length || transformedVenues.length <= 1) return;
     const nextVenueIdx = (venueIndex + 1) % transformedVenues.length;
-    
-    animateToNext('left', () => {
-      setVenueIndex(nextVenueIdx);
-      setIsAnimating(false);
-    });
+    setVenueIndex(nextVenueIdx);
   };
 
   const goToPreviousVenue = () => {
-    if (isAnimating || !transformedVenues.length || transformedVenues.length <= 1) return;
-    
-    setIsAnimating(true);
+    if (!transformedVenues.length || transformedVenues.length <= 1) return;
     const prevVenueIdx = (venueIndex - 1 + transformedVenues.length) % transformedVenues.length;
-    
-    animateToNext('right', () => {
-      setVenueIndex(prevVenueIdx);
-      setIsAnimating(false);
-    });
+    setVenueIndex(prevVenueIdx);
   };
 
-  // Simplified PanResponder for horizontal venue navigation
-  const panResponder = PanResponder.create({
-    onMoveShouldSetPanResponder: (_, gestureState) => {
-      // Only respond to horizontal gestures for venue navigation
-      return !isAnimating && Math.abs(gestureState.dx) > 5;
-    },
-    onPanResponderGrant: () => {
-      if (isAnimating) return;
-      Animated.spring(scale, {
-        toValue: 0.95,
-        useNativeDriver: true,
-      }).start();
-    },
-    onPanResponderMove: (_, gestureState) => {
-      if (isAnimating) return;
-      
-      // Limit gesture distance for better feel
-      const maxDistance = screenWidth * 0.3;
-      const clampedX = Math.max(-maxDistance, Math.min(maxDistance, gestureState.dx));
-      
-      translateX.setValue(clampedX);
-      
-      // Add opacity effect based on distance
-      const opacityValue = 1 - (Math.abs(clampedX) / maxDistance) * 0.3;
-      opacity.setValue(Math.max(0.7, opacityValue));
-    },
-    onPanResponderRelease: (_, gestureState) => {
-      if (isAnimating) return;
-      
-      Animated.spring(scale, {
-        toValue: 1,
-        useNativeDriver: true,
-      }).start();
-      
-      const { dx, vx } = gestureState;
-      const minSwipeDistance = 50;
-      const minVelocity = 0.5;
-      
-      // Check if it's a significant horizontal swipe for venues
-      const isHorizontalSwipe = Math.abs(dx) > minSwipeDistance || Math.abs(vx) > minVelocity;
-      
-      if (isHorizontalSwipe) {
-        // Horizontal swipe - venues only
-        if (dx > 0) {
-          goToPreviousVenue(); // Swipe right = previous venue
-        } else {
-          goToNextVenue(); // Swipe left = next venue
-        }
-      } else {
-        // Reset if no significant swipe
-        Animated.parallel([
-          Animated.spring(translateX, {
-            toValue: 0,
-            useNativeDriver: true,
-          }),
-          Animated.timing(opacity, {
-            toValue: 1,
-            duration: 200,
-            useNativeDriver: true,
-          }),
-        ]).start();
-      }
-    },
-    onPanResponderTerminate: () => {
-      resetAnimationState();
-    },
-  });
 
-  // Handle scroll wheel events for web (venues only)
-  useEffect(() => {
-    if (Platform.OS === 'web') {
-      const handleWheel = (event: WheelEvent) => {
-        if (isAnimating || !transformedVenues.length) return;
-        
-        event.preventDefault();
-        
-        const { deltaY } = event;
-        const threshold = 50; // Minimum scroll distance to trigger navigation
-        
-        // Vertical scroll for venues only
-        if (Math.abs(deltaY) > threshold) {
-          if (deltaY > 0) {
-            // Scroll down - next venue
-            goToNextVenue();
-          } else {
-            // Scroll up - previous venue
-            goToPreviousVenue();
-          }
-        }
-      };
-
-      // Add wheel event listener
-      document.addEventListener('wheel', handleWheel, { passive: false });
-
-      // Cleanup
-      return () => {
-        document.removeEventListener('wheel', handleWheel);
-      };
-    }
-  }, [isAnimating, venueIndex, transformedVenues.length]);
 
   // Show error state
   if (error) {
@@ -356,6 +204,13 @@ export default function VenuesScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerSpacer} />
+        {/* City Header inside page header */}
+        {targetCity && (
+          <CityHeader 
+            cityName={targetCity.name} 
+            venuesCount={transformedVenues.length} 
+          />
+        )}
       </View>
 
       {/* Floating Back Button */}
@@ -365,21 +220,9 @@ export default function VenuesScreen() {
         </TouchableOpacity>
       </Link>
 
-      <View style={styles.cardContainer} {...panResponder.panHandlers}>
-        {/* Animated Card */}
-        <Animated.View 
-          style={[
-            styles.fullScreenCard,
-            {
-              backgroundColor: Colors.base,
-              transform: [
-                { translateX: translateX },
-                { scale: scale }
-              ],
-              opacity: opacity,
-            }
-          ]}
-        >
+      <View style={styles.cardContainer}>
+        {/* Simple Card */}
+        <View style={styles.fullScreenCard}>
           {currentVenue && (
             <VenueCard 
               venue={currentVenue} 
@@ -387,16 +230,30 @@ export default function VenuesScreen() {
               onFacilitySelect={handleFacilitySelect}
             />
           )}
-        </Animated.View>
+        </View>
       </View>
 
-      {/* City Header */}
-      {targetCity && (
-        <CityHeader 
-          cityName={targetCity.name} 
-          venuesCount={transformedVenues.length} 
-        />
+      {/* Navigation Buttons */}
+      {transformedVenues.length > 1 && (
+        <View style={styles.navigationButtons}>
+          <TouchableOpacity 
+            style={styles.navButton} 
+            onPress={goToPreviousVenue}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.navButtonText}>← Previous</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.navButton} 
+            onPress={goToNextVenue}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.navButtonText}>Next →</Text>
+          </TouchableOpacity>
+        </View>
       )}
+
 
       {/* Venue indicators - middle right */}
       <VenueIndicators 
@@ -410,14 +267,13 @@ export default function VenuesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.forestGreen,
   },
   header: {
     position: "absolute",
     top: 0,
     left: 0,
     right: 0,
-    height: 100,
+    height: 160,
     backgroundColor: "transparent",
     zIndex: 10,
     paddingTop: 50, // Status bar height
@@ -545,5 +401,35 @@ const styles = StyleSheet.create({
     ...Typography.styles.venuesCityDescription,
     color: Colors.text.secondary,
     textAlign: "center",
+  },
+  // Navigation button styles
+  navigationButtons: {
+    position: "absolute",
+    bottom: 100,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 30,
+    zIndex: 20,
+  },
+  navButton: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  navButtonText: {
+    color: Colors.base,
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Linking, Alert, Platform, ScrollView } from 'react-native';
 import { Globe, MapPin } from 'lucide-react-native';
 import { Typography, Colors, Layout, Responsive } from '@/constants';
@@ -66,6 +66,12 @@ export const VenueCard: React.FC<VenueCardProps> = ({
   // Show all facilities since we now have scrolling
   const visibleFacilities = venue.facilities;
 
+  // Clean venue title by removing "ClayGrounds | " and "ClayGrounds Arena | " prefixes
+  const cleanVenueTitle = (title: string) => {
+    return title.replace(/^ClayGrounds\s+(Arena\s+)?\|\s*/i, '');
+  };
+
+
   return (
     <View style={styles.venueCard}>
       {/* Venue Image - Fixed height */}
@@ -91,7 +97,7 @@ export const VenueCard: React.FC<VenueCardProps> = ({
         contentContainerStyle={styles.venueDetailsContent}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.venueTitle}>{venue.title}</Text>
+        <Text style={styles.venueTitle}>{cleanVenueTitle(venue.title)}</Text>
         
         {/* Simple Separator */}
         <View style={styles.separator} />
@@ -238,7 +244,7 @@ const styles = StyleSheet.create({
     height: 2,
     backgroundColor: Colors.primary,
     opacity: 1,
-    marginTop: Layout.spacing.md,
+    marginTop: Layout.spacing.sm,
     marginBottom: Layout.spacing.xs,
   },
   actionButtonsContainer: {
@@ -265,7 +271,7 @@ const styles = StyleSheet.create({
   // Sports container styles
   sportsContainer: {
     width: Responsive.screen.width,
-    marginBottom: Responsive.spacing.sm,
+    marginBottom: Responsive.spacing.xs,
     paddingHorizontal: Responsive.grid.containerPadding,
   },
   sportsTitle: {
@@ -273,7 +279,7 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontSize: Responsive.fontSize.sm,
     textAlign: 'center',
-    marginBottom: Responsive.spacing.sm,
+    marginBottom: Responsive.spacing.xs,
     opacity: 0.8,
   },
   sportsList: {
