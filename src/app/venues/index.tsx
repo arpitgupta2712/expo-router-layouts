@@ -16,7 +16,7 @@ import {
 import { Link } from "expo-router";
 import Dots from "react-native-dots-pagination";
 import { Typography, Colors, Layout, AnimationSequences } from "@/constants";
-import { useCities, useVenues } from "@/hooks";
+import { useCitiesAndVenues } from "@/hooks";
 import { Venue } from "@/types/AdminTypes";
 import { formatRating } from "@/utils";
 import { Globe, MapPin, Calendar } from "lucide-react-native";
@@ -55,12 +55,8 @@ export default function VenuesScreen() {
   // Simple animation value for smooth transitions
   const cardTranslateY = useRef(new Animated.Value(0)).current;
 
-  // Fetch data from API
-  const { cities, loading: citiesLoading, error: citiesError } = useCities();
-  const { venues, loading: venuesLoading, error: venuesError, getVenuesByCity } = useVenues();
-
-  const loading = citiesLoading || venuesLoading;
-  const error = citiesError || venuesError;
+  // Fetch data from API - single hook call for efficiency
+  const { cities, venues, loading, error, getVenuesByCity } = useCitiesAndVenues();
 
   // Transform API data to match the expected format
   const transformedCities = cities.map((city, index) => {

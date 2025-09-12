@@ -110,6 +110,36 @@ export const useVenues = () => {
 };
 
 /**
+ * Combined hook for getting both cities and venues data efficiently
+ * This prevents multiple useAdminData calls in the same component
+ */
+export const useCitiesAndVenues = () => {
+  const { data, loading, error } = useAdminData();
+  
+  const cities: City[] = data?.data?.summary?.unique_cities || [];
+  const venues: Venue[] = data?.data?.venues || [];
+  
+  const getVenuesByCity = useCallback((cityId: string | number) => {
+    if (!venues.length) return [];
+    return venues.filter(venue => venue.city_id && venue.city_id.toString() === cityId.toString());
+  }, [venues]);
+
+  const getVenuesByAdmin = useCallback((adminId: string) => {
+    // Since venues are at the top level, return all venues
+    return venues;
+  }, [venues]);
+
+  return {
+    cities,
+    venues,
+    loading,
+    error,
+    getVenuesByCity,
+    getVenuesByAdmin,
+  };
+};
+
+/**
  * Hook for getting all facilities from admin data
  */
 export const useFacilities = () => {
