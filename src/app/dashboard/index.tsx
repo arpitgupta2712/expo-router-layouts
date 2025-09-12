@@ -17,7 +17,7 @@ import { useCitiesAndVenues } from "@/hooks";
 import { useCityService } from "@/hooks/useCityService";
 
 const { width } = Dimensions.get("window");
-const CARD_GAP = 12;
+const CARD_GAP = 20;
 const CONTAINER_PADDING = 20;
 
 // Responsive card sizing for web vs mobile
@@ -110,16 +110,16 @@ const CityCard = ({ city, venueCount, borderColor, size = 'small' }) => {
   );
 };
 
-// Feature images mapping - using stylized/artistic images
+// Feature images mapping - using local and stylized images
 const getFeatureImage = (title) => {
   const featureImages = {
-    'Sports Hero': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop&auto=format',
-    'Bookings': 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=600&fit=crop&auto=format',
-    'Favorites': 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=800&h=600&fit=crop&auto=format',
-    'Analytics': 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop&auto=format',
+    'ClayGrounds': require('../assets/images/dashboard-dark.png'),
+    'Bookings': { uri: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=600&fit=crop&auto=format' },
+    'Favorites': { uri: 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=800&h=600&fit=crop&auto=format' },
+    'Analytics': { uri: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop&auto=format' },
   };
   
-  return featureImages[title] || 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop&auto=format';
+  return featureImages[title] || { uri: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop&auto=format' };
 };
 
 // Static card component for other features
@@ -161,7 +161,7 @@ const FeatureCard = ({ size, title, href = null }) => {
     <View style={[styles.card, getCardStyle()]}>
       {/* Feature Image Background */}
       <Image 
-        source={{ uri: getFeatureImage(title) }} 
+        source={getFeatureImage(title)} 
         style={styles.featureImage}
         resizeMode="cover"
       />
@@ -260,7 +260,7 @@ export default function DashboardPage() {
         <View style={styles.row}>
           <FeatureCard 
             size="rectangle" 
-            title="Sports Hero" 
+            title="ClayGrounds" 
             href="/hero"
           />
         </View>
@@ -315,15 +315,15 @@ export default function DashboardPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.gray[100],
   },
   header: {
     paddingHorizontal: CONTAINER_PADDING,
     paddingTop: 60,
     paddingBottom: Layout.spacing.lg,
-    backgroundColor: Colors.base,
+    backgroundColor: Colors.primary,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.gray[300],
+    borderBottomColor: Colors.primary,
     ...(Platform.OS === 'web' && {
       maxWidth: 800,
       alignSelf: 'center',
@@ -332,17 +332,17 @@ const styles = StyleSheet.create({
   },
   greeting: {
     ...Typography.styles.dashboardGreeting,
-    color: Colors.text.secondary,
+    color: Colors.text.inverse,
     marginBottom: Layout.spacing.xs,
   },
   title: {
     ...Typography.styles.dashboardTitle,
-    color: Colors.text.primary,
+    color: Colors.text.inverse,
     marginBottom: Layout.spacing.sm,
   },
   date: {
     ...Typography.styles.dashboardDate,
-    color: Colors.text.tertiary,
+    color: Colors.text.inverse,
   },
   grid: {
     padding: CONTAINER_PADDING,
@@ -393,31 +393,33 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: Colors.base,
+    backgroundColor: Colors.primary,
     paddingLeft: Layout.spacing.md,
     paddingRight: Layout.spacing.md,
     paddingBottom: Layout.spacing.sm,
     paddingTop: Layout.spacing.sm,
+    borderTopWidth: 2,
+    borderTopColor: Colors.accent,
     borderBottomLeftRadius: Layout.borderRadius.xl,
     borderBottomRightRadius: Layout.borderRadius.xl,
   },
   cityName: {
     ...Typography.styles.dashboardCardTitle,
-    color: Colors.primary,
+    color: Colors.base,
     fontWeight: '700',
     textAlign: 'left',
     textTransform: 'uppercase',
   },
   venueCount: {
     ...Typography.styles.dashboardCardSize,
-    color: Colors.primary,
+    color: Colors.base,
     opacity: 0.9,
     textAlign: 'left',
     textTransform: 'uppercase',
   },
   featureTitle: {
     ...Typography.styles.dashboardCardTitle,
-    color: Colors.primary,
+    color: Colors.base,
     fontWeight: '600',
     textAlign: 'left',
     textTransform: 'uppercase',
