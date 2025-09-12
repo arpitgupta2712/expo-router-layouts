@@ -52,11 +52,9 @@ export const VenueCard: React.FC<VenueCardProps> = ({
             resizeMode="cover"
           />
           {/* Rating overlay at bottom of image */}
-          {venue.rating && (
-            <View style={styles.ratingOverlay}>
-              {renderStars(parseFloat(venue.rating))}
-            </View>
-          )}
+          <View style={styles.ratingOverlay}>
+            {renderStars(venue.rating ? parseFloat(venue.rating) : 0)}
+          </View>
         </View>
       )}
       

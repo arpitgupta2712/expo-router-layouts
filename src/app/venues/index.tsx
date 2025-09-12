@@ -102,23 +102,24 @@ export default function VenuesScreen() {
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
     
-    for (let i = 0; i < fullStars; i++) {
-      stars.push(
-        <Text key={i} style={styles.star}>★</Text>
-      );
-    }
-    
-    if (hasHalfStar) {
-      stars.push(
-        <Text key="half" style={styles.star}>☆</Text>
-      );
-    }
-    
-    const emptyStars = 5 - Math.ceil(rating);
-    for (let i = 0; i < emptyStars; i++) {
-      stars.push(
-        <Text key={`empty-${i}`} style={styles.emptyStar}>☆</Text>
-      );
+    // Always render exactly 5 stars
+    for (let i = 0; i < 5; i++) {
+      if (i < fullStars) {
+        // Full star
+        stars.push(
+          <Text key={i} style={styles.star}>★</Text>
+        );
+      } else if (i === fullStars && hasHalfStar) {
+        // Half star
+        stars.push(
+          <Text key={i} style={styles.star}>☆</Text>
+        );
+      } else {
+        // Empty star
+        stars.push(
+          <Text key={i} style={styles.emptyStar}>☆</Text>
+        );
+      }
     }
     
     return stars;
