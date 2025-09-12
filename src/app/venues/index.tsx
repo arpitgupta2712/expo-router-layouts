@@ -15,9 +15,7 @@ import {
 } from "react-native";
 import { Link } from "expo-router";
 import Dots from "react-native-dots-pagination";
-import { Typography } from "@/constants/Typography";
-import { Colors } from "@/constants/Colors";
-import { Layout } from "@/constants/Layout";
+import { Typography, Colors, Layout, AnimationSequences } from "@/constants";
 import { useCities, useVenues } from "@/hooks";
 import { Venue } from "@/types/AdminTypes";
 import { formatRating } from "@/utils";
@@ -54,8 +52,8 @@ export default function VenuesScreen() {
   const [isShowingVenue, setIsShowingVenue] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   
-  // Simple animation values
-  const cardOpacity = useRef(new Animated.Value(1)).current;
+  // Simple animation value for smooth transitions
+  const cardTranslateY = useRef(new Animated.Value(0)).current;
 
   // Fetch data from API
   const { cities, loading: citiesLoading, error: citiesError } = useCities();
@@ -121,30 +119,23 @@ export default function VenuesScreen() {
     return stars;
   };
 
-  const animateCardChange = () => {
+  const animateCardChange = (direction: 'up' | 'down' = 'up') => {
     if (isAnimating) return;
     
     setIsAnimating(true);
     
-    Animated.sequence([
-      Animated.timing(cardOpacity, {
-        toValue: 0,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-      Animated.timing(cardOpacity, {
-        toValue: 1,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
+    const animation = direction === 'up' 
+      ? AnimationSequences.cardSlideUpTransition(cardTranslateY)
+      : AnimationSequences.cardSlideDownTransition(cardTranslateY);
+    
+    animation.start(() => {
       setIsAnimating(false);
     });
   };
 
   const goToNextCity = () => {
     if (isAnimating || !transformedCities.length) return;
-    animateCardChange();
+    animateCardChange('up');
     setCurrentCityIndex((prev) => (prev + 1) % transformedCities.length);
     setVenueIndex(0);
     setIsShowingVenue(false);
@@ -152,7 +143,7 @@ export default function VenuesScreen() {
 
   const goToPreviousCity = () => {
     if (isAnimating || !transformedCities.length) return;
-    animateCardChange();
+    animateCardChange('down');
     setCurrentCityIndex((prev) => (prev - 1 + transformedCities.length) % transformedCities.length);
     setVenueIndex(0);
     setIsShowingVenue(false);
@@ -160,14 +151,14 @@ export default function VenuesScreen() {
 
   const goToNextVenue = () => {
     if (isAnimating || !currentCity?.venues.length) return;
-    animateCardChange();
+    animateCardChange('up');
     setVenueIndex((prev) => (prev + 1) % currentCity.venues.length);
     setIsShowingVenue(true);
   };
 
   const goToPreviousVenue = () => {
     if (isAnimating || !currentCity?.venues.length) return;
-    animateCardChange();
+    animateCardChange('down');
     setVenueIndex((prev) => (prev - 1 + currentCity.venues.length) % currentCity.venues.length);
     setIsShowingVenue(true);
   };
@@ -328,7 +319,7 @@ export default function VenuesScreen() {
             styles.fullScreenCard, 
             { 
               backgroundColor: isShowingVenue ? Colors.base : currentCity.color,
-              opacity: cardOpacity,
+              transform: [{ translateY: cardTranslateY }],
             }
           ]}
         >
