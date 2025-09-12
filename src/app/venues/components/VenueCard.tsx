@@ -1,6 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Linking, Alert, Platform, ScrollView } from 'react-native';
-import { Globe, MapPin } from 'lucide-react-native';
+import React from 'react';
+import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
 import { Typography, Colors, Layout, Responsive } from '@/constants';
 import { FacilityCard } from './FacilityCard';
 
@@ -27,36 +26,6 @@ interface VenueCardProps {
   onFacilitySelect?: (facilityId: string, venueId: string) => void;
 }
 
-// Helper function to safely open URLs
-const openURL = async (url: string, fallbackMessage?: string) => {
-  try {
-    // For real devices, try opening directly first (canOpenURL can be unreliable)
-    await Linking.openURL(url);
-  } catch (error) {
-    console.error('Direct URL opening failed, trying with canOpenURL check:', error);
-    
-    // Fallback to canOpenURL check if direct opening fails
-    try {
-      const supported = await Linking.canOpenURL(url);
-      if (supported) {
-        await Linking.openURL(url);
-      } else {
-        Alert.alert(
-          'Cannot Open Link',
-          fallbackMessage || `Unable to open the link: ${url}`,
-          [{ text: 'OK' }]
-        );
-      }
-    } catch (fallbackError) {
-      console.error('Fallback URL opening also failed:', fallbackError);
-      Alert.alert(
-        'Error',
-        fallbackMessage || 'Unable to open the link. Please try again.',
-        [{ text: 'OK' }]
-      );
-    }
-  }
-};
 
 export const VenueCard: React.FC<VenueCardProps> = ({ 
   venue, 
@@ -134,58 +103,6 @@ export const VenueCard: React.FC<VenueCardProps> = ({
             </View>
           )}
           
-          {/* Action Buttons */}
-          <View style={styles.actionButtonsContainer}>
-            {/* Web URL Button */}
-            {venue.web_url && (
-              <TouchableOpacity 
-                style={styles.actionButton}
-                onPress={() => {
-                  let url = venue.web_url!;
-                  // Ensure URL has proper protocol for real devices
-                  if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                    url = 'https://' + url;
-                  }
-                  openURL(
-                    url, 
-                    'Unable to open the venue website. Please check your internet connection.'
-                  );
-                }}
-                activeOpacity={0.7}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                delayPressIn={0}
-              >
-                <Globe size={20} color={Colors.primary} />
-              </TouchableOpacity>
-            )}
-            
-            {/* Google Maps Button */}
-            {venue.coordinates && (
-              <TouchableOpacity 
-                style={styles.actionButton}
-                onPress={() => {
-                  const { latitude, longitude } = venue.coordinates!;
-                  // Try different map URL formats for better compatibility
-                  const googleMapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
-                  const appleMapsUrl = `http://maps.apple.com/?q=${latitude},${longitude}`;
-                  
-                  // Use platform-specific URL or fallback to Google Maps
-                  const mapUrl = Platform.OS === 'ios' ? appleMapsUrl : googleMapsUrl;
-                  
-                  openURL(
-                    mapUrl,
-                    'Unable to open maps. Please try opening the location manually.'
-                  );
-                }}
-                activeOpacity={0.7}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                delayPressIn={0}
-              >
-                <MapPin size={20} color={Colors.primary} />
-              </TouchableOpacity>
-            )}
-        
-          </View>
         </View>
       </ScrollView>
     </View>
@@ -246,27 +163,6 @@ const styles = StyleSheet.create({
     opacity: 1,
     marginTop: Layout.spacing.sm,
     marginBottom: Layout.spacing.xs,
-  },
-  actionButtonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: Layout.spacing.lg,
-  },
-  actionButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 10,
-    backgroundColor: Colors.gray[100],
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: Colors.black,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   // Sports container styles
   sportsContainer: {

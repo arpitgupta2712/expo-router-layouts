@@ -1,23 +1,18 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
   StyleSheet,
   Dimensions,
   TouchableOpacity,
-  Platform,
   ActivityIndicator,
   Alert,
-  Image,
-  Linking,
 } from "react-native";
 import { Link, useLocalSearchParams } from "expo-router";
-import { Typography, Colors, Layout, AnimationSequences } from "@/constants";
+import { Typography, Colors, Layout } from "@/constants";
 import { useCitiesAndVenues } from "@/hooks";
-import { Venue } from "@/types/AdminTypes";
-import { formatRating } from "@/utils";
 import { ArrowLeft } from "lucide-react-native";
-import { VenueCard, VenueIndicators, CityHeader } from "./components";
+import { VenueCard, VenueIndicators, VenueHeader, VenueFooter } from "./components";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -179,9 +174,6 @@ export default function VenuesScreen() {
   if (!transformedVenues.length) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.headerSpacer} />
-        </View>
 
         {/* Floating Back Button */}
         <Link href="/dashboard" asChild>
@@ -202,16 +194,13 @@ export default function VenuesScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerSpacer} />
-        {/* City Header inside page header */}
-        {targetCity && (
-          <CityHeader 
-            cityName={targetCity.name} 
-            venuesCount={transformedVenues.length} 
-          />
-        )}
-      </View>
+      {/* Venue Header with City Information */}
+      {targetCity && (
+        <VenueHeader
+          cityName={targetCity.name}
+          venuesCount={transformedVenues.length}
+        />
+      )}
 
       {/* Floating Back Button */}
       <Link href="/dashboard" asChild>
@@ -233,25 +222,15 @@ export default function VenuesScreen() {
         </View>
       </View>
 
-      {/* Navigation Buttons */}
-      {transformedVenues.length > 1 && (
-        <View style={styles.navigationButtons}>
-          <TouchableOpacity 
-            style={styles.navButton} 
-            onPress={goToPreviousVenue}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.navButtonText}>← Previous</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={styles.navButton} 
-            onPress={goToNextVenue}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.navButtonText}>Next →</Text>
-          </TouchableOpacity>
-        </View>
+      {/* Venue Footer with Action and Navigation Buttons */}
+      {currentVenue && (
+        <VenueFooter
+          venue={currentVenue}
+          venuesCount={transformedVenues.length}
+          currentIndex={venueIndex}
+          onPrevious={goToPreviousVenue}
+          onNext={goToNextVenue}
+        />
       )}
 
 
@@ -268,19 +247,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 160,
-    backgroundColor: "transparent",
-    zIndex: 10,
-    paddingTop: 50, // Status bar height
-  },
-  headerSpacer: {
-    flex: 1,
-  },
   cardContainer: {
     flex: 1,
     justifyContent: "center",
@@ -291,11 +257,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: screenWidth,
     height: screenHeight, // Full screen height
-    borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: Colors.primary,
   },
   cityTitle: {
     ...Typography.styles.venuesCityTitle,
@@ -401,35 +364,5 @@ const styles = StyleSheet.create({
     ...Typography.styles.venuesCityDescription,
     color: Colors.text.secondary,
     textAlign: "center",
-  },
-  // Navigation button styles
-  navigationButtons: {
-    position: "absolute",
-    bottom: 100,
-    left: 0,
-    right: 0,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 30,
-    zIndex: 20,
-  },
-  navButton: {
-    backgroundColor: Colors.primary,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  navButtonText: {
-    color: Colors.base,
-    fontSize: 16,
-    fontWeight: "600",
   },
 });
