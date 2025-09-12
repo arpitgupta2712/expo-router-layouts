@@ -24,4 +24,4 @@ export * from './ui/navigation';
 export * from './ui/layout';
 
 // Logging utilities
-export * from './logging';
+export * from './core/logging';

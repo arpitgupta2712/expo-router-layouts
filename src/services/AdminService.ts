@@ -5,7 +5,7 @@ import {
   BookingRequest, 
   BookingResponse 
 } from '../types/AdminTypes';
-import { logApi, logCache, logBooking, LogLevel } from '../utils/logging';
+import { logApi, logCache, logBooking, LogLevel } from '../utils/core/logging';
 
 class AdminService {
   private baseUrl = 'https://claygrounds-6d703322b3bc.herokuapp.com/api/hudle/admins';
