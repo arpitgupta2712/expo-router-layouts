@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Linking, Alert, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Linking, Alert, Platform } from 'react-native';
 import { Globe, MapPin, ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { Colors, Layout } from '@/constants';
 
@@ -88,6 +88,15 @@ export const VenueFooter: React.FC<VenueFooterProps> = ({
         </TouchableOpacity>
       </View>
 
+      {/* Venue Count Display */}
+      {venuesCount > 1 && (
+        <View style={styles.venueCountContainer}>
+          <Text style={styles.venueCountText}>
+            {currentIndex + 1} / {venuesCount}
+          </Text>
+        </View>
+      )}
+
       {/* Navigation Buttons */}
       {venuesCount > 1 && (
         <View style={styles.navigationButtonsContainer}>
@@ -145,6 +154,17 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  venueCountContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: Layout.spacing.sm,
+  },
+  venueCountText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.text.inverse,
+    opacity: 0.8,
   },
   navigationButtonsContainer: {
     flexDirection: 'row',

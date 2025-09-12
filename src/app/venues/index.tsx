@@ -8,10 +8,9 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-import { Link, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { Typography, Colors, Layout } from "@/constants";
 import { useCitiesAndVenues } from "@/hooks";
-import { ArrowLeft } from "lucide-react-native";
 import { VenueCard, VenueIndicators, VenueHeader, VenueFooter } from "./components";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
@@ -175,12 +174,6 @@ export default function VenuesScreen() {
     return (
       <View style={styles.container}>
 
-        {/* Floating Back Button */}
-        <Link href="/dashboard" asChild>
-          <TouchableOpacity style={styles.backButton} activeOpacity={0.8}>
-            <ArrowLeft size={24} color={Colors.text.inverse} />
-          </TouchableOpacity>
-        </Link>
 
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>No venues available</Text>
@@ -198,16 +191,9 @@ export default function VenuesScreen() {
       {targetCity && (
         <VenueHeader
           cityName={targetCity.name}
-          venuesCount={transformedVenues.length}
         />
       )}
 
-      {/* Floating Back Button */}
-      <Link href="/dashboard" asChild>
-        <TouchableOpacity style={styles.backButton} activeOpacity={0.8}>
-          <ArrowLeft size={24} color={Colors.text.primary} />
-        </TouchableOpacity>
-      </Link>
 
       <View style={styles.cardContainer}>
         {/* Simple Card */}
@@ -282,26 +268,6 @@ const styles = StyleSheet.create({
     fontSize: Typography.styles.bodyMedium.fontSize,
     color: Colors.accentLight,
     marginHorizontal: 1,
-  },
-  backButton: {
-    position: "absolute",
-    top: 90,
-    left: 30,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: Colors.accent,
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 20,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
   },
   // Loading state styles
   loadingContainer: {
