@@ -32,21 +32,21 @@ const getCardSize = () => {
 
 const CARD_SIZE = getCardSize();
 
-// City images mapping - using random city photos from internet
+// City images mapping - using stylized/artistic city images from Unsplash
 const getCityImage = (cityName) => {
   const cityImages = {
-    'Mumbai': 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&h=600&fit=crop',
-    'Delhi': 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=800&h=600&fit=crop',
-    'Bangalore': 'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=800&h=600&fit=crop',
-    'Chennai': 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop',
-    'Kolkata': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop',
-    'Hyderabad': 'https://images.unsplash.com/photo-1591604129935-f7bbee7c3e7a?w=800&h=600&fit=crop',
-    'Pune': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop',
-    'Ahmedabad': 'https://images.unsplash.com/photo-1591604129935-f7bbee7c3e7a?w=800&h=600&fit=crop',
+    'Gurgaon': 'https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=800&h=600&fit=crop&auto=format',
+    'Delhi': 'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=800&h=600&fit=crop&auto=format',
+    'Faridabad': 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=800&h=600&fit=crop&auto=format',
+    'Noida': 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop&auto=format',
+    'Lucknow': 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&h=600&fit=crop&auto=format',
+    'Ludhiana': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop&auto=format',
+    'Jhansi': 'https://images.unsplash.com/photo-1591604129935-f7bbee7c3e7a?w=800&h=600&fit=crop&auto=format',
+    'Roorkee': 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop&auto=format',
   };
   
-  // Fallback to a generic city image if not found
-  return cityImages[cityName] || 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop';
+  // Fallback to a stylized cityscape image
+  return cityImages[cityName] || 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1f?w=800&h=600&fit=crop&auto=format';
 };
 
 // City card component for bento grid
@@ -110,16 +110,16 @@ const CityCard = ({ city, venueCount, borderColor, size = 'small' }) => {
   );
 };
 
-// Feature images mapping
+// Feature images mapping - using stylized/artistic images
 const getFeatureImage = (title) => {
   const featureImages = {
-    'Sports Hero': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop',
-    'Bookings': 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=600&fit=crop',
-    'Favorites': 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=800&h=600&fit=crop',
-    'Analytics': 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop',
+    'Sports Hero': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop&auto=format',
+    'Bookings': 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=600&fit=crop&auto=format',
+    'Favorites': 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=800&h=600&fit=crop&auto=format',
+    'Analytics': 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop&auto=format',
   };
   
-  return featureImages[title] || 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop';
+  return featureImages[title] || 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop&auto=format';
 };
 
 // Static card component for other features
@@ -379,7 +379,10 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: Colors.base,
-    padding: Layout.spacing.md,
+    paddingLeft: Layout.spacing.md,
+    paddingRight: Layout.spacing.md,
+    paddingBottom: Layout.spacing.sm,
+    paddingTop: Layout.spacing.sm,
     borderBottomLeftRadius: Layout.borderRadius.xl,
     borderBottomRightRadius: Layout.borderRadius.xl,
   },
@@ -388,7 +391,6 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontWeight: '700',
     textAlign: 'left',
-    marginBottom: Layout.spacing.xs,
     textTransform: 'uppercase',
   },
   venueCount: {
