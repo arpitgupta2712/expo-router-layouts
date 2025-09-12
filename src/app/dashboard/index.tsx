@@ -7,12 +7,14 @@ import {
   Dimensions,
   Platform,
   TouchableOpacity,
-  Image 
+  Image,
+  Linking 
 } from "react-native";
 import { Link } from "expo-router";
 import { Layout } from "@/constants/Layout";
 import { Colors } from "@/constants/Colors";
 import { Typography } from "@/constants/Typography";
+import { CalendarIcon } from "@/components";
 import { useCitiesAndVenues } from "@/hooks";
 import { useCityService } from "@/hooks/useCityService";
 import { 
@@ -31,6 +33,11 @@ const CONTAINER_PADDING = DASHBOARD_CONFIG.CONTAINER_PADDING;
 
 // Get card size using extracted utility
 const CARD_SIZE = getCardSize(CARD_GAP, CONTAINER_PADDING);
+
+// Dynamic Calendar Icon Component using the reusable CalendarIcon
+const DynamicCalendarIcon = () => {
+  return <CalendarIcon size="small" />;
+};
 
 // City card component for bento grid
 const CityCard = ({ city, venueCount, borderColor, size = 'small' }) => {
@@ -67,7 +74,7 @@ const CityCard = ({ city, venueCount, borderColor, size = 'small' }) => {
 };
 
 // Static card component for other features
-const FeatureCard = ({ size, title, href = null }) => {
+const FeatureCard = ({ size, title, href = null, externalUrl = null, venueCount = null }) => {
   const cardStyle = getCardStyle(size, CARD_SIZE, CARD_GAP);
 
   const cardContent = (
@@ -79,6 +86,13 @@ const FeatureCard = ({ size, title, href = null }) => {
         resizeMode="cover"
       />
       
+      {/* Venue count badge */}
+      {venueCount !== null && (
+        <View style={styles.venueBadge}>
+          <Text style={styles.venueBadgeText}>{venueCount}</Text>
+        </View>
+      )}
+      
       {/* Footer with title */}
       <View style={styles.cardFooter}>
         <Text style={styles.featureTitle}>{title}</Text>
@@ -86,6 +100,27 @@ const FeatureCard = ({ size, title, href = null }) => {
     </View>
   );
 
+  // Handle external URL
+  if (externalUrl) {
+    const handleExternalPress = async () => {
+      try {
+        const supported = await Linking.canOpenURL(externalUrl);
+        if (supported) {
+          await Linking.openURL(externalUrl);
+        }
+      } catch (error) {
+        console.error('Error opening external URL:', error);
+      }
+    };
+
+    return (
+      <TouchableOpacity activeOpacity={0.8} onPress={handleExternalPress}>
+        {cardContent}
+      </TouchableOpacity>
+    );
+  }
+
+  // Handle internal routing
   if (href) {
     return (
       <Link href={href} asChild>
@@ -109,22 +144,26 @@ export default function DashboardPage() {
   // Filter cities to only show those that have venues
   const cities = filterCitiesWithVenues(allCities, getVenuesByCity);
   
+  // Calculate total venue count across all cities
+  const totalVenueCount = venues ? venues.length : 0;
+  
   // Debug logging
   if (allCities.length > 0) {
     console.log(`🏙️ Dashboard: Showing ${cities.length} cities with venues out of ${allCities.length} total cities`);
+    console.log(`🏢 Total venues across all cities: ${totalVenueCount}`);
   }
 
   if (loading) {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.greeting}>Good morning</Text>
-          <Text style={styles.title}>Dashboard</Text>
-          <Text style={styles.date}>{new Date().toLocaleDateString('en-US', { 
-            weekday: 'long', 
-            month: 'long', 
-            day: 'numeric' 
-          })}</Text>
+          <View style={styles.headerLeft}>
+            <Text style={styles.greeting}>Good morning</Text>
+            <Text style={styles.title}>Dashboard</Text>
+          </View>
+          <View style={styles.headerRight}>
+            <DynamicCalendarIcon />
+          </View>
         </View>
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>Loading cities...</Text>
@@ -137,8 +176,13 @@ export default function DashboardPage() {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.greeting}>Good morning</Text>
-          <Text style={styles.title}>Dashboard</Text>
+          <View style={styles.headerLeft}>
+            <Text style={styles.greeting}>Good morning</Text>
+            <Text style={styles.title}>Dashboard</Text>
+          </View>
+          <View style={styles.headerRight}>
+            <DynamicCalendarIcon />
+          </View>
         </View>
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>Unable to load cities</Text>
@@ -151,13 +195,13 @@ export default function DashboardPage() {
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
-        <Text style={styles.greeting}>Good morning</Text>
-        <Text style={styles.title}>Dashboard</Text>
-        <Text style={styles.date}>{new Date().toLocaleDateString('en-US', { 
-          weekday: 'long', 
-          month: 'long', 
-          day: 'numeric' 
-        })}</Text>
+        <View style={styles.headerLeft}>
+          <Text style={styles.greeting}>Welcome back,</Text>
+          <Text style={styles.title}>Dashboard</Text>
+        </View>
+        <View style={styles.headerRight}>
+          <DynamicCalendarIcon />
+        </View>
       </View>
 
       <View style={styles.grid}>
@@ -166,7 +210,8 @@ export default function DashboardPage() {
           <FeatureCard 
             size="rectangle" 
             title="ClayGrounds" 
-            href="/hero"
+            externalUrl="https://linktree.com/claygrounds"
+            venueCount={totalVenueCount}
           />
         </View>
 
@@ -240,6 +285,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.base,
   },
   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: CONTAINER_PADDING,
     paddingTop: 60,
     paddingBottom: Layout.spacing.lg,
@@ -252,6 +300,15 @@ const styles = StyleSheet.create({
       width: '100%',
     }),
   },
+  headerLeft: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  headerRight: {
+    flex: 1,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
   greeting: {
     ...Typography.styles.dashboardGreeting,
     color: Colors.text.inverse,
@@ -260,11 +317,6 @@ const styles = StyleSheet.create({
   title: {
     ...Typography.styles.dashboardTitle,
     color: Colors.accent,
-    marginBottom: Layout.spacing.sm,
-  },
-  date: {
-    ...Typography.styles.dashboardDate,
-    color: Colors.text.inverse,
   },
   grid: {
     padding: CONTAINER_PADDING,

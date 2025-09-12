@@ -163,11 +163,12 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 280,
     marginBottom: 20,
-    backgroundColor: Colors.accent,
+    backgroundColor: Colors.base,
     paddingHorizontal: 48,
     paddingVertical: 18,
     borderRadius: 30,
     alignItems: "center",
+    opacity: 0.8,
   },
   getStartedText: {
     ...Typography.styles.heroButtonText,
