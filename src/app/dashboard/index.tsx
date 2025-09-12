@@ -32,6 +32,23 @@ const getCardSize = () => {
 
 const CARD_SIZE = getCardSize();
 
+// City images mapping - using random city photos from internet
+const getCityImage = (cityName) => {
+  const cityImages = {
+    'Mumbai': 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&h=600&fit=crop',
+    'Delhi': 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=800&h=600&fit=crop',
+    'Bangalore': 'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=800&h=600&fit=crop',
+    'Chennai': 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop',
+    'Kolkata': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop',
+    'Hyderabad': 'https://images.unsplash.com/photo-1591604129935-f7bbee7c3e7a?w=800&h=600&fit=crop',
+    'Pune': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop',
+    'Ahmedabad': 'https://images.unsplash.com/photo-1591604129935-f7bbee7c3e7a?w=800&h=600&fit=crop',
+  };
+  
+  // Fallback to a generic city image if not found
+  return cityImages[cityName] || 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop';
+};
+
 // City card component for bento grid
 const CityCard = ({ city, venueCount, borderColor, size = 'small' }) => {
   const getCardStyle = () => {
@@ -69,7 +86,15 @@ const CityCard = ({ city, venueCount, borderColor, size = 'small' }) => {
 
   const cardContent = (
     <View style={[styles.card, getCardStyle()]}>
-      <View style={styles.cardContent}>
+      {/* City Image Background */}
+      <Image 
+        source={{ uri: getCityImage(city.name) }} 
+        style={styles.cityImage}
+        resizeMode="cover"
+      />
+      
+      {/* Footer with title and venue count */}
+      <View style={styles.cardFooter}>
         <Text style={styles.cityName}>{city.name}</Text>
         <Text style={styles.venueCount}>{venueCount} venues</Text>
       </View>
@@ -83,6 +108,18 @@ const CityCard = ({ city, venueCount, borderColor, size = 'small' }) => {
       </TouchableOpacity>
     </Link>
   );
+};
+
+// Feature images mapping
+const getFeatureImage = (title) => {
+  const featureImages = {
+    'Sports Hero': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop',
+    'Bookings': 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=600&fit=crop',
+    'Favorites': 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=800&h=600&fit=crop',
+    'Analytics': 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop',
+  };
+  
+  return featureImages[title] || 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop';
 };
 
 // Static card component for other features
@@ -122,7 +159,15 @@ const FeatureCard = ({ size, title, href = null }) => {
 
   const cardContent = (
     <View style={[styles.card, getCardStyle()]}>
-      <View style={styles.cardContent}>
+      {/* Feature Image Background */}
+      <Image 
+        source={{ uri: getFeatureImage(title) }} 
+        style={styles.featureImage}
+        resizeMode="cover"
+      />
+      
+      {/* Footer with title */}
+      <View style={styles.cardFooter}>
         <Text style={styles.featureTitle}>{title}</Text>
       </View>
     </View>
@@ -147,13 +192,6 @@ export default function DashboardPage() {
   // Border color palette for city cards [[memory:8782456]]
   const cityBorderColors = [
     Colors.primary,        // Forest Green
-    Colors.accent,         // Chartreuse
-    Colors.primaryLight,   // Ocean Green
-    Colors.info,           // Illuminating Emerald
-    Colors.warning,        // Royal Orange
-    Colors.error,          // Safety Orange
-    Colors.accentLight,    // Key Lime
-    Colors.primaryDark,    // Dark Green
   ];
 
   if (loading) {
@@ -309,9 +347,6 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: Layout.borderRadius.xl,
-    padding: Layout.spacing.lg,
-    justifyContent: "center",
-    alignItems: "center",
     borderWidth: 2,
     shadowColor: Colors.black,
     shadowOffset: {
@@ -324,28 +359,52 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     position: 'relative',
   },
-  cardContent: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
+  cityImage: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+  },
+  featureImage: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+  },
+  cardFooter: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: Colors.base,
+    padding: Layout.spacing.md,
+    borderBottomLeftRadius: Layout.borderRadius.xl,
+    borderBottomRightRadius: Layout.borderRadius.xl,
   },
   cityName: {
     ...Typography.styles.dashboardCardTitle,
-    color: Colors.text.primary,
+    color: Colors.primary,
     fontWeight: '700',
-    textAlign: 'center',
+    textAlign: 'left',
     marginBottom: Layout.spacing.xs,
+    textTransform: 'uppercase',
   },
   venueCount: {
     ...Typography.styles.dashboardCardSize,
-    color: Colors.text.secondary,
-    textAlign: 'center',
+    color: Colors.primary,
+    opacity: 0.9,
+    textAlign: 'left',
+    fontSize: 12,
+    textTransform: 'uppercase',
   },
   featureTitle: {
     ...Typography.styles.dashboardCardTitle,
-    color: Colors.text.primary,
+    color: Colors.primary,
     fontWeight: '600',
-    textAlign: 'center',
+    textAlign: 'left',
+    textTransform: 'uppercase',
   },
   loadingContainer: {
     flex: 1,

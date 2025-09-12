@@ -249,18 +249,18 @@ export const Typography = {
       letterSpacing: 0,
     },
     dashboardCardTitle: {
-      fontFamily: 'Poppins_600SemiBold',
+      fontFamily: 'ArchivoExtraCondensed-BoldItalic',
       fontSize: 20,
-      fontWeight: '600',
+      fontWeight: '700',
       lineHeight: 28, // 20 * 1.4
-      letterSpacing: 0,
+      letterSpacing: 0.5,
     },
     dashboardCardSize: {
-      fontFamily: 'ArchivoExtraCondensed-Italic',
+      fontFamily: 'Poppins_400Regular',
       fontSize: 12,
-      fontWeight: '400',
+      fontWeight: '500',
       lineHeight: 18, // 12 * 1.5
-      letterSpacing: 0.5,
+      letterSpacing: 0,
     },
 
     // Venues page - Poppins for titles, PT Sans for descriptions
