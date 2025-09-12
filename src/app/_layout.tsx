@@ -59,8 +59,9 @@ export default function Layout() {
   return (
     <AdminDataProvider>
       <Head>
-        <title>Expo Router Layouts Demo</title>
-        <meta name="description" content="Expo Router Layouts Demo" />
+        <title>ClayGrounds - Sports Venue Booking</title>
+        <meta name="description" content="Book sports venues and facilities across India with ClayGrounds. Find and book cricket, football, badminton, and more sports facilities." />
+        <meta name="keywords" content="sports booking, venue booking, cricket, football, badminton, pickleball, sports facilities, India" />
       </Head>
       <Stack
         screenOptions={{

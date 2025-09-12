@@ -34,7 +34,7 @@
   "devDependencies": {
     "@babel/core": "^7.24.0"
   },
-  "name": "expo-router-layouts",
+  "name": "claygrounds",
   "version": "1.0.0",
   "private": true
 }

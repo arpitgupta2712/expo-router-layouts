@@ -1,23 +1,44 @@
 {
   "expo": {
-    "scheme": "acme",
+    "name": "ClayGrounds",
+    "slug": "claygrounds",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.claygrounds.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./adaptive-icon.png",
+        "backgroundColor": "#000000"
+      },
+      "package": "com.claygrounds.app"
+    },
     "web": {
+      "favicon": "./favicon.png",
       "bundler": "metro",
       "output": "static"
     },
+    "scheme": "claygrounds",
     "plugins": [
       [
         "expo-router",
         {
-          "origin": "https://a",
+          "origin": "https://claygrounds.app",
           "root": "./src/app"
         }
       ]
-    ],
-    "name": "expo-router-layouts",
-    "slug": "expo-router-layouts",
-    "assetBundlePatterns": [
-      "src/app/assets/**/*"
     ]
   }
 }
