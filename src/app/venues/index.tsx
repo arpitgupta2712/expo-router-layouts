@@ -74,6 +74,7 @@ export default function VenuesScreen() {
     address: venue.address || 'Address not available',
     sports: venue.sports || [],
     facilities_count: venue.facilities_count || 0,
+    facilities: venue.facilities || [], // Include facilities data
     image_url: venue.image_url,
     rating: venue.rating,
     rating_count: venue.rating_count,
@@ -84,6 +85,27 @@ export default function VenuesScreen() {
   }));
 
   const currentVenue = transformedVenues[venueIndex];
+
+  // Handle facility selection
+  const handleFacilitySelect = (facilityId: string, venueId: string) => {
+    // For now, show an alert with facility details
+    const venue = cityVenues.find(v => v.id === venueId);
+    const facility = venue?.facilities?.find(f => f.id === facilityId);
+    
+    if (facility) {
+      Alert.alert(
+        'Facility Selected',
+        `${facility.name}\nPrice: ₹${facility.price}\nSports: ${facility.sports?.map(s => s.name).join(', ') || 'N/A'}\n\nThis will navigate to the booking flow for this facility.`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Book Now', onPress: () => {
+            // TODO: Navigate to booking flow
+            Alert.alert('Coming Soon', 'Booking flow will be implemented soon!');
+          }}
+        ]
+      );
+    }
+  };
 
   // Animation functions using basic Animated API
   const animateToNext = (direction: 'up' | 'down', callback: () => void) => {
@@ -358,7 +380,11 @@ export default function VenuesScreen() {
           ]}
         >
           {currentVenue && (
-            <VenueCard venue={currentVenue} renderStars={renderStars} />
+            <VenueCard 
+              venue={currentVenue} 
+              renderStars={renderStars}
+              onFacilitySelect={handleFacilitySelect}
+            />
           )}
         </Animated.View>
       </View>

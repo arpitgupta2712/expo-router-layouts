@@ -15,8 +15,15 @@ interface VenueCardProps {
       latitude: number;
       longitude: number;
     };
+    facilities?: {
+      id: string;
+      name: string;
+      price: string;
+      sports: { id: string; name: string }[];
+    }[];
   };
   renderStars: (rating: number) => React.ReactNode[];
+  onFacilitySelect?: (facilityId: string, venueId: string) => void;
 }
 
 // Helper function to safely open URLs
@@ -42,7 +49,7 @@ const openURL = async (url: string, fallbackMessage?: string) => {
   }
 };
 
-export const VenueCard: React.FC<VenueCardProps> = ({ venue, renderStars }) => {
+export const VenueCard: React.FC<VenueCardProps> = ({ venue, renderStars, onFacilitySelect }) => {
   return (
     <View style={styles.venueCard}>
       {/* Venue Image - 60% of top space */}
@@ -68,6 +75,52 @@ export const VenueCard: React.FC<VenueCardProps> = ({ venue, renderStars }) => {
         
         {/* Venue Info Container */}
         <View style={styles.venueInfoContainer}>
+          {/* Facility Selection Buttons */}
+          {venue.facilities && venue.facilities.length > 0 && (
+            <View style={styles.facilitiesContainer}>
+              <Text style={styles.facilitiesTitle}>Choose a facility to book</Text>
+              <View style={styles.facilitiesGrid}>
+                {venue.facilities.slice(0, 6).map((facility) => (
+                  <TouchableOpacity
+                    key={facility.id}
+                    style={styles.facilityButton}
+                    onPress={() => onFacilitySelect?.(facility.id, venue.id)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.facilityName} numberOfLines={1}>
+                      {facility.name}
+                    </Text>
+                    <Text style={styles.facilityPrice}>
+                      ₹{facility.price}
+                    </Text>
+                    {facility.sports && facility.sports.length > 0 && (
+                      <Text style={styles.facilitySport} numberOfLines={1}>
+                        {facility.sports[0].name}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                ))}
+                {venue.facilities.length > 6 && (
+                  <TouchableOpacity
+                    style={styles.moreFacilitiesButton}
+                    onPress={() => {
+                      Alert.alert(
+                        'More Facilities',
+                        `${venue.facilities!.length - 6} more facilities available. This will be implemented in the booking flow.`,
+                        [{ text: 'OK' }]
+                      );
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.moreFacilitiesText}>
+                      +{venue.facilities.length - 6} more
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
+          )}
+          
           {/* Action Buttons */}
           <View style={styles.actionButtonsContainer}>
             {/* Web URL Button */}
@@ -199,6 +252,86 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  // Facility selection styles
+  facilitiesContainer: {
+    width: '100%',
+    marginBottom: Layout.spacing.md,
+  },
+  facilitiesTitle: {
+    ...Typography.styles.venuesVenueTitle,
+    color: Colors.primary,
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: Layout.spacing.sm,
+    opacity: 0.8,
+  },
+  facilitiesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: Layout.spacing.sm,
+  },
+  facilityButton: {
+    width: '30%',
+    minWidth: 80,
+    backgroundColor: Colors.base,
+    borderRadius: Layout.borderRadius.md,
+    padding: Layout.spacing.sm,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    alignItems: 'center',
+    shadowColor: Colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  facilityName: {
+    ...Typography.styles.venuesVenueTitle,
+    color: Colors.primary,
+    fontSize: 10,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 2,
+  },
+  facilityPrice: {
+    ...Typography.styles.venuesVenueTitle,
+    color: Colors.primary,
+    fontSize: 12,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 2,
+  },
+  facilitySport: {
+    ...Typography.styles.venuesVenueTitle,
+    color: Colors.primary,
+    fontSize: 8,
+    opacity: 0.7,
+    textAlign: 'center',
+    textTransform: 'uppercase',
+  },
+  moreFacilitiesButton: {
+    width: '30%',
+    minWidth: 80,
+    backgroundColor: Colors.gray[100],
+    borderRadius: Layout.borderRadius.md,
+    padding: Layout.spacing.sm,
+    borderWidth: 1,
+    borderColor: Colors.gray[300],
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  moreFacilitiesText: {
+    ...Typography.styles.venuesVenueTitle,
+    color: Colors.primary,
+    fontSize: 10,
+    fontWeight: '500',
+    textAlign: 'center',
+    opacity: 0.7,
   },
 });
 
