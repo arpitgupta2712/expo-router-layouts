@@ -189,10 +189,21 @@ const FeatureCard = ({ size, title, href = null }) => {
 
 export default function DashboardPage() {
   const { venues, getVenuesByCity, loading: venuesLoading, error: venuesError } = useCitiesAndVenues();
-  const { cities, loading: citiesLoading, error: citiesError } = useCityService();
+  const { cities: allCities, loading: citiesLoading, error: citiesError } = useCityService();
   
   const loading = venuesLoading || citiesLoading;
   const error = venuesError || citiesError;
+  
+  // Filter cities to only show those that have venues
+  const cities = allCities.filter(city => {
+    const cityVenues = getVenuesByCity(city.id);
+    return cityVenues.length > 0;
+  });
+  
+  // Debug logging
+  if (allCities.length > 0) {
+    console.log(`🏙️ Dashboard: Showing ${cities.length} cities with venues out of ${allCities.length} total cities`);
+  }
 
   // Border color palette for city cards [[memory:8782456]]
   const cityBorderColors = [
