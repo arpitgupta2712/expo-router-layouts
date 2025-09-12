@@ -2,8 +2,12 @@
 // Based on the Frontend Multi-Admin Integration Guide
 
 export interface City {
-  id: string;
+  id: number;
   name: string;
+  latitude: number;
+  longitude: number;
+  photo: string;
+  show_metro_station: boolean;
 }
 
 export interface Sport {

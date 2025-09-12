@@ -14,6 +14,7 @@ import { Layout } from "@/constants/Layout";
 import { Colors } from "@/constants/Colors";
 import { Typography } from "@/constants/Typography";
 import { useCitiesAndVenues } from "@/hooks";
+import { useCityService } from "@/hooks/useCityService";
 
 const { width } = Dimensions.get("window");
 const CARD_GAP = 12;
@@ -187,7 +188,11 @@ const FeatureCard = ({ size, title, href = null }) => {
 };
 
 export default function DashboardPage() {
-  const { cities, getVenuesByCity, loading, error } = useCitiesAndVenues();
+  const { venues, getVenuesByCity, loading: venuesLoading, error: venuesError } = useCitiesAndVenues();
+  const { cities, loading: citiesLoading, error: citiesError } = useCityService();
+  
+  const loading = venuesLoading || citiesLoading;
+  const error = venuesError || citiesError;
 
   // Border color palette for city cards [[memory:8782456]]
   const cityBorderColors = [
