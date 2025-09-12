@@ -36,13 +36,15 @@ const CARD_SIZE = getCardSize();
 // City images mapping - using local map files with fallback to Delhi
 const getCityImage = (cityName) => {
   const cityImages = {
-    'Gurgaon': require('../assets/maps/Gurgaon.png'),
-    'Delhi': require('../assets/maps/Delhi.png'),
-    'Faridabad': require('../assets/maps/Faridabad.png'),
-    'Noida': require('../assets/maps/Noida.png'),
-    'Kolkata': require('../assets/maps/Kolkata.png'),
-    'Jhansi': require('../assets/maps/Jhansi.png'),
-    'Roorkee': require('../assets/maps/Roorkee.png'),
+    'Gurgaon': require('../assets/images/Gurgaon.jpg'),
+    'Delhi': require('../assets/images/Delhi.jpg'),
+    'Faridabad': require('../assets/images/Faridabad.jpg'),
+    'Noida': require('../assets/images/Noida.jpg'),
+    'Kolkata': require('../assets/images/Kolkata.jpg'),
+    'Jhansi': require('../assets/images/Jhansi.jpg'),
+    'Roorkee': require('../assets/images/Roorkee.jpg'),
+    'Lucknow': require('../assets/images/Lucknow.jpg'),
+    'Ludhiana': require('../assets/images/Ludhiana.jpg'),
   };
   
   // Fallback to Delhi map image
@@ -114,9 +116,9 @@ const CityCard = ({ city, venueCount, borderColor, size = 'small' }) => {
 const getFeatureImage = (title) => {
   const featureImages = {
     'ClayGrounds': require('../assets/images/dashboard-dark.png'),
-    'Bookings': { uri: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=600&fit=crop&auto=format' },
-    'Favorites': { uri: 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=800&h=600&fit=crop&auto=format' },
-    'Analytics': { uri: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop&auto=format' },
+    'Bookings': require('../assets/images/Stadium.jpg'),
+    'Favorites': require('../assets/images/Stadium.jpg'),
+    'Analytics': require('../assets/images/Stadium.jpg'),
   };
   
   return featureImages[title] || { uri: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop&auto=format' };
