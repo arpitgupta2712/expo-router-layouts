@@ -1,9 +1,10 @@
 import React from "react";
-import { View, Text, StyleSheet, ViewStyle } from "react-native";
+import { View, Text, StyleSheet, ViewStyle, TouchableOpacity } from "react-native";
 import { Calendar } from "lucide-react-native";
 import { Layout } from "@/constants/Layout";
 import { Colors } from "@/constants/Colors";
 import { Typography } from "@/constants/Typography";
+import { logUserAction, getCurrentISTDate, getDayNumberIST, getShortMonthNameIST, getISTTimestamp } from "@/utils";
 
 export interface CalendarIconProps {
   /**
@@ -40,19 +41,47 @@ export interface CalendarIconProps {
    * Custom icon color
    */
   iconColor?: string;
+  
+  /**
+   * Whether the calendar is interactive (clickable)
+   */
+  interactive?: boolean;
+  
+  /**
+   * Callback when date is selected (for interactive mode)
+   */
+  onDateSelect?: (date: Date) => void;
 }
 
 export const CalendarIcon: React.FC<CalendarIconProps> = ({
-  date = new Date(),
+  date,
   size = 'medium',
   style,
   showHeader = true,
   backgroundColor = Colors.base,
   textColor = Colors.safetyOrange,
   iconColor = Colors.primary,
+  interactive = false,
+  onDateSelect,
 }) => {
-  const day = date.getDate();
-  const monthName = date.toLocaleDateString('en-US', { month: 'short' }); // e.g., "Dec"
+  // Use IST date by default, or the provided date
+  const targetDate = date || new Date();
+  const day = getDayNumberIST(targetDate);
+  const monthName = getShortMonthNameIST(targetDate);
+
+  const handlePress = () => {
+    if (interactive && onDateSelect) {
+      // Log date selection with IST timestamp
+      const selectedDate = targetDate.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+      logUserAction('date_selected', {
+        selectedDate: selectedDate,
+        selectedDay: day,
+        selectedMonth: monthName,
+        timestamp: getISTTimestamp()
+      });
+      onDateSelect(targetDate);
+    }
+  };
   
   const sizeConfig = {
     small: {
@@ -95,7 +124,7 @@ export const CalendarIcon: React.FC<CalendarIconProps> = ({
     },
   });
   
-  return (
+  const calendarContent = (
     <View style={[styles.calendarIcon, dynamicStyles.container, style]}>
       {showHeader && (
         <View style={styles.calendarHeader}>
@@ -112,6 +141,16 @@ export const CalendarIcon: React.FC<CalendarIconProps> = ({
       </View>
     </View>
   );
+
+  if (interactive) {
+    return (
+      <TouchableOpacity onPress={handlePress} activeOpacity={0.7}>
+        {calendarContent}
+      </TouchableOpacity>
+    );
+  }
+
+  return calendarContent;
 };
 
 const styles = StyleSheet.create({

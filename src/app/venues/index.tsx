@@ -15,7 +15,10 @@ import { VenueCard, VenueIndicators, VenueHeader, VenueFooter } from "./componen
 import { 
   renderStars, 
   createNavigationHelpers,
-  transformVenueData
+  transformVenueData,
+  logUserAction,
+  getTodayIST,
+  getISTTimestamp
 } from "@/utils";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
@@ -42,6 +45,31 @@ export default function VenuesScreen() {
   );
 
   const currentVenue = transformedVenues[venueIndex];
+
+  // Log city selection when component mounts
+  React.useEffect(() => {
+    if (targetCity) {
+      logUserAction('city_selected', {
+        cityId: targetCity.id,
+        cityName: targetCity.name,
+        venueCount: cityVenues.length
+      });
+    }
+  }, [targetCity, cityVenues.length]);
+
+  // Log venue navigation
+  React.useEffect(() => {
+    if (currentVenue) {
+      logUserAction('venue_viewed', {
+        venueId: currentVenue.id,
+        venueName: currentVenue.title,
+        venueIndex,
+        totalVenues: transformedVenues.length,
+        cityId: targetCity?.id,
+        cityName: targetCity?.name
+      });
+    }
+  }, [currentVenue, venueIndex, transformedVenues.length, targetCity]);
   
   
 
@@ -52,26 +80,98 @@ export default function VenuesScreen() {
     const facility = venue?.facilities?.find(f => f.id === facilityId);
     
     if (facility) {
+      const currentDate = getTodayIST(); // YYYY-MM-DD format in IST
+      
+      // Log facility selection with comprehensive data including timing info
+      logUserAction('facility_selected', {
+        facilityId: facility.id,
+        facilityName: facility.name,
+        facilityPrice: facility.price,
+        facilitySports: facility.sports?.map(s => s.name) || [],
+        facilityStartTime: facility.start_time,
+        facilityEndTime: facility.end_time,
+        facilitySlotLength: facility.slot_length,
+        facilityHasSplitPayment: facility.has_split_payment,
+        venueId: venue.id,
+        venueName: venue.name,
+        venueAddress: venue.address,
+        cityId: targetCity?.id,
+        cityName: targetCity?.name,
+        selectedDate: currentDate,
+        timestamp: getISTTimestamp()
+      });
+
       Alert.alert(
         'Facility Selected',
-        `${facility.name}\nPrice: ₹${facility.price}\nSports: ${facility.sports?.map(s => s.name).join(', ') || 'N/A'}\n\nThis will navigate to the booking flow for this facility.`,
+        `Venue: ${venue.name} (ID: ${venue.id})\nCity: ${targetCity?.name} (ID: ${targetCity?.id})\n\nFacility: ${facility.name} (ID: ${facility.id})\nPrice: ₹${facility.price}\nSports: ${facility.sports?.map(s => s.name).join(', ') || 'N/A'}\nTiming: ${facility.start_time} - ${facility.end_time}\nSlot Duration: ${facility.slot_length} minutes\nSplit Payment: ${facility.has_split_payment ? 'Available' : 'Not Available'}\n\nDate: ${currentDate}\n\nThis will navigate to the booking flow for this facility.`,
         [
           { text: 'Cancel', style: 'cancel' },
           { text: 'Book Now', onPress: () => {
+            // Log booking intent with timing data
+            logUserAction('booking_intent', {
+              facilityId: facility.id,
+              facilityName: facility.name,
+              facilityStartTime: facility.start_time,
+              facilityEndTime: facility.end_time,
+              facilitySlotLength: facility.slot_length,
+              venueId: venue.id,
+              venueName: venue.name,
+              cityId: targetCity?.id,
+              cityName: targetCity?.name,
+              selectedDate: currentDate,
+              timestamp: getISTTimestamp()
+            });
             // TODO: Navigate to booking flow
             Alert.alert('Coming Soon', 'Booking flow will be implemented soon!');
           }}
         ]
       );
     }
-  }, [cityVenues]);
+  }, [cityVenues, targetCity]);
 
 
   // Create navigation helpers using extracted utility
   const { goToNext, goToPrevious } = createNavigationHelpers(transformedVenues.length);
   
-  const goToNextVenue = () => goToNext(venueIndex, setVenueIndex);
-  const goToPreviousVenue = () => goToPrevious(venueIndex, setVenueIndex);
+  const goToNextVenue = useCallback(() => {
+    const oldIndex = venueIndex;
+    goToNext(venueIndex, setVenueIndex);
+    // Log navigation after state update
+    setTimeout(() => {
+      const newIndex = (oldIndex + 1) % transformedVenues.length;
+      if (transformedVenues[newIndex]) {
+        logUserAction('venue_navigation', {
+          direction: 'next',
+          fromIndex: oldIndex,
+          toIndex: newIndex,
+          venueId: transformedVenues[newIndex].id,
+          venueName: transformedVenues[newIndex].title,
+          cityId: targetCity?.id,
+          cityName: targetCity?.name
+        });
+      }
+    }, 0);
+  }, [venueIndex, transformedVenues, targetCity, goToNext]);
+
+  const goToPreviousVenue = useCallback(() => {
+    const oldIndex = venueIndex;
+    goToPrevious(venueIndex, setVenueIndex);
+    // Log navigation after state update
+    setTimeout(() => {
+      const newIndex = oldIndex === 0 ? transformedVenues.length - 1 : oldIndex - 1;
+      if (transformedVenues[newIndex]) {
+        logUserAction('venue_navigation', {
+          direction: 'previous',
+          fromIndex: oldIndex,
+          toIndex: newIndex,
+          venueId: transformedVenues[newIndex].id,
+          venueName: transformedVenues[newIndex].title,
+          cityId: targetCity?.id,
+          cityName: targetCity?.name
+        });
+      }
+    }, 0);
+  }, [venueIndex, transformedVenues, targetCity, goToPrevious]);
 
 
 

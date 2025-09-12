@@ -45,21 +45,14 @@ export default function Layout() {
     PTSans_700Bold,
   });
 
-  // Log font loading status
+  // Log font loading status (concise)
   React.useEffect(() => {
-    console.log('🎨 Fonts loaded:', fontsLoaded);
     if (fontsLoaded) {
-      console.log('✅ All fonts successfully loaded!');
-      console.log('📝 Available fonts: Archivo Extra Condensed (custom, non-italic variants), Poppins, PT Sans');
-      console.log('🎯 Font hierarchy: Poppins (titles), PT Sans (body), Archivo Extra Condensed (captions)');
-      console.log('🔧 Android compatibility: Using non-italic Archivo variants with fallbacks');
-    } else {
-      console.log('⏳ Loading fonts...');
+      console.log('✅ Fonts loaded: Archivo Extra Condensed, Poppins, PT Sans');
     }
   }, [fontsLoaded]);
 
   if (!fontsLoaded) {
-    console.log('🔄 Waiting for fonts to load...');
     return null; // Or a loading screen
   }
 

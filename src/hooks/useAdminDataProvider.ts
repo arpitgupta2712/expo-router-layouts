@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, createContext, useContext, ReactNode } from 'react';
 import { adminService } from '../services/AdminService';
+import { logApi } from '../utils/logging';
 import { 
   UseAdminDataReturn, 
   MultiAdminResponse, 
@@ -25,14 +26,14 @@ export const AdminDataProvider = ({ children }: { children: ReactNode }) => {
     try {
       setLoading(true);
       setError(null);
-      console.log('🌐 Fetching admin data from API...');
+      logApi('info', 'Preloading admin data from Hero section');
       const result = await adminService.getMultipleAdmins(['9910545678', '9999099867']);
       setData(result);
-      console.log('✅ Admin data fetched and cached successfully');
+      logApi('info', 'Admin data preloaded successfully');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch admin data';
       setError(errorMessage);
-      console.error('❌ useAdminData error:', errorMessage);
+      logApi('error', 'Failed to preload admin data', { error: errorMessage });
     } finally {
       setLoading(false);
     }

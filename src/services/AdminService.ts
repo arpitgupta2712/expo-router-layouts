@@ -5,6 +5,7 @@ import {
   BookingRequest, 
   BookingResponse 
 } from '../types/AdminTypes';
+import { logApi, logCache, logBooking, LogLevel } from '../utils/logging';
 
 class AdminService {
   private baseUrl = 'https://claygrounds-6d703322b3bc.herokuapp.com/api/hudle/admins';
@@ -22,13 +23,13 @@ class AdminService {
     if (this.cache.has(cacheKey)) {
       const cached = this.cache.get(cacheKey)!;
       if (now - cached.timestamp < this.CACHE_DURATION) {
-        console.log('📦 Returning cached admin data');
+        logCache(LogLevel.INFO, 'Admin data cache hit', { adminIds });
         return cached.data;
       }
     }
 
     try {
-      console.log('🌐 Fetching admin data from API...');
+      logApi(LogLevel.INFO, 'Fetching admin data', { adminIds });
       const response = await fetch(
         `${this.baseUrl}/multiple?admin_ids=${adminIds.join(',')}`,
         {
@@ -47,11 +48,14 @@ class AdminService {
       
       // Update cache
       this.cache.set(cacheKey, { data, timestamp: now });
-      console.log('✅ Admin data fetched and cached successfully');
+      logApi(LogLevel.INFO, 'Admin data fetched successfully', { 
+        adminCount: data.data.admins.length,
+        venueCount: data.data.venues.length 
+      });
       
       return data;
     } catch (error) {
-      console.error('❌ Error fetching multiple admins:', error);
+      logApi(LogLevel.ERROR, 'Failed to fetch admin data', { adminIds, error: error.message });
       throw error;
     }
   }
@@ -64,7 +68,7 @@ class AdminService {
       const result = await this.getMultipleAdmins([phone]);
       return result.data.admins[0] || null;
     } catch (error) {
-      console.error('❌ Error fetching admin by phone:', error);
+      logApi(LogLevel.ERROR, 'Failed to fetch admin by phone', { phone, error: error.message });
       return null;
     }
   }
@@ -104,7 +108,7 @@ class AdminService {
       const data: MultiAdminResponse = await response.json();
       return data;
     } catch (error) {
-      console.error('❌ Error searching admins:', error);
+      logApi(LogLevel.ERROR, 'Failed to search admins', { criteria, error: error.message });
       throw error;
     }
   }
@@ -116,15 +120,22 @@ class AdminService {
     try {
       // This is a placeholder implementation
       // In the future, this would call the actual booking API
-      console.log('📅 Booking facility:', bookingRequest);
+      logBooking(LogLevel.INFO, 'Booking facility', { 
+        facilityId: bookingRequest.facility_id,
+        venueId: bookingRequest.venue_id,
+        date: bookingRequest.date 
+      });
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
+      const bookingId = `booking_${Date.now()}`;
+      logBooking(LogLevel.INFO, 'Booking confirmed', { bookingId });
+      
       return {
         success: true,
         data: {
-          booking_id: `booking_${Date.now()}`,
+          booking_id: bookingId,
           status: 'confirmed',
           facility: {} as any, // Would be populated from API
           venue: {} as any, // Would be populated from API
@@ -134,7 +145,10 @@ class AdminService {
         message: 'Booking confirmed successfully',
       };
     } catch (error) {
-      console.error('❌ Error booking facility:', error);
+      logBooking(LogLevel.ERROR, 'Failed to book facility', { 
+        bookingRequest, 
+        error: error.message 
+      });
       throw error;
     }
   }
@@ -145,17 +159,18 @@ class AdminService {
   async cancelBooking(bookingId: string): Promise<{ success: boolean; message: string }> {
     try {
       // This is a placeholder implementation
-      console.log('❌ Cancelling booking:', bookingId);
+      logBooking(LogLevel.INFO, 'Cancelling booking', { bookingId });
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 500));
       
+      logBooking(LogLevel.INFO, 'Booking cancelled', { bookingId });
       return {
         success: true,
         message: 'Booking cancelled successfully',
       };
     } catch (error) {
-      console.error('❌ Error cancelling booking:', error);
+      logBooking(LogLevel.ERROR, 'Failed to cancel booking', { bookingId, error: error.message });
       throw error;
     }
   }
@@ -165,7 +180,7 @@ class AdminService {
    */
   clearCache(): void {
     this.cache.clear();
-    console.log('🗑️ Admin service cache cleared');
+    logCache(LogLevel.INFO, 'Admin service cache cleared');
   }
 
   /**

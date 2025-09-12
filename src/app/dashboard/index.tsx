@@ -147,10 +147,9 @@ export default function DashboardPage() {
   // Calculate total venue count across all cities
   const totalVenueCount = venues ? venues.length : 0;
   
-  // Debug logging
+  // Debug logging (concise)
   if (allCities.length > 0) {
-    console.log(`🏙️ Dashboard: Showing ${cities.length} cities with venues out of ${allCities.length} total cities`);
-    console.log(`🏢 Total venues across all cities: ${totalVenueCount}`);
+    console.log(`🏙️ Dashboard: ${cities.length}/${allCities.length} cities, ${totalVenueCount} venues`);
   }
 
   if (loading) {

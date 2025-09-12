@@ -1,4 +1,5 @@
 import { City } from '../types/AdminTypes';
+import { logApi, logCache, LogLevel } from '../utils/logging';
 
 interface CityApiResponse {
   success: boolean;
@@ -24,12 +25,12 @@ class CityService {
 
     // Check cache first
     if (this.cache && (now - this.cache.timestamp < this.CACHE_DURATION)) {
-      console.log('📦 Returning cached city data');
+      logCache(LogLevel.INFO, 'City data cache hit', { cityCount: this.cache.data.length });
       return this.cache.data;
     }
 
     try {
-      console.log('🌐 Fetching city data from Hudle API...');
+      logApi(LogLevel.INFO, 'Fetching city data from Hudle API');
       const response = await fetch(`${this.baseUrl}/cities`, {
         method: 'GET',
         headers: {
@@ -62,15 +63,15 @@ class CityService {
         timestamp: now 
       };
       
-      console.log(`✅ City data fetched and cached successfully (${apiResponse.data.length} cities)`);
+      logApi(LogLevel.INFO, 'City data fetched successfully', { cityCount: apiResponse.data.length });
       return apiResponse.data;
       
     } catch (error) {
-      console.error('❌ Error fetching cities:', error);
+      logApi(LogLevel.ERROR, 'Failed to fetch cities', { error: error.message });
       
       // Return cached data if available, even if expired
       if (this.cache) {
-        console.log('⚠️ Using expired cached city data due to API error');
+        logCache(LogLevel.WARN, 'Using expired cached city data due to API error', { cityCount: this.cache.data.length });
         return this.cache.data;
       }
       
@@ -86,7 +87,7 @@ class CityService {
       const cities = await this.getCities();
       return cities.find(city => city.id === id) || null;
     } catch (error) {
-      console.error('❌ Error fetching city by ID:', error);
+      logApi(LogLevel.ERROR, 'Failed to fetch city by ID', { id, error: error.message });
       return null;
     }
   }
@@ -101,7 +102,7 @@ class CityService {
         city.name.toLowerCase() === name.toLowerCase()
       ) || null;
     } catch (error) {
-      console.error('❌ Error fetching city by name:', error);
+      logApi(LogLevel.ERROR, 'Failed to fetch city by name', { name, error: error.message });
       return null;
     }
   }
@@ -118,7 +119,7 @@ class CityService {
         city.name.toLowerCase().includes(lowercaseQuery)
       );
     } catch (error) {
-      console.error('❌ Error searching cities:', error);
+      logApi(LogLevel.ERROR, 'Failed to search cities', { query, error: error.message });
       return [];
     }
   }
@@ -131,7 +132,7 @@ class CityService {
       const cities = await this.getCities();
       return cities.filter(city => city.show_metro_station);
     } catch (error) {
-      console.error('❌ Error fetching cities with metro:', error);
+      logApi(LogLevel.ERROR, 'Failed to fetch cities with metro', { error: error.message });
       return [];
     }
   }
@@ -141,7 +142,7 @@ class CityService {
    */
   clearCache(): void {
     this.cache = null;
-    console.log('🗑️ City service cache cleared');
+    logCache(LogLevel.INFO, 'City service cache cleared');
   }
 
   /**
