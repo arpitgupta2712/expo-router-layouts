@@ -12,31 +12,17 @@ import { useLocalSearchParams } from "expo-router";
 import { Typography, Colors, Layout } from "@/constants";
 import { useCitiesAndVenues } from "@/hooks";
 import { VenueCard, VenueIndicators, VenueHeader, VenueFooter } from "./components";
+import { 
+  venueColors, 
+  renderStars, 
+  createNavigationHelpers,
+  transformVenueData,
+  formatDisplayDate
+} from "@/utils";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
-// Color palette for cities and venues
-const cityColors = [
-  Colors.primary,        // Forest Green
-  Colors.accent,         // Chartreuse
-  Colors.primaryLight,   // Ocean Green
-  Colors.info,           // Illuminating Emerald
-  Colors.error,          // Safety Orange
-  Colors.warning,        // Royal Orange
-  Colors.accentLight,    // Key Lime
-  Colors.primaryDark,    // Dark Green
-];
-
-const venueColors = [
-  Colors.primaryLight,   // Ocean Green
-  Colors.info,           // Illuminating Emerald
-  Colors.primaryDark,    // Dark Green
-  Colors.veryLightTangelo, // Very Light Tangelo
-  Colors.accentLight,    // Key Lime
-  Colors.accentDark,     // Light Goldenrod Yellow
-  Colors.warning,        // Royal Orange
-  Colors.error,          // Safety Orange
-];
+// Color palette for cities and venues (imported from utils)
 
 export default function VenuesScreen() {
   // Get city parameter from route
@@ -52,23 +38,10 @@ export default function VenuesScreen() {
   const targetCity = cities.find(city => city.id.toString() === targetCityId) || cities[0];
   const cityVenues = targetCity ? getVenuesByCity(targetCity.id) : [];
 
-  // Transform venue data
-  const transformedVenues = cityVenues.map((venue, index) => ({
-    id: venue.id,
-    title: venue.name || 'Unnamed Venue',
-    color: venueColors[index % venueColors.length],
-    address: venue.address || 'Address not available',
-    sports: venue.sports || [],
-    facilities_count: venue.facilities_count || 0,
-    facilities: venue.facilities || [], // Include facilities data
-    image_url: venue.image_url,
-    rating: venue.rating,
-    rating_count: venue.rating_count,
-    closest_metro: venue.closest_metro,
-    offer_text: venue.offer_text,
-    web_url: venue.web_url,
-    coordinates: venue.coordinates,
-  }));
+  // Transform venue data using extracted utility
+  const transformedVenues = cityVenues.map((venue, index) => 
+    transformVenueData(venue, index, venueColors)
+  );
 
   const currentVenue = transformedVenues[venueIndex];
   
@@ -96,47 +69,11 @@ export default function VenuesScreen() {
   }, [cityVenues]);
 
 
-  // Render star rating in brand colors
-  const renderStars = (rating: number) => {
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
-    
-    // Always render exactly 5 stars
-    for (let i = 0; i < 5; i++) {
-      if (i < fullStars) {
-        // Full star
-        stars.push(
-          <Text key={i} style={styles.star}>★</Text>
-        );
-      } else if (i === fullStars && hasHalfStar) {
-        // Half star
-        stars.push(
-          <Text key={i} style={styles.star}>☆</Text>
-        );
-      } else {
-        // Empty star
-        stars.push(
-          <Text key={i} style={styles.emptyStar}>☆</Text>
-        );
-      }
-    }
-    
-    return stars;
-  };
-
-  // Simplified venue navigation functions
-  const goToNextVenue = () => {
-    if (!transformedVenues.length || transformedVenues.length <= 1) return;
-    const nextVenueIdx = (venueIndex + 1) % transformedVenues.length;
-    setVenueIndex(nextVenueIdx);
-  };
-
-  const goToPreviousVenue = () => {
-    if (!transformedVenues.length || transformedVenues.length <= 1) return;
-    const prevVenueIdx = (venueIndex - 1 + transformedVenues.length) % transformedVenues.length;
-    setVenueIndex(prevVenueIdx);
-  };
+  // Create navigation helpers using extracted utility
+  const { goToNext, goToPrevious } = createNavigationHelpers(transformedVenues.length);
+  
+  const goToNextVenue = () => goToNext(venueIndex, setVenueIndex);
+  const goToPreviousVenue = () => goToPrevious(venueIndex, setVenueIndex);
 
 
 

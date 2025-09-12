@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
 import { Typography, Colors, Layout, Responsive } from '@/constants';
 import { FacilityCard } from './FacilityCard';
-import { getSportIcon } from '@/utils/sportsIcons';
+import { getSportIcon, sortFacilitiesByPrice, cleanVenueTitle } from '@/utils';
 
 interface VenueCardProps {
   venue: {
@@ -34,19 +34,10 @@ export const VenueCard: React.FC<VenueCardProps> = ({
   onFacilitySelect
 }) => {
   // Sort facilities by price in descending order (higher price first)
-  const sortedFacilities = venue.facilities?.sort((a, b) => {
-    const priceA = parseFloat(a.price) || 0;
-    const priceB = parseFloat(b.price) || 0;
-    return priceB - priceA; // Descending order
-  });
+  const sortedFacilities = venue.facilities ? sortFacilitiesByPrice(venue.facilities as any, false) : [];
   
   // Show all facilities since we now have scrolling
   const visibleFacilities = sortedFacilities;
-
-  // Clean venue title by removing "ClayGrounds | " and "ClayGrounds Arena | " prefixes
-  const cleanVenueTitle = (title: string) => {
-    return title.replace(/^ClayGrounds\s+(Arena\s+)?\|\s*/i, '');
-  };
 
 
   return (

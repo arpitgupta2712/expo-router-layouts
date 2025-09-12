@@ -154,3 +154,53 @@ export const getVenueStats = (venues: Venue[]) => {
     sports,
   };
 };
+
+/**
+ * Sort facilities by price (descending by default)
+ */
+export const sortFacilitiesByPrice = (facilities: Facility[], ascending = false): Facility[] => {
+  return [...facilities].sort((a, b) => {
+    const priceA = parseFloat(a.price) || 0;
+    const priceB = parseFloat(b.price) || 0;
+    return ascending ? priceA - priceB : priceB - priceA;
+  });
+};
+
+/**
+ * Clean venue title by removing ClayGrounds prefixes
+ */
+export const cleanVenueTitle = (title: string): string => {
+  return title.replace(/^ClayGrounds\s+(Arena\s+)?\|\s*/i, '');
+};
+
+/**
+ * Transform venue data for UI consumption
+ */
+export const transformVenueData = (venue: Venue, index: number, colors: string[]) => {
+  return {
+    id: venue.id,
+    title: cleanVenueTitle(venue.name || 'Unnamed Venue'),
+    color: colors[index % colors.length],
+    address: venue.address || 'Address not available',
+    sports: venue.sports || [],
+    facilities_count: venue.facilities_count || 0,
+    facilities: venue.facilities || [],
+    image_url: venue.image_url,
+    rating: venue.rating,
+    rating_count: venue.rating_count,
+    closest_metro: venue.closest_metro,
+    offer_text: venue.offer_text,
+    web_url: venue.web_url,
+    coordinates: venue.coordinates,
+  };
+};
+
+/**
+ * Filter cities that have venues
+ */
+export const filterCitiesWithVenues = (cities: City[], getVenuesByCity: (cityId: number) => Venue[]): City[] => {
+  return cities.filter(city => {
+    const cityVenues = getVenuesByCity(city.id);
+    return cityVenues.length > 0;
+  });
+};

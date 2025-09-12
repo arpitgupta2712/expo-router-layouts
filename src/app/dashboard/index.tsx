@@ -15,79 +15,29 @@ import { Colors } from "@/constants/Colors";
 import { Typography } from "@/constants/Typography";
 import { useCitiesAndVenues } from "@/hooks";
 import { useCityService } from "@/hooks/useCityService";
+import { 
+  getCityImage, 
+  getFeatureImage, 
+  getCardSize, 
+  getCardStyle,
+  DASHBOARD_CONFIG,
+  getBorderColor,
+  filterCitiesWithVenues
+} from "@/utils";
 
 const { width } = Dimensions.get("window");
-const CARD_GAP = 20;
-const CONTAINER_PADDING = 20;
+const CARD_GAP = DASHBOARD_CONFIG.CARD_GAP;
+const CONTAINER_PADDING = DASHBOARD_CONFIG.CONTAINER_PADDING;
 
-// Responsive card sizing for web vs mobile
-const getCardSize = () => {
-  if (Platform.OS === 'web') {
-    // For web, use a fixed max width and center the grid
-    const maxWidth = Math.min(width, 800); // Max 800px width
-    return (maxWidth - CONTAINER_PADDING * 2 - CARD_GAP) / 2;
-  }
-  // For mobile, use full width
-  return (width - CONTAINER_PADDING * 2 - CARD_GAP) / 2;
-};
-
-const CARD_SIZE = getCardSize();
-
-// City images mapping - using local map files with fallback to Delhi
-const getCityImage = (cityName) => {
-  const cityImages = {
-    'Gurgaon': require('../../../assets/images/Gurgaon.jpg'),
-    'Delhi': require('../../../assets/images/Delhi.jpg'),
-    'Faridabad': require('../../../assets/images/Faridabad.jpg'),
-    'Noida': require('../../../assets/images/Noida.jpg'),
-    'Kolkata': require('../../../assets/images/Kolkata.jpg'),
-    'Jhansi': require('../../../assets/images/Jhansi.jpg'),
-    'Roorkee': require('../../../assets/images/Roorkee.jpg'),
-    'Lucknow': require('../../../assets/images/Lucknow.jpg'),
-    'Ludhiana': require('../../../assets/images/Ludhiana.jpg'),
-  };
-  
-  // Fallback to Delhi map image
-  return cityImages[cityName] || cityImages['Delhi'];
-};
+// Get card size using extracted utility
+const CARD_SIZE = getCardSize(CARD_GAP, CONTAINER_PADDING);
 
 // City card component for bento grid
 const CityCard = ({ city, venueCount, borderColor, size = 'small' }) => {
-  const getCardStyle = () => {
-    switch (size) {
-      case 'small':
-        return {
-          width: CARD_SIZE,
-          height: CARD_SIZE,
-          backgroundColor: Colors.base,
-          borderColor: borderColor,
-        };
-      case 'rectangle':
-        return {
-          width: CARD_SIZE * 2 + CARD_GAP,
-          height: CARD_SIZE,
-          backgroundColor: Colors.base,
-          borderColor: borderColor,
-        };
-      case 'big':
-        return {
-          width: CARD_SIZE * 2 + CARD_GAP,
-          height: CARD_SIZE * 2 + CARD_GAP,
-          backgroundColor: Colors.base,
-          borderColor: borderColor,
-        };
-      default:
-        return {
-          width: CARD_SIZE,
-          height: CARD_SIZE,
-          backgroundColor: Colors.base,
-          borderColor: borderColor,
-        };
-    }
-  };
+  const cardStyle = getCardStyle(size, CARD_SIZE, CARD_GAP);
 
   const cardContent = (
-    <View style={[styles.card, getCardStyle()]}>
+    <View style={[styles.card, cardStyle, { borderColor }]}>
       {/* City Image Background */}
       <Image 
         source={getCityImage(city.name)} 
@@ -112,55 +62,12 @@ const CityCard = ({ city, venueCount, borderColor, size = 'small' }) => {
   );
 };
 
-// Feature images mapping - using local and stylized images
-const getFeatureImage = (title) => {
-  const featureImages = {
-    'ClayGrounds': require('../../../assets/images/dashboard-dark.png'),
-    'Bookings': require('../../../assets/images/Stadium.jpg'),
-    'Favorites': require('../../../assets/images/Stadium.jpg'),
-    'Analytics': require('../../../assets/images/Analytics.jpg'),
-  };
-  
-  return featureImages[title] || { uri: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop&auto=format' };
-};
-
 // Static card component for other features
 const FeatureCard = ({ size, title, href = null }) => {
-  const getCardStyle = () => {
-    switch (size) {
-      case 'small':
-        return {
-          width: CARD_SIZE,
-          height: CARD_SIZE,
-          backgroundColor: Colors.base,
-          borderColor: Colors.primary,
-        };
-      case 'rectangle':
-        return {
-          width: CARD_SIZE * 2 + CARD_GAP,
-          height: CARD_SIZE,
-          backgroundColor: Colors.base,
-          borderColor: Colors.primary,
-        };
-      case 'big':
-        return {
-          width: CARD_SIZE * 2 + CARD_GAP,
-          height: CARD_SIZE * 2 + CARD_GAP,
-          backgroundColor: Colors.base,
-          borderColor: Colors.primary,
-        };
-      default:
-        return {
-          width: CARD_SIZE,
-          height: CARD_SIZE,
-          backgroundColor: Colors.base,
-          borderColor: Colors.primary,
-        };
-    }
-  };
+  const cardStyle = getCardStyle(size, CARD_SIZE, CARD_GAP);
 
   const cardContent = (
-    <View style={[styles.card, getCardStyle()]}>
+    <View style={[styles.card, cardStyle, { borderColor: Colors.primary }]}>
       {/* Feature Image Background */}
       <Image 
         source={getFeatureImage(title)} 
@@ -196,20 +103,12 @@ export default function DashboardPage() {
   const error = venuesError || citiesError;
   
   // Filter cities to only show those that have venues
-  const cities = allCities.filter(city => {
-    const cityVenues = getVenuesByCity(city.id);
-    return cityVenues.length > 0;
-  });
+  const cities = filterCitiesWithVenues(allCities, getVenuesByCity);
   
   // Debug logging
   if (allCities.length > 0) {
     console.log(`🏙️ Dashboard: Showing ${cities.length} cities with venues out of ${allCities.length} total cities`);
   }
-
-  // Border color palette for city cards [[memory:8782456]]
-  const cityBorderColors = [
-    Colors.primary,        // Forest Green
-  ];
 
   if (loading) {
     return (
@@ -270,13 +169,13 @@ export default function DashboardPage() {
         {/* Dynamic City Cards */}
         {cities.map((city, index) => {
           const venueCount = getVenuesByCity(city.id).length;
-          const borderColor = cityBorderColors[index % cityBorderColors.length];
+          const borderColor = getBorderColor(index);
           
           // Render cities in pairs
           if (index % 2 === 0) {
             const nextCity = cities[index + 1];
             const nextVenueCount = nextCity ? getVenuesByCity(nextCity.id).length : 0;
-            const nextBorderColor = nextCity ? cityBorderColors[(index + 1) % cityBorderColors.length] : null;
+            const nextBorderColor = nextCity ? getBorderColor(index + 1) : null;
             
             return (
               <View key={`row-${index}`} style={styles.row}>

@@ -88,3 +88,15 @@ export const getRelativeTime = (date: Date): string => {
 
 // Export API helpers
 export * from './apiHelpers';
+
+// Export sports icons and image mappings
+export * from './sportsIcons';
+
+// Export UI helpers
+export * from './uiHelpers';
+
+// Export color palettes
+export * from './colorPalettes';
+
+// Export layout configuration
+export * from './layoutConfig';
