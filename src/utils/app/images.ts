@@ -1,15 +1,15 @@
 // Image mapping utilities
 export const getCityImage = (cityName: string) => {
   const cityImages = {
-    'Gurgaon': require('../../../assets/images/Gurgaon.jpg'),
-    'Delhi': require('../../../assets/images/Delhi.jpg'),
-    'Faridabad': require('../../../assets/images/Faridabad.jpg'),
-    'Noida': require('../../../assets/images/Noida.jpg'),
-    'Kolkata': require('../../../assets/images/Kolkata.jpg'),
-    'Jhansi': require('../../../assets/images/Jhansi.jpg'),
-    'Roorkee': require('../../../assets/images/Roorkee.jpg'),
-    'Lucknow': require('../../../assets/images/Lucknow.jpg'),
-    'Ludhiana': require('../../../assets/images/Ludhiana.jpg'),
+    'Gurgaon': require('../../../assets/cities/Gurgaon.jpg'),
+    'Delhi': require('../../../assets/cities/Delhi.jpg'),
+    'Faridabad': require('../../../assets/cities/Faridabad.jpg'),
+    'Noida': require('../../../assets/cities/Noida.jpg'),
+    'Kolkata': require('../../../assets/cities/Kolkata.jpg'),
+    'Jhansi': require('../../../assets/cities/Jhansi.jpg'),
+    'Roorkee': require('../../../assets/cities/Roorkee.jpg'),
+    'Lucknow': require('../../../assets/cities/Lucknow.jpg'),
+    'Ludhiana': require('../../../assets/cities/Ludhiana.jpg'),
   };
   
   // Fallback to Delhi map image
@@ -18,10 +18,10 @@ export const getCityImage = (cityName: string) => {
 
 export const getFeatureImage = (title: string) => {
   const featureImages = {
-    'ClayGrounds': require('../../../assets/images/dashboard-dark.png'),
-    'Bookings': require('../../../assets/images/Stadium.jpg'),
-    'Favorites': require('../../../assets/images/Stadium.jpg'),
-    'Analytics': require('../../../assets/images/Analytics.jpg'),
+    'ClayGrounds': require('../../../assets/images/ClayGrounds-IMS.png'),
+    'Bookings': require('../../../assets/images/Bookings.jpg'),
+    'Favorites': require('../../../assets/images/Favorites.jpg'),
+    'Analytics': require('../../../assets/images/Stadium.jpg'),
   };
   
   return featureImages[title as keyof typeof featureImages] || { 
