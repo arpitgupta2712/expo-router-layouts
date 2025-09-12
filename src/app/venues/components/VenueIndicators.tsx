@@ -19,7 +19,7 @@ export const VenueIndicators: React.FC<VenueIndicatorsProps> = ({
         <View
           key={index}
           style={[
-            styles.verticalDot,
+            styles.horizontalDot,
             {
               backgroundColor: index === currentIndex ? Colors.accent : Colors.gray[300],
               width: index === currentIndex ? 10 : 6,
@@ -36,16 +36,16 @@ export const VenueIndicators: React.FC<VenueIndicatorsProps> = ({
 const styles = StyleSheet.create({
   venueIndicatorsContainer: {
     position: "absolute",
-    right: 20,
-    top: "30%",
-    transform: [{ translateY: -50 }],
+    bottom: 60,
+    left: 0,
+    right: 0,
     backgroundColor: "transparent",
-    flexDirection: "column",
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
   },
-  verticalDot: {
-    marginVertical: 4,
+  horizontalDot: {
+    marginHorizontal: 4,
     shadowColor: Colors.black,
     shadowOffset: {
       width: 0,

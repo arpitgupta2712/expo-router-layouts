@@ -55,7 +55,7 @@ export default function VenuesScreen() {
   const [isAnimating, setIsAnimating] = useState(false);
   
   // Basic Animated values (stable and reliable)
-  const translateY = useRef(new Animated.Value(0)).current;
+  const translateX = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(1)).current;
   const opacity = useRef(new Animated.Value(1)).current;
 
@@ -85,6 +85,7 @@ export default function VenuesScreen() {
   }));
 
   const currentVenue = transformedVenues[venueIndex];
+  
 
   // Handle facility selection
   const handleFacilitySelect = (facilityId: string, venueId: string) => {
@@ -108,8 +109,8 @@ export default function VenuesScreen() {
   };
 
   // Animation functions using basic Animated API
-  const animateToNext = (direction: 'up' | 'down', callback: () => void) => {
-    const targetY = direction === 'up' ? -screenHeight : screenHeight;
+  const animateToNext = (direction: 'left' | 'right', callback: () => void) => {
+    const targetX = direction === 'left' ? -screenWidth : screenWidth;
     
     Animated.sequence([
       Animated.timing(opacity, {
@@ -117,15 +118,15 @@ export default function VenuesScreen() {
         duration: 150,
         useNativeDriver: true,
       }),
-      Animated.timing(translateY, {
-        toValue: targetY,
+      Animated.timing(translateX, {
+        toValue: targetX,
         duration: 300,
         useNativeDriver: true,
       }),
     ]).start((finished) => {
       if (finished) {
         callback();
-        translateY.setValue(0);
+        translateX.setValue(0);
         Animated.timing(opacity, {
           toValue: 1,
           duration: 150,
@@ -136,7 +137,7 @@ export default function VenuesScreen() {
   };
 
   const resetAnimationState = () => {
-    translateY.setValue(0);
+    translateX.setValue(0);
     scale.setValue(1);
     opacity.setValue(1);
     setIsAnimating(false);
@@ -177,7 +178,7 @@ export default function VenuesScreen() {
     setIsAnimating(true);
     const nextVenueIdx = (venueIndex + 1) % transformedVenues.length;
     
-    animateToNext('up', () => {
+    animateToNext('left', () => {
       setVenueIndex(nextVenueIdx);
       setIsAnimating(false);
     });
@@ -189,17 +190,17 @@ export default function VenuesScreen() {
     setIsAnimating(true);
     const prevVenueIdx = (venueIndex - 1 + transformedVenues.length) % transformedVenues.length;
     
-    animateToNext('down', () => {
+    animateToNext('right', () => {
       setVenueIndex(prevVenueIdx);
       setIsAnimating(false);
     });
   };
 
-  // Simplified PanResponder for venue navigation only
+  // Simplified PanResponder for horizontal venue navigation
   const panResponder = PanResponder.create({
     onMoveShouldSetPanResponder: (_, gestureState) => {
-      // Only respond to vertical gestures for venue navigation
-      return !isAnimating && Math.abs(gestureState.dy) > 5;
+      // Only respond to horizontal gestures for venue navigation
+      return !isAnimating && Math.abs(gestureState.dx) > 5;
     },
     onPanResponderGrant: () => {
       if (isAnimating) return;
@@ -212,13 +213,13 @@ export default function VenuesScreen() {
       if (isAnimating) return;
       
       // Limit gesture distance for better feel
-      const maxDistance = screenHeight * 0.3;
-      const clampedY = Math.max(-maxDistance, Math.min(maxDistance, gestureState.dy));
+      const maxDistance = screenWidth * 0.3;
+      const clampedX = Math.max(-maxDistance, Math.min(maxDistance, gestureState.dx));
       
-      translateY.setValue(clampedY);
+      translateX.setValue(clampedX);
       
       // Add opacity effect based on distance
-      const opacityValue = 1 - (Math.abs(clampedY) / maxDistance) * 0.3;
+      const opacityValue = 1 - (Math.abs(clampedX) / maxDistance) * 0.3;
       opacity.setValue(Math.max(0.7, opacityValue));
     },
     onPanResponderRelease: (_, gestureState) => {
@@ -229,24 +230,24 @@ export default function VenuesScreen() {
         useNativeDriver: true,
       }).start();
       
-      const { dy, vy } = gestureState;
+      const { dx, vx } = gestureState;
       const minSwipeDistance = 50;
       const minVelocity = 0.5;
       
-      // Check if it's a significant vertical swipe for venues
-      const isVerticalSwipe = Math.abs(dy) > minSwipeDistance || Math.abs(vy) > minVelocity;
+      // Check if it's a significant horizontal swipe for venues
+      const isHorizontalSwipe = Math.abs(dx) > minSwipeDistance || Math.abs(vx) > minVelocity;
       
-      if (isVerticalSwipe) {
-        // Vertical swipe - venues only
-        if (dy > 0) {
-          goToPreviousVenue();
+      if (isHorizontalSwipe) {
+        // Horizontal swipe - venues only
+        if (dx > 0) {
+          goToPreviousVenue(); // Swipe right = previous venue
         } else {
-          goToNextVenue();
+          goToNextVenue(); // Swipe left = next venue
         }
       } else {
         // Reset if no significant swipe
         Animated.parallel([
-          Animated.spring(translateY, {
+          Animated.spring(translateX, {
             toValue: 0,
             useNativeDriver: true,
           }),
@@ -372,7 +373,7 @@ export default function VenuesScreen() {
             {
               backgroundColor: Colors.base,
               transform: [
-                { translateY: translateY },
+                { translateX: translateX },
                 { scale: scale }
               ],
               opacity: opacity,

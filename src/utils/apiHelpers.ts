@@ -88,7 +88,7 @@ export const formatRating = (rating: string | undefined): string => {
  * Get city name by ID
  */
 export const getCityNameById = (cities: City[], cityId: number): string => {
-  const city = cities.find(c => c.id === cityId.toString());
+  const city = cities.find(c => c.id === cityId);
   return city?.name || 'Unknown City';
 };
 
@@ -112,8 +112,12 @@ export const getAllCities = (venues: Venue[]): City[] => {
     const cityId = venue.city_id.toString();
     if (!cityMap.has(cityId)) {
       cityMap.set(cityId, {
-        id: cityId,
-        name: venue.city_name
+        id: parseInt(cityId),
+        name: venue.city_name,
+        latitude: 0,
+        longitude: 0,
+        photo: '',
+        show_metro_station: false
       });
     }
   });

@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Linking, Alert, Platform } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Linking, Alert, Platform, ScrollView } from 'react-native';
 import { Globe, MapPin } from 'lucide-react-native';
 import { Typography, Colors, Layout, Responsive } from '@/constants';
 import { FacilityCard } from './FacilityCard';
@@ -58,10 +58,17 @@ const openURL = async (url: string, fallbackMessage?: string) => {
   }
 };
 
-export const VenueCard: React.FC<VenueCardProps> = ({ venue, renderStars, onFacilitySelect }) => {
+export const VenueCard: React.FC<VenueCardProps> = ({ 
+  venue, 
+  renderStars, 
+  onFacilitySelect
+}) => {
+  // Show all facilities since we now have scrolling
+  const visibleFacilities = venue.facilities;
+
   return (
     <View style={styles.venueCard}>
-      {/* Venue Image - 60% of top space */}
+      {/* Venue Image - Fixed height */}
       {venue.image_url && (
         <View style={styles.venueImageContainer}>
           <Image 
@@ -78,8 +85,12 @@ export const VenueCard: React.FC<VenueCardProps> = ({ venue, renderStars, onFaci
         </View>
       )}
       
-      {/* Venue Details - 40% of space */}
-      <View style={styles.venueDetails}>
+      {/* Venue Details - Scrollable content */}
+      <ScrollView 
+        style={styles.venueDetails} 
+        contentContainerStyle={styles.venueDetailsContent}
+        showsVerticalScrollIndicator={false}
+      >
         <Text style={styles.venueTitle}>{venue.title}</Text>
         
         {/* Simple Separator */}
@@ -100,12 +111,13 @@ export const VenueCard: React.FC<VenueCardProps> = ({ venue, renderStars, onFaci
             </View>
           )}
 
+
           {/* Facility Selection Cards */}
           {venue.facilities && venue.facilities.length > 0 && (
             <View style={styles.facilitiesContainer}>
               <Text style={styles.facilitiesTitle}>Choose a facility to book</Text>
               <View style={styles.facilitiesList}>
-                {venue.facilities.map((facility) => (
+                {visibleFacilities?.map((facility) => (
                   <FacilityCard
                     key={facility.id}
                     facility={facility}
@@ -169,7 +181,7 @@ export const VenueCard: React.FC<VenueCardProps> = ({ venue, renderStars, onFaci
         
           </View>
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 };
@@ -181,7 +193,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   venueImageContainer: {
-    height: '50%',
+    height: '40%',
     position: 'relative',
   },
   venueImage: {
@@ -202,8 +214,12 @@ const styles = StyleSheet.create({
     marginHorizontal: Layout.spacing.md,
   },
   venueDetails: {
-    height: '50%',
+    flex: 1,
+    marginBottom: Layout.spacing.xxl,
+  },
+  venueDetailsContent: {
     padding: Layout.spacing.lg,
+    paddingBottom: Layout.spacing.xxl,
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
