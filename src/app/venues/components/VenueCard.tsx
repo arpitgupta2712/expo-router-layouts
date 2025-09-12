@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Linking, Alert, Platform } from 'react-native';
-import { Globe, MapPin, Calendar } from 'lucide-react-native';
-import { Typography, Colors, Layout } from '@/constants';
-import { router } from 'expo-router';
+import { Globe, MapPin } from 'lucide-react-native';
+import { Typography, Colors, Layout, Responsive } from '@/constants';
+import { FacilityCard } from './FacilityCard';
 
 interface VenueCardProps {
   venue: {
@@ -15,6 +15,7 @@ interface VenueCardProps {
       latitude: number;
       longitude: number;
     };
+    sports?: string[];
     facilities?: {
       id: string;
       name: string;
@@ -75,48 +76,32 @@ export const VenueCard: React.FC<VenueCardProps> = ({ venue, renderStars, onFaci
         
         {/* Venue Info Container */}
         <View style={styles.venueInfoContainer}>
-          {/* Facility Selection Buttons */}
+          {/* Available Sports */}
+          {venue.sports && venue.sports.length > 0 && (
+            <View style={styles.sportsContainer}>
+              <Text style={styles.sportsTitle}>Available Sports</Text>
+              <View style={styles.sportsList}>
+                {venue.sports.map((sport, index) => (
+                  <View key={index} style={styles.sportChip}>
+                    <Text style={styles.sportText}>{sport}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Facility Selection Cards */}
           {venue.facilities && venue.facilities.length > 0 && (
             <View style={styles.facilitiesContainer}>
               <Text style={styles.facilitiesTitle}>Choose a facility to book</Text>
-              <View style={styles.facilitiesGrid}>
-                {venue.facilities.slice(0, 6).map((facility) => (
-                  <TouchableOpacity
+              <View style={styles.facilitiesList}>
+                {venue.facilities.map((facility) => (
+                  <FacilityCard
                     key={facility.id}
-                    style={styles.facilityButton}
+                    facility={facility}
                     onPress={() => onFacilitySelect?.(facility.id, venue.id)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.facilityName} numberOfLines={1}>
-                      {facility.name}
-                    </Text>
-                    <Text style={styles.facilityPrice}>
-                      ₹{facility.price}
-                    </Text>
-                    {facility.sports && facility.sports.length > 0 && (
-                      <Text style={styles.facilitySport} numberOfLines={1}>
-                        {facility.sports[0].name}
-                      </Text>
-                    )}
-                  </TouchableOpacity>
+                  />
                 ))}
-                {venue.facilities.length > 6 && (
-                  <TouchableOpacity
-                    style={styles.moreFacilitiesButton}
-                    onPress={() => {
-                      Alert.alert(
-                        'More Facilities',
-                        `${venue.facilities!.length - 6} more facilities available. This will be implemented in the booking flow.`,
-                        [{ text: 'OK' }]
-                      );
-                    }}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.moreFacilitiesText}>
-                      +{venue.facilities.length - 6} more
-                    </Text>
-                  </TouchableOpacity>
-                )}
               </View>
             </View>
           )}
@@ -160,27 +145,7 @@ export const VenueCard: React.FC<VenueCardProps> = ({ venue, renderStars, onFaci
                 <MapPin size={20} color={Colors.primary} />
               </TouchableOpacity>
             )}
-            
-            {/* Booking Button */}
-            <TouchableOpacity 
-              style={styles.actionButton}
-              onPress={() => {
-                // Navigate to booking page or dashboard
-                try {
-                  router.push('/dashboard');
-                } catch (error) {
-                  console.error('Navigation error:', error);
-                  Alert.alert(
-                    'Navigation Error',
-                    'Unable to navigate. Please try again.',
-                    [{ text: 'OK' }]
-                  );
-                }
-              }}
-              activeOpacity={0.7}
-            >
-              <Calendar size={20} color={Colors.primary} />
-            </TouchableOpacity>
+        
           </View>
         </View>
       </View>
@@ -195,7 +160,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   venueImageContainer: {
-    height: '60%',
+    height: '50%',
     position: 'relative',
   },
   venueImage: {
@@ -216,9 +181,9 @@ const styles = StyleSheet.create({
     marginHorizontal: Layout.spacing.md,
   },
   venueDetails: {
-    height: '40%',
+    height: '50%',
     padding: Layout.spacing.lg,
-    paddingBottom: 120, // Add bottom padding to avoid overlap with indicators
+    paddingBottom: 60, // Add bottom padding to avoid overlap with indicators
     justifyContent: 'space-between',
     alignItems: 'center',
   },
@@ -253,85 +218,57 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  // Sports container styles
+  sportsContainer: {
+    width: Responsive.screen.width,
+    marginBottom: Responsive.spacing.sm,
+    paddingHorizontal: Responsive.grid.containerPadding,
+  },
+  sportsTitle: {
+    ...Typography.styles.venuesVenueTitle,
+    color: Colors.primary,
+    fontSize: Responsive.fontSize.sm,
+    textAlign: 'center',
+    marginBottom: Responsive.spacing.sm,
+    opacity: 0.8,
+  },
+  sportsList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: Responsive.spacing.xs,
+  },
+  sportChip: {
+    backgroundColor: Colors.primary,
+    borderRadius: Layout.borderRadius.md,
+    paddingHorizontal: Responsive.spacing.md,
+    paddingVertical: Responsive.spacing.xs,
+    marginLeft: Responsive.spacing.xs,
+    marginRight: Responsive.spacing.xs,
+  },
+  sportText: {
+    ...Typography.styles.venuesVenueTitle,
+    color: Colors.base,
+    fontSize: Responsive.fontSize.sm,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+  },
   // Facility selection styles
   facilitiesContainer: {
-    width: '100%',
-    marginBottom: Layout.spacing.md,
+    width: Responsive.screen.width,
+    marginBottom: Responsive.spacing.md,
+    paddingHorizontal: Responsive.grid.containerPadding,
   },
   facilitiesTitle: {
     ...Typography.styles.venuesVenueTitle,
     color: Colors.primary,
-    fontSize: 14,
+    fontSize: Responsive.fontSize.sm,
     textAlign: 'center',
-    marginBottom: Layout.spacing.sm,
+    marginBottom: Responsive.spacing.sm,
     opacity: 0.8,
   },
-  facilitiesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: Layout.spacing.sm,
-  },
-  facilityButton: {
-    width: '30%',
-    minWidth: 80,
-    backgroundColor: Colors.base,
-    borderRadius: Layout.borderRadius.md,
-    padding: Layout.spacing.sm,
-    borderWidth: 1,
-    borderColor: Colors.primary,
-    alignItems: 'center',
-    shadowColor: Colors.black,
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  facilityName: {
-    ...Typography.styles.venuesVenueTitle,
-    color: Colors.primary,
-    fontSize: 10,
-    fontWeight: '600',
-    textAlign: 'center',
-    marginBottom: 2,
-  },
-  facilityPrice: {
-    ...Typography.styles.venuesVenueTitle,
-    color: Colors.primary,
-    fontSize: 12,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 2,
-  },
-  facilitySport: {
-    ...Typography.styles.venuesVenueTitle,
-    color: Colors.primary,
-    fontSize: 8,
-    opacity: 0.7,
-    textAlign: 'center',
-    textTransform: 'uppercase',
-  },
-  moreFacilitiesButton: {
-    width: '30%',
-    minWidth: 80,
-    backgroundColor: Colors.gray[100],
-    borderRadius: Layout.borderRadius.md,
-    padding: Layout.spacing.sm,
-    borderWidth: 1,
-    borderColor: Colors.gray[300],
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  moreFacilitiesText: {
-    ...Typography.styles.venuesVenueTitle,
-    color: Colors.primary,
-    fontSize: 10,
-    fontWeight: '500',
-    textAlign: 'center',
-    opacity: 0.7,
+  facilitiesList: {
+    width: '100%',
   },
 });
 
