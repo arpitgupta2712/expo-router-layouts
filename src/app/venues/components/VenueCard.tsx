@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
 import { Typography, Colors, Layout, Responsive } from '@/constants';
 import { FacilityCard } from './FacilityCard';
+import { getSportIcon } from '@/utils/sportsIcons';
 
 interface VenueCardProps {
   venue: {
@@ -77,7 +78,7 @@ export const VenueCard: React.FC<VenueCardProps> = ({
               <View style={styles.sportsList}>
                 {venue.sports.map((sport, index) => (
                   <View key={index} style={styles.sportChip}>
-                    <Text style={styles.sportText}>{sport}</Text>
+                    {getSportIcon(sport)}
                   </View>
                 ))}
               </View>
@@ -185,17 +186,14 @@ const styles = StyleSheet.create({
   sportChip: {
     backgroundColor: Colors.primary,
     borderRadius: Layout.borderRadius.md,
-    paddingHorizontal: Responsive.spacing.md,
+    paddingHorizontal: Responsive.spacing.sm,
     paddingVertical: Responsive.spacing.xs,
     marginLeft: Responsive.spacing.xs,
     marginRight: Responsive.spacing.xs,
-  },
-  sportText: {
-    ...Typography.styles.venuesVenueTitle,
-    color: Colors.base,
-    fontSize: Responsive.fontSize.sm,
-    fontWeight: '600',
-    textTransform: 'uppercase',
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   // Facility selection styles
   facilitiesContainer: {
