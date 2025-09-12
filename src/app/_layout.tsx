@@ -2,6 +2,7 @@ import React from 'react';
 import { Stack } from "expo-router";
 import Head from "expo-router/head";
 import { useFonts } from 'expo-font';
+import { AdminDataProvider } from '@/hooks';
 // Custom Archivo Extra Condensed fonts loaded from assets
 import {
   Poppins_300Light,
@@ -62,7 +63,7 @@ export default function Layout() {
   }
 
   return (
-    <>
+    <AdminDataProvider>
       <Head>
         <title>Expo Router Layouts Demo</title>
         <meta name="description" content="Expo Router Layouts Demo" />
@@ -72,6 +73,6 @@ export default function Layout() {
           headerShown: false,
         }}
       />
-    </>
+    </AdminDataProvider>
   );
 }

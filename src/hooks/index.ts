@@ -1,3 +1,3 @@
 // Export all hooks for easy importing
-export * from './useAdminData';
+export * from './useAdminDataProvider';
 export * from './useBooking';
