@@ -33,32 +33,36 @@ const getCardSize = () => {
 const CARD_SIZE = getCardSize();
 
 // City card component for bento grid
-const CityCard = ({ city, venueCount, color, size = 'small' }) => {
+const CityCard = ({ city, venueCount, borderColor, size = 'small' }) => {
   const getCardStyle = () => {
     switch (size) {
       case 'small':
         return {
           width: CARD_SIZE,
           height: CARD_SIZE,
-          backgroundColor: color,
+          backgroundColor: Colors.base,
+          borderColor: borderColor,
         };
       case 'rectangle':
         return {
           width: CARD_SIZE * 2 + CARD_GAP,
           height: CARD_SIZE,
-          backgroundColor: color,
+          backgroundColor: Colors.base,
+          borderColor: borderColor,
         };
       case 'big':
         return {
           width: CARD_SIZE * 2 + CARD_GAP,
           height: CARD_SIZE * 2 + CARD_GAP,
-          backgroundColor: color,
+          backgroundColor: Colors.base,
+          borderColor: borderColor,
         };
       default:
         return {
           width: CARD_SIZE,
           height: CARD_SIZE,
-          backgroundColor: color,
+          backgroundColor: Colors.base,
+          borderColor: borderColor,
         };
     }
   };
@@ -82,32 +86,36 @@ const CityCard = ({ city, venueCount, color, size = 'small' }) => {
 };
 
 // Static card component for other features
-const FeatureCard = ({ size, title, color, href = null }) => {
+const FeatureCard = ({ size, title, href = null }) => {
   const getCardStyle = () => {
     switch (size) {
       case 'small':
         return {
           width: CARD_SIZE,
           height: CARD_SIZE,
-          backgroundColor: color,
+          backgroundColor: Colors.base,
+          borderColor: Colors.primary,
         };
       case 'rectangle':
         return {
           width: CARD_SIZE * 2 + CARD_GAP,
           height: CARD_SIZE,
-          backgroundColor: color,
+          backgroundColor: Colors.base,
+          borderColor: Colors.primary,
         };
       case 'big':
         return {
           width: CARD_SIZE * 2 + CARD_GAP,
           height: CARD_SIZE * 2 + CARD_GAP,
-          backgroundColor: color,
+          backgroundColor: Colors.base,
+          borderColor: Colors.primary,
         };
       default:
         return {
           width: CARD_SIZE,
           height: CARD_SIZE,
-          backgroundColor: color,
+          backgroundColor: Colors.base,
+          borderColor: Colors.primary,
         };
     }
   };
@@ -136,8 +144,8 @@ const FeatureCard = ({ size, title, color, href = null }) => {
 export default function DashboardPage() {
   const { cities, getVenuesByCity, loading, error } = useCitiesAndVenues();
 
-  // Color palette for city cards [[memory:8782456]]
-  const cityColors = [
+  // Border color palette for city cards [[memory:8782456]]
+  const cityBorderColors = [
     Colors.primary,        // Forest Green
     Colors.accent,         // Chartreuse
     Colors.primaryLight,   // Ocean Green
@@ -200,7 +208,6 @@ export default function DashboardPage() {
           <FeatureCard 
             size="rectangle" 
             title="Sports Hero" 
-            color={Colors.primary} 
             href="/hero"
           />
         </View>
@@ -208,27 +215,27 @@ export default function DashboardPage() {
         {/* Dynamic City Cards */}
         {cities.map((city, index) => {
           const venueCount = getVenuesByCity(city.id).length;
-          const color = cityColors[index % cityColors.length];
+          const borderColor = cityBorderColors[index % cityBorderColors.length];
           
           // Render cities in pairs
           if (index % 2 === 0) {
             const nextCity = cities[index + 1];
             const nextVenueCount = nextCity ? getVenuesByCity(nextCity.id).length : 0;
-            const nextColor = nextCity ? cityColors[(index + 1) % cityColors.length] : null;
+            const nextBorderColor = nextCity ? cityBorderColors[(index + 1) % cityBorderColors.length] : null;
             
             return (
               <View key={`row-${index}`} style={styles.row}>
                 <CityCard 
                   city={city}
                   venueCount={venueCount}
-                  color={color}
+                  borderColor={borderColor}
                   size="small"
                 />
                 {nextCity && (
                   <CityCard 
                     city={nextCity}
                     venueCount={nextVenueCount}
-                    color={nextColor}
+                    borderColor={nextBorderColor}
                     size="small"
                   />
                 )}
@@ -240,12 +247,12 @@ export default function DashboardPage() {
 
         {/* Additional Feature Cards */}
         <View style={styles.row}>
-          <FeatureCard size="small" title="Bookings" color={Colors.accentLight} />
-          <FeatureCard size="small" title="Favorites" color={Colors.info} />
+          <FeatureCard size="small" title="Bookings" />
+          <FeatureCard size="small" title="Favorites" />
         </View>
 
         <View style={styles.row}>
-          <FeatureCard size="big" title="Analytics" color={Colors.success} />
+          <FeatureCard size="big" title="Analytics" />
         </View>
       </View>
     </ScrollView>
@@ -305,6 +312,7 @@ const styles = StyleSheet.create({
     padding: Layout.spacing.lg,
     justifyContent: "center",
     alignItems: "center",
+    borderWidth: 2,
     shadowColor: Colors.black,
     shadowOffset: {
       width: 0,
@@ -323,20 +331,19 @@ const styles = StyleSheet.create({
   },
   cityName: {
     ...Typography.styles.dashboardCardTitle,
-    color: Colors.base,
+    color: Colors.text.primary,
     fontWeight: '700',
     textAlign: 'center',
     marginBottom: Layout.spacing.xs,
   },
   venueCount: {
     ...Typography.styles.dashboardCardSize,
-    color: Colors.base,
-    opacity: 0.9,
+    color: Colors.text.secondary,
     textAlign: 'center',
   },
   featureTitle: {
     ...Typography.styles.dashboardCardTitle,
-    color: Colors.base,
+    color: Colors.text.primary,
     fontWeight: '600',
     textAlign: 'center',
   },
