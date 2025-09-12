@@ -36,7 +36,7 @@ export const FacilityCard: React.FC<FacilityCardProps> = ({
         </Text>
         
         <Text style={styles.priceText} numberOfLines={1}>
-          ₹{facility.price}
+          ₹{Math.floor(parseFloat(facility.price) || 0)}
         </Text>
       </View>
     </TouchableOpacity>

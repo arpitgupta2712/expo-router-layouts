@@ -33,8 +33,15 @@ export const VenueCard: React.FC<VenueCardProps> = ({
   renderStars, 
   onFacilitySelect
 }) => {
+  // Sort facilities by price in descending order (higher price first)
+  const sortedFacilities = venue.facilities?.sort((a, b) => {
+    const priceA = parseFloat(a.price) || 0;
+    const priceB = parseFloat(b.price) || 0;
+    return priceB - priceA; // Descending order
+  });
+  
   // Show all facilities since we now have scrolling
-  const visibleFacilities = venue.facilities;
+  const visibleFacilities = sortedFacilities;
 
   // Clean venue title by removing "ClayGrounds | " and "ClayGrounds Arena | " prefixes
   const cleanVenueTitle = (title: string) => {
