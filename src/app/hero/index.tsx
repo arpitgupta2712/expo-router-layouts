@@ -49,7 +49,7 @@ export default function HeroPage() {
           <View style={styles.logoContainer}>
             <View style={styles.logoGlow}>
               <Image 
-                source={require("../../../assets/logos/logomark/CLAYGROUNDS_Logomark_Neon.png")} 
+                source={require("../assets/logos/logomark/CLAYGROUNDS_Logomark_Neon.png")} 
                 style={styles.logo}
                 resizeMode="contain"
               />

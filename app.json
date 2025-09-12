@@ -15,6 +15,9 @@
       ]
     ],
     "name": "expo-router-layouts",
-    "slug": "expo-router-layouts"
+    "slug": "expo-router-layouts",
+    "assetBundlePatterns": [
+      "src/app/assets/**/*"
+    ]
   }
 }

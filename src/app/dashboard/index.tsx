@@ -33,21 +33,20 @@ const getCardSize = () => {
 
 const CARD_SIZE = getCardSize();
 
-// City images mapping - using stylized/artistic city images from Unsplash
+// City images mapping - using local map files with fallback to Delhi
 const getCityImage = (cityName) => {
   const cityImages = {
-    'Gurgaon': 'https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=800&h=600&fit=crop&auto=format',
-    'Delhi': 'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=800&h=600&fit=crop&auto=format',
-    'Faridabad': 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=800&h=600&fit=crop&auto=format',
-    'Noida': 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop&auto=format',
-    'Lucknow': 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&h=600&fit=crop&auto=format',
-    'Ludhiana': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop&auto=format',
-    'Jhansi': 'https://images.unsplash.com/photo-1591604129935-f7bbee7c3e7a?w=800&h=600&fit=crop&auto=format',
-    'Roorkee': 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop&auto=format',
+    'Gurgaon': require('../assets/maps/Gurgaon.png'),
+    'Delhi': require('../assets/maps/Delhi.png'),
+    'Faridabad': require('../assets/maps/Faridabad.png'),
+    'Noida': require('../assets/maps/Noida.png'),
+    'Kolkata': require('../assets/maps/Kolkata.png'),
+    'Jhansi': require('../assets/maps/Jhansi.png'),
+    'Roorkee': require('../assets/maps/Roorkee.png'),
   };
   
-  // Fallback to a stylized cityscape image
-  return cityImages[cityName] || 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1f?w=800&h=600&fit=crop&auto=format';
+  // Fallback to Delhi map image
+  return cityImages[cityName] || cityImages['Delhi'];
 };
 
 // City card component for bento grid
@@ -89,7 +88,7 @@ const CityCard = ({ city, venueCount, borderColor, size = 'small' }) => {
     <View style={[styles.card, getCardStyle()]}>
       {/* City Image Background */}
       <Image 
-        source={{ uri: getCityImage(city.name) }} 
+        source={getCityImage(city.name)} 
         style={styles.cityImage}
         resizeMode="cover"
       />
