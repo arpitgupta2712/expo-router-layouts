@@ -4,6 +4,7 @@ import { MapPin } from "lucide-react-native";
 import { Typography } from "@/constants/Typography";
 import { Colors } from "@/constants/Colors";
 import { useAdminData } from "@/hooks";
+import { PatternLockModal } from "@/components";
 import { useState, useEffect, useRef } from "react";
 
 const { width, height } = Dimensions.get("window");
@@ -12,6 +13,7 @@ export default function HeroPage() {
   const router = useRouter();
   const { refetch, loading } = useAdminData();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPatternLock, setShowPatternLock] = useState(false);
   
   // Animation values for smooth transitions
   const iconOpacity = useRef(new Animated.Value(1)).current;
@@ -69,14 +71,24 @@ export default function HeroPage() {
       console.log('🚀 Preloading admin data from Hero section...');
       await refetch();
       console.log('✅ Admin data preloaded successfully!');
-      router.push('/dashboard');
+      setIsLoading(false);
+      // Show pattern lock instead of direct navigation
+      setShowPatternLock(true);
     } catch (error) {
       console.error('❌ Failed to preload admin data:', error);
-      // Still navigate to dashboard even if preload fails
-      router.push('/dashboard');
-    } finally {
       setIsLoading(false);
+      // Still show pattern lock even if preload fails
+      setShowPatternLock(true);
     }
+  };
+
+  const handlePatternSuccess = () => {
+    setShowPatternLock(false);
+    router.push('/dashboard');
+  };
+
+  const handlePatternCancel = () => {
+    setShowPatternLock(false);
   };
 
   return (
@@ -133,6 +145,13 @@ export default function HeroPage() {
           </View>
         </View>
       </View>
+
+      {/* Pattern Lock Modal */}
+      <PatternLockModal
+        visible={showPatternLock}
+        onSuccess={handlePatternSuccess}
+        onCancel={handlePatternCancel}
+      />
     </View>
   );
 }
