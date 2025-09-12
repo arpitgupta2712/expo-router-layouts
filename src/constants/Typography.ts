@@ -197,18 +197,18 @@ export const Typography = {
     // Page-specific styles
     // Hero page - Archivo Extra Condensed for brand (Italics), PT Sans for body
     heroBrandName: {
-      fontFamily: 'ArchivoExtraCondensed-LightItalic',
-      fontSize: 28,
-      fontWeight: '300',
-      lineHeight: 39.2, // 28 * 1.4
-      letterSpacing: 6,
+      fontFamily: 'ArchivoExtraCondensed-ExtraBoldItalic',
+      fontSize: 48,
+      fontWeight: '800',
+      lineHeight: 57.6, // 48 * 1.2
+      letterSpacing: -1,
     },
     heroTagline: {
-      fontFamily: 'ArchivoExtraCondensed-Italic',
+      fontFamily: 'Poppins_400Regular',
       fontSize: 14,
       fontWeight: '400',
       lineHeight: 21, // 14 * 1.5
-      letterSpacing: 1.5,
+      letterSpacing: 0,
       textTransform: 'uppercase',
     },
     heroCtaText: {

@@ -42,14 +42,14 @@ export default function HeroPage() {
           <View style={styles.brandSection}>
             <Text style={styles.brandName}>CLAYGROUNDS</Text>
             <View style={styles.divider} />
-            <Text style={styles.tagline}>Premium Football Facilities</Text>
+            <Text style={styles.tagline}>Your Game, Your Way</Text>
           </View>
           
           {/* Logo section */}
           <View style={styles.logoContainer}>
             <View style={styles.logoGlow}>
               <Image 
-                source={require("../../../assets/logos/CG_Logo Neon.png")} 
+                source={require("../../../assets/logos/logomark/CLAYGROUNDS_Logomark_Neon.png")} 
                 style={styles.logo}
                 resizeMode="contain"
               />
@@ -58,9 +58,6 @@ export default function HeroPage() {
           
           {/* CTA section */}
           <View style={styles.ctaSection}>
-            <Text style={styles.ctaText}>
-              Book your perfect pitch today
-            </Text>
             
             <TouchableOpacity 
               style={[styles.getStartedButton, isLoading && styles.getStartedButtonLoading]}
@@ -77,10 +74,6 @@ export default function HeroPage() {
                 <Text style={styles.getStartedText}>Get Started</Text>
               )}
             </TouchableOpacity>
-            
-            <Text style={styles.subText}>
-              Experience the difference
-            </Text>
           </View>
         </View>
       </View>
@@ -129,18 +122,18 @@ const styles = StyleSheet.create({
   },
   brandName: {
     ...Typography.styles.heroBrandName,
-    color: "white",
+    color: Colors.chartreuse,
     marginBottom: 12,
   },
   divider: {
-    width: 60,
-    height: 1,
+    width: 180,
+    height: 2,
     backgroundColor: Colors.chartreuse,
     marginBottom: 12,
   },
   tagline: {
     ...Typography.styles.heroTagline,
-    color: "rgba(255, 255, 255, 0.7)",
+    color: Colors.base,
   },
   logoContainer: {
     flex: 1,
@@ -163,7 +156,7 @@ const styles = StyleSheet.create({
   },
   ctaText: {
     ...Typography.styles.heroCtaText,
-    color: "rgba(255, 255, 255, 0.9)",
+    color: Colors.base,
     marginBottom: 24,
   },
   getStartedButton: {
@@ -178,7 +171,7 @@ const styles = StyleSheet.create({
   },
   getStartedText: {
     ...Typography.styles.heroButtonText,
-    color: Colors.black,
+    color: Colors.primary,
   },
   getStartedButtonLoading: {
     opacity: 0.8,
@@ -193,7 +186,7 @@ const styles = StyleSheet.create({
   },
   subText: {
     ...Typography.styles.caption,
-    color: "rgba(255, 255, 255, 0.5)",
+    color: Colors.base,
     fontStyle: "italic",
   },
 });
