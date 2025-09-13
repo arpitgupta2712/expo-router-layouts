@@ -198,7 +198,11 @@ export default function EmployeesPage() {
               size="rectangle"
               contentMode="fillContainer"
             >
-              {/* Empty content for now - no photo */}
+              <Image 
+                source={require('../../../assets/images/Stadium-art.jpg')} 
+                style={styles.featureImage}
+                resizeMode="cover"
+              />
             </FeaturedCard>
           </Link>
         </View>
@@ -388,6 +392,13 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: Layout.borderRadius.xl,
   },
   departmentImage: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+  },
+  featureImage: {
     width: '100%',
     height: '100%',
     position: 'absolute',
