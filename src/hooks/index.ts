@@ -2,3 +2,4 @@
 export * from './useAdminDataProvider';
 export * from './useBooking';
 export * from './useCityService';
+export * from './useEmployees';

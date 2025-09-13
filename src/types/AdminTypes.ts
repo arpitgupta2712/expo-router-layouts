@@ -56,6 +56,29 @@ export interface Company {
   pan: string;
 }
 
+// Employee Types
+export interface Employee {
+  employee_id: string;
+  employee_name: string;
+  company_id: string;
+  company_billed_to: string;
+  designation: string;
+  department: string;
+  tier: 'staff' | 'senior_staff' | 'supervisor' | 'management' | 'heads' | 'executive';
+  employment_status: 'Active' | 'Terminated' | null;
+  date_of_joining: string | null;
+  reporting_to: string | null;
+  company_email_id: string | null;
+  phone: string;
+  nickname: string;
+}
+
+export interface EmployeeResponse {
+  success: boolean;
+  data: Employee[];
+  message?: string;
+}
+
 export interface Admin {
   id: string;
   name: string;
@@ -162,5 +185,16 @@ export interface UseFacilitiesReturn {
   error: string | null;
   getFacilitiesByVenue: (venueId: string) => Facility[];
   getFacilitiesBySport: (sport: string) => Facility[];
+  refetch: () => Promise<void>;
+}
+
+export interface UseEmployeesReturn {
+  employees: Employee[];
+  loading: boolean;
+  error: string | null;
+  getEmployeesByCompany: (companyId: string) => Employee[];
+  getEmployeesByDepartment: (department: string) => Employee[];
+  getEmployeesByTier: (tier: Employee['tier']) => Employee[];
+  getActiveEmployees: () => Employee[];
   refetch: () => Promise<void>;
 }

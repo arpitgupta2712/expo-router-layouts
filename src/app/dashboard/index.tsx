@@ -267,7 +267,7 @@ export default function DashboardPage() {
         {/* Additional Feature Cards */}
         <View style={styles.row}>
           <FeatureCard size="small" title="Players" />
-          <FeatureCard size="small" title="Employees" />
+          <FeatureCard size="small" title="Employees" href="/employees" />
         </View>
 
         <View style={styles.row}>

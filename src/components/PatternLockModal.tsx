@@ -22,10 +22,10 @@ interface PatternLockModalProps {
   onCancel: () => void;
 }
 
-// Define the 'G' pattern for 4x4 grid
+// Define the custom pattern for 4x4 grid
 // Grid positions: 0,1,2,3 (top row), 4,5,6,7 (second row), etc.
-// G pattern: 0-1-2-6-10-9-8-12-13-14-15
-const CORRECT_PATTERN = [0, 1, 2, 6, 10, 9, 8, 12, 13, 14, 15];
+// Custom pattern: 3-2-1-0-4-8-12-13-14-10-11-15
+const CORRECT_PATTERN = [3, 2, 1, 0, 4, 8, 12, 13, 14, 10, 11, 15];
 const MAX_ATTEMPTS = 5;
 const TIMEOUT_DURATION = 3 * 60 * 1000; // 3 minutes in milliseconds
 
