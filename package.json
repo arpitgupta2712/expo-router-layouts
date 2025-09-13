@@ -30,6 +30,7 @@
     "react-native-svg": "^15.13.0",
     "react-native-vector-icons": "^9.2.0",
     "react-native-web": "^0.21.0",
+    "reactflow": "^11.11.4",
     "typescript": "~5.9.2"
   },
   "devDependencies": {

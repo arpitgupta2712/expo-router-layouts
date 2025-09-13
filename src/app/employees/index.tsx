@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   ActivityIndicator
 } from "react-native";
+import { Link } from "expo-router";
 import { Layout } from "@/constants/Layout";
 import { Colors } from "@/constants/Colors";
 import { Typography } from "@/constants/Typography";
@@ -85,7 +86,7 @@ const FeaturedCard = ({ stats, size = 'rectangle' }) => {
 };
 
 // Static feature card component
-const FeatureCard = ({ size, title }) => {
+const FeatureCard = ({ size, title, href = null }) => {
   const cardStyle = getCardStyle(size, CARD_SIZE, CARD_GAP);
 
   const cardContent = (
@@ -96,6 +97,17 @@ const FeatureCard = ({ size, title }) => {
       </View>
     </View>
   );
+
+  // Handle internal routing
+  if (href) {
+    return (
+      <Link href={href} asChild>
+        <TouchableOpacity activeOpacity={0.8}>
+          {cardContent}
+        </TouchableOpacity>
+      </Link>
+    );
+  }
 
   return (
     <TouchableOpacity activeOpacity={0.8}>
@@ -246,7 +258,7 @@ export default function EmployeesPage() {
 
         {/* Additional Feature Cards */}
         <View style={styles.row}>
-          <FeatureCard size="big" title="Gallery" />
+          <FeatureCard size="big" title="Org Chart" href="/employees/org-chart" />
         </View>
       </View>
     </ScrollView>
