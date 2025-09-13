@@ -15,6 +15,9 @@ export interface Sport {
   name: string;
 }
 
+// Department enum for type safety
+export type Department = 'hq' | 'crew' | 'facility' | 'process';
+
 export interface Facility {
   id: string;
   name: string;
@@ -63,7 +66,7 @@ export interface Employee {
   company_id: string;
   company_billed_to: string;
   designation: string;
-  department: string;
+  department: Department;
   tier: 'staff' | 'senior_staff' | 'supervisor' | 'management' | 'heads' | 'executive';
   employment_status: 'Active' | 'Terminated' | null;
   date_of_joining: string | null;

@@ -1,4 +1,6 @@
 // Image mapping utilities
+import { Department } from '@/types/AdminTypes';
+
 export const getCityImage = (cityName: string) => {
   const cityImages = {
     'Gurgaon': require('../../../assets/cities/Gurgaon.jpg'),
@@ -27,4 +29,16 @@ export const getFeatureImage = (title: string) => {
   return featureImages[title as keyof typeof featureImages] || { 
     uri: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop&auto=format' 
   };
+};
+
+export const getDepartmentImage = (departmentName: Department) => {
+  const departmentImages: Record<Department, any> = {
+    'hq': require('../../../assets/graphics/Stadium.png'),
+    'crew': require('../../../assets/graphics/Field.png'),
+    'facility': require('../../../assets/graphics/Booking.png'),
+    'process': require('../../../assets/graphics/Extra.png'),
+  };
+  
+  // Direct mapping for the 4 departments
+  return departmentImages[departmentName] || departmentImages['hq'];
 };

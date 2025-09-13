@@ -7,7 +7,8 @@ import {
   Dimensions,
   Platform,
   TouchableOpacity,
-  ActivityIndicator
+  ActivityIndicator,
+  Image
 } from "react-native";
 import { Link } from "expo-router";
 import { Layout } from "@/constants/Layout";
@@ -20,7 +21,8 @@ import {
   getCardSize, 
   getCardStyle,
   getCityCardLayout,
-  DASHBOARD_CONFIG
+  DASHBOARD_CONFIG,
+  getDepartmentImage
 } from "@/utils";
 
 const { width } = Dimensions.get("window");
@@ -38,9 +40,17 @@ const DynamicCalendarIcon = () => {
 // Department card component for bento grid
 const DepartmentCard = ({ department, activeCount, borderColor, size = 'small' }) => {
   const cardStyle = getCardStyle(size, CARD_SIZE, CARD_GAP);
+  const departmentImage = getDepartmentImage(department);
 
   const cardContent = (
     <View style={[styles.card, cardStyle, { borderColor }]}>
+      {/* Department Image Background */}
+      <Image 
+        source={departmentImage} 
+        style={styles.departmentImage}
+        resizeMode="cover"
+      />
+      
       {/* Active employee count badge */}
       <View style={styles.employeeBadge}>
         <Text style={styles.employeeBadgeText}>{activeCount}</Text>
@@ -401,6 +411,13 @@ const styles = StyleSheet.create({
     borderTopColor: Colors.accent,
     borderBottomLeftRadius: Layout.borderRadius.xl,
     borderBottomRightRadius: Layout.borderRadius.xl,
+  },
+  departmentImage: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    top: 0,
+    left: 0,
   },
   departmentName: {
     ...Typography.styles.dashboardCardTitle,
