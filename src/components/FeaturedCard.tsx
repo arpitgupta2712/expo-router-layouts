@@ -50,7 +50,7 @@ export const FeaturedCard: React.FC<FeaturedCardProps> = ({
       <View style={contentMode === 'fillContainer' ? styles.contentAreaFill : styles.contentAreaAbove}>
         {loading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="small" color={Colors.accent} />
+            <ActivityIndicator size="large" color={Colors.accent} />
           </View>
         ) : (
           children
@@ -121,8 +121,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 40, // Reserve space for footer
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: Layout.spacing.sm,
     backgroundColor: Colors.primary,
   },
