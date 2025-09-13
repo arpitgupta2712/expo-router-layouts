@@ -34,27 +34,20 @@ const DynamicCalendarIcon = () => {
   return <CalendarIcon size="small" />;
 };
 
-// Employee card component for bento grid
-const EmployeeCard = ({ employee, borderColor, size = 'small' }) => {
+// Department card component for bento grid
+const DepartmentCard = ({ department, activeCount, borderColor, size = 'small' }) => {
   const cardStyle = getCardStyle(size, CARD_SIZE, CARD_GAP);
 
   const cardContent = (
     <View style={[styles.card, cardStyle, { borderColor }]}>
-      {/* Employee Status Badge */}
-      <View style={[
-        styles.statusBadge,
-        employee.employment_status === 'Active' ? styles.activeBadge : styles.terminatedBadge
-      ]}>
-        <Text style={styles.statusBadgeText}>
-          {employee.employment_status === 'Active' ? 'A' : 'T'}
-        </Text>
+      {/* Active employee count badge */}
+      <View style={styles.employeeBadge}>
+        <Text style={styles.employeeBadgeText}>{activeCount}</Text>
       </View>
       
-      {/* Footer with employee details */}
+      {/* Footer with department title only */}
       <View style={styles.cardFooter}>
-        <Text style={styles.employeeName}>{employee.nickname || employee.employee_name}</Text>
-        <Text style={styles.employeeDesignation}>{employee.designation}</Text>
-        <Text style={styles.employeeTier}>{employee.tier}</Text>
+        <Text style={styles.departmentName}>{department}</Text>
       </View>
     </View>
   );
@@ -66,38 +59,80 @@ const EmployeeCard = ({ employee, borderColor, size = 'small' }) => {
   );
 };
 
-// Department header component
-const DepartmentHeader = ({ department, employeeCount }) => (
-  <View style={styles.departmentHeader}>
-    <Text style={styles.departmentTitle}>{department}</Text>
-    <Text style={styles.departmentCount}>{employeeCount} employees</Text>
-  </View>
-);
+// Featured card component for statistics
+const FeaturedCard = ({ stats, size = 'rectangle' }) => {
+  const cardStyle = getCardStyle(size, CARD_SIZE, CARD_GAP);
+
+  const cardContent = (
+    <View style={[styles.card, cardStyle, { borderColor: Colors.primary }]}>
+      {/* Active employees badge */}
+      <View style={styles.statsBadge}>
+        <Text style={styles.statsBadgeText}>{stats?.active || 0}</Text>
+      </View>
+      
+      {/* Footer with title only */}
+      <View style={styles.cardFooter}>
+        <Text style={styles.featuredTitle}>Employees</Text>
+      </View>
+    </View>
+  );
+
+  return (
+    <TouchableOpacity activeOpacity={0.8}>
+      {cardContent}
+    </TouchableOpacity>
+  );
+};
+
+// Static feature card component
+const FeatureCard = ({ size, title }) => {
+  const cardStyle = getCardStyle(size, CARD_SIZE, CARD_GAP);
+
+  const cardContent = (
+    <View style={[styles.card, cardStyle, { borderColor: Colors.primary }]}>
+      {/* Footer with title */}
+      <View style={styles.cardFooter}>
+        <Text style={styles.featureTitle}>{title}</Text>
+      </View>
+    </View>
+  );
+
+  return (
+    <TouchableOpacity activeOpacity={0.8}>
+      {cardContent}
+    </TouchableOpacity>
+  );
+};
 
 export default function EmployeesPage() {
   const { employees, loading, error, refetch } = useEmployees();
   const { stats } = useEmployeeStats();
 
-  // Group employees by department
-  const employeesByDepartment = React.useMemo(() => {
+  // Group employees by department and calculate stats
+  const departmentStats = React.useMemo(() => {
     if (!employees) return {};
     
     return employees.reduce((acc, employee) => {
       const dept = employee.department;
       if (!acc[dept]) {
-        acc[dept] = [];
+        acc[dept] = { total: 0, active: 0, terminated: 0 };
       }
-      acc[dept].push(employee);
+      acc[dept].total++;
+      if (employee.employment_status === 'Active') {
+        acc[dept].active++;
+      } else if (employee.employment_status === 'Terminated') {
+        acc[dept].terminated++;
+      }
       return acc;
-    }, {} as Record<string, Employee[]>);
+    }, {} as Record<string, { total: number; active: number; terminated: number }>);
   }, [employees]);
 
-  // Sort departments by employee count (descending)
-  const sortedDepartments = React.useMemo(() => {
-    return Object.keys(employeesByDepartment).sort((a, b) => 
-      employeesByDepartment[b].length - employeesByDepartment[a].length
+  // Get department list for cards
+  const departments = React.useMemo(() => {
+    return Object.keys(departmentStats).sort((a, b) => 
+      departmentStats[b].total - departmentStats[a].total
     );
-  }, [employeesByDepartment]);
+  }, [departmentStats]);
 
   if (loading) {
     return (
@@ -154,86 +189,65 @@ export default function EmployeesPage() {
         </View>
       </View>
 
-      {/* Stats Overview */}
-      {stats && (
-        <View style={styles.statsContainer}>
-          <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{stats.total}</Text>
-              <Text style={styles.statLabel}>Total</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={[styles.statNumber, { color: Colors.success }]}>{stats.active}</Text>
-              <Text style={styles.statLabel}>Active</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={[styles.statNumber, { color: Colors.error }]}>{stats.terminated}</Text>
-              <Text style={styles.statLabel}>Terminated</Text>
-            </View>
-          </View>
-        </View>
-      )}
-
       <View style={styles.grid}>
-        {/* Render each department */}
-        {sortedDepartments.map((department) => {
-          const departmentEmployees = employeesByDepartment[department];
-          const activeEmployees = departmentEmployees.filter(emp => emp.employment_status === 'Active');
+        {/* Featured Statistics Card */}
+        <View style={styles.row}>
+          <FeaturedCard stats={stats} size="rectangle" />
+        </View>
+
+        {/* Department Cards */}
+        {departments.map((department, index) => {
+          const deptStats = departmentStats[department];
+          const borderColor = Colors.primary;
+          const layout = getCityCardLayout(departments.length, index);
+          
+          // Only render if the utility says we should
+          if (!layout.shouldRender) {
+            return null;
+          }
+          
+          // If it's a solo rectangle (last department in odd list)
+          if (layout.isSolo) {
+            return (
+              <View key={`row-${index}`} style={styles.row}>
+                <DepartmentCard 
+                  department={department}
+                  activeCount={deptStats.active}
+                  borderColor={borderColor}
+                  size={layout.size}
+                />
+              </View>
+            );
+          }
+          
+          // Regular pair rendering
+          const nextDepartment = departments[index + 1];
+          const nextDeptStats = nextDepartment ? departmentStats[nextDepartment] : null;
           
           return (
-            <View key={department} style={styles.departmentSection}>
-              <DepartmentHeader 
-                department={department} 
-                employeeCount={departmentEmployees.length}
+            <View key={`row-${index}`} style={styles.row}>
+              <DepartmentCard 
+                department={department}
+                activeCount={deptStats.active}
+                borderColor={borderColor}
+                size={layout.size}
               />
-              
-              {/* Employee cards for this department */}
-              {departmentEmployees.map((employee, index) => {
-                const borderColor = employee.employment_status === 'Active' ? Colors.primary : Colors.error;
-                const layout = getCityCardLayout(departmentEmployees.length, index);
-                
-                // Only render if the utility says we should
-                if (!layout.shouldRender) {
-                  return null;
-                }
-                
-                // If it's a solo rectangle (last employee in odd list)
-                if (layout.isSolo) {
-                  return (
-                    <View key={`row-${department}-${index}`} style={styles.row}>
-                      <EmployeeCard 
-                        employee={employee}
-                        borderColor={borderColor}
-                        size={layout.size}
-                      />
-                    </View>
-                  );
-                }
-                
-                // Regular pair rendering
-                const nextEmployee = departmentEmployees[index + 1];
-                const nextBorderColor = nextEmployee?.employment_status === 'Active' ? Colors.primary : Colors.error;
-                
-                return (
-                  <View key={`row-${department}-${index}`} style={styles.row}>
-                    <EmployeeCard 
-                      employee={employee}
-                      borderColor={borderColor}
-                      size={layout.size}
-                    />
-                    {nextEmployee && (
-                      <EmployeeCard 
-                        employee={nextEmployee}
-                        borderColor={nextBorderColor}
-                        size="small"
-                      />
-                    )}
-                  </View>
-                );
-              })}
+              {nextDepartment && nextDeptStats && (
+                <DepartmentCard 
+                  department={nextDepartment}
+                  activeCount={nextDeptStats.active}
+                  borderColor={borderColor}
+                  size="small"
+                />
+              )}
             </View>
           );
         })}
+
+        {/* Additional Feature Cards */}
+        <View style={styles.row}>
+          <FeatureCard size="big" title="Gallery" />
+        </View>
       </View>
     </ScrollView>
   );
@@ -278,32 +292,6 @@ const styles = StyleSheet.create({
     ...Typography.styles.dashboardTitle,
     color: Colors.accent,
   },
-  statsContainer: {
-    backgroundColor: Colors.surface,
-    margin: CONTAINER_PADDING,
-    marginTop: Layout.spacing.lg,
-    padding: Layout.spacing.lg,
-    borderRadius: Layout.borderRadius.xl,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statNumber: {
-    ...Typography.styles.h3,
-    color: Colors.primary,
-    fontWeight: 'bold',
-  },
-  statLabel: {
-    ...Typography.styles.caption,
-    color: Colors.text.secondary,
-    marginTop: Layout.spacing.xs,
-  },
   grid: {
     padding: CONTAINER_PADDING,
     paddingTop: Layout.spacing.lg,
@@ -313,25 +301,6 @@ const styles = StyleSheet.create({
       alignSelf: 'center',
       width: '100%',
     }),
-  },
-  departmentSection: {
-    marginBottom: Layout.spacing.xl,
-  },
-  departmentHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Layout.spacing.md,
-    paddingHorizontal: Layout.spacing.sm,
-  },
-  departmentTitle: {
-    ...Typography.styles.h4,
-    color: Colors.text.primary,
-    textTransform: 'uppercase',
-  },
-  departmentCount: {
-    ...Typography.styles.caption,
-    color: Colors.text.secondary,
   },
   row: {
     flexDirection: "row",
@@ -354,10 +323,11 @@ const styles = StyleSheet.create({
     position: 'relative',
     backgroundColor: Colors.base,
   },
-  statusBadge: {
+  employeeBadge: {
     position: 'absolute',
     top: Layout.spacing.sm,
     right: Layout.spacing.sm,
+    backgroundColor: Colors.primary,
     borderRadius: Layout.borderRadius.full,
     paddingHorizontal: Layout.spacing.sm,
     paddingVertical: Layout.spacing.xs,
@@ -373,17 +343,37 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 4,
   },
-  activeBadge: {
-    backgroundColor: Colors.success,
-  },
-  terminatedBadge: {
-    backgroundColor: Colors.error,
-  },
-  statusBadgeText: {
+  employeeBadgeText: {
     ...Typography.styles.caption,
-    color: Colors.base,
+    color: Colors.accent,
     fontWeight: '600',
-    fontSize: 10,
+    fontSize: 12,
+  },
+  statsBadge: {
+    position: 'absolute',
+    top: Layout.spacing.sm,
+    right: Layout.spacing.sm,
+    backgroundColor: Colors.primary,
+    borderRadius: Layout.borderRadius.full,
+    paddingHorizontal: Layout.spacing.sm,
+    paddingVertical: Layout.spacing.xs,
+    minWidth: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: Colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  statsBadgeText: {
+    ...Typography.styles.caption,
+    color: Colors.accent,
+    fontWeight: '600',
+    fontSize: 12,
   },
   cardFooter: {
     position: 'absolute',
@@ -400,25 +390,23 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: Layout.borderRadius.xl,
     borderBottomRightRadius: Layout.borderRadius.xl,
   },
-  employeeName: {
+  departmentName: {
     ...Typography.styles.dashboardCardTitle,
     color: Colors.base,
     textAlign: 'left',
     textTransform: 'uppercase',
-    marginBottom: 2,
   },
-  employeeDesignation: {
-    ...Typography.styles.caption,
-    color: Colors.accent,
+  featuredTitle: {
+    ...Typography.styles.dashboardCardTitle,
+    color: Colors.base,
     textAlign: 'left',
-    marginBottom: 2,
+    textTransform: 'uppercase',
   },
-  employeeTier: {
-    ...Typography.styles.caption,
-    color: Colors.accent,
+  featureTitle: {
+    ...Typography.styles.dashboardCardTitle,
+    color: Colors.base,
     textAlign: 'left',
-    opacity: 0.8,
-    fontSize: 10,
+    textTransform: 'uppercase',
   },
   loadingContainer: {
     flex: 1,
