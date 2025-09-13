@@ -11,7 +11,7 @@ import {
   Animated,
   Modal,
   FlatList,
-  PanResponder,
+  SafeAreaView,
 } from 'react-native';
 import { Layout } from '@/constants/Layout';
 import { Colors } from '@/constants/Colors';
@@ -19,754 +19,523 @@ import { Typography } from '@/constants/Typography';
 import { useEmployees } from '@/hooks/useEmployees';
 import { Employee } from '@/types/AdminTypes';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { logger, LogLevel } from '@/utils/core/logging';
 
 const { width, height } = Dimensions.get('window');
 
-// Enhanced color schemes
-const LEVEL_COLORS = [
-  '#6366F1', // Indigo - CEO
-  '#8B5CF6', // Purple - VPs
-  '#EC4899', // Pink - Directors
-  '#F59E0B', // Amber - Managers
-  '#10B981', // Emerald - Leads
-  '#06B6D4', // Cyan - Senior Staff
-  '#64748B', // Slate - Staff
-];
-
-const DEPARTMENT_GRADIENTS = {
-  'facility': ['#6366F1', '#4F46E5'],
-  'process': ['#8B5CF6', '#7C3AED'],
-  'hq': ['#EC4899', '#DB2777'],
-  'crew': ['#F59E0B', '#D97706'],
+// Department colors
+const DEPT_COLORS = {
+  'facility': '#6366F1',
+  'process': '#8B5CF6', 
+  'hq': '#EC4899',
+  'crew': '#F59E0B',
+  'default': '#64748B'
 } as const;
 
-// Avatar component with initials
-const EmployeeAvatar = ({ name, size = 40, level = 0 }) => {
+// Tier colors for hierarchy levels
+const TIER_COLORS = {
+  'executive': '#DC2626',
+  'heads': '#7C3AED',
+  'management': '#2563EB',
+  'senior_staff': '#059669',
+  'supervisor': '#D97706',
+  'staff': '#64748B',
+  'default': '#94A3B8'
+} as const;
+
+// Simple Avatar Component
+const Avatar = ({ name, department, size = 48 }) => {
   const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
-  const backgroundColor = LEVEL_COLORS[Math.min(level, LEVEL_COLORS.length - 1)];
+  const bgColor = DEPT_COLORS[department as keyof typeof DEPT_COLORS] || DEPT_COLORS.default;
   
   return (
-    <View style={[styles.avatar, { width: size, height: size, backgroundColor }]}>
+    <View style={[styles.avatar, { width: size, height: size, backgroundColor: bgColor }]}>
       <Text style={[styles.avatarText, { fontSize: size * 0.4 }]}>{initials}</Text>
     </View>
   );
 };
 
-// Connection line component
-const ConnectionLine = ({ isVisible, height = 30, isLastChild = false }) => {
-  const opacity = useRef(new Animated.Value(isVisible ? 1 : 0)).current;
-  
-  useEffect(() => {
-    Animated.timing(opacity, {
-      toValue: isVisible ? 1 : 0,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-  }, [isVisible]);
-  
-  return (
-    <Animated.View style={[styles.connectionLine, { height, opacity }]}>
-      <View style={[styles.verticalLine, isLastChild && styles.halfLine]} />
-      <View style={styles.horizontalLine} />
-    </Animated.View>
-  );
-};
-
-// Enhanced Employee Node Component
-const EmployeeNode = ({ 
+// Employee Card Component - Full width, always visible
+const EmployeeCard = ({ 
   employee, 
-  level = 0, 
-  isExpanded, 
-  onToggle, 
-  onSelect,
-  isSelected,
+  onPress,
   childCount = 0,
-  isLastChild = false,
-  searchQuery = '',
-  isFocusPath = false,
+  isCurrentLevel = false,
+  showNavigation = true 
 }) => {
-  const scale = useRef(new Animated.Value(1)).current;
-  const translateX = useRef(new Animated.Value(0)).current;
-  
-  useEffect(() => {
-    Animated.spring(translateX, {
-      toValue: level * 20,
-      useNativeDriver: true,
-      tension: 50,
-      friction: 7,
-    }).start();
-  }, [level]);
+  const scaleAnim = useRef(new Animated.Value(1)).current;
   
   const handlePress = () => {
     Animated.sequence([
-      Animated.spring(scale, { toValue: 0.95, useNativeDriver: true, tension: 300, friction: 10 }),
-      Animated.spring(scale, { toValue: 1, useNativeDriver: true, tension: 300, friction: 10 }),
+      Animated.timing(scaleAnim, { toValue: 0.98, duration: 50, useNativeDriver: true }),
+      Animated.timing(scaleAnim, { toValue: 1, duration: 50, useNativeDriver: true }),
     ]).start();
-    onSelect(employee);
+    onPress(employee);
   };
   
-  const handleToggle = () => {
-    logger.logUserAction('Org Chart Node Toggle Attempt', {
-      employeeId: employee.company_id,
-      employeeName: employee.employee_name,
-      designation: employee.designation,
-      reportingTo: employee.reporting_to,
-      childCount,
-      level,
-      isExpanded
-    });
-    
-    if (childCount > 0) {
-      logger.logUserAction('Org Chart Node Toggle - Expanding', {
-        employeeId: employee.company_id,
-        employeeName: employee.employee_name,
-        childCount,
-        currentExpanded: isExpanded
-      });
-      onToggle(employee.company_id);
-    } else {
-      logger.logUserAction('Org Chart Node Toggle - No Children', {
-        employeeId: employee.company_id,
-        employeeName: employee.employee_name,
-        childCount
-      });
-    }
-  };
-  
-  // Highlight search matches
-  const isMatch = searchQuery && 
-    employee.employee_name.toLowerCase().includes(searchQuery.toLowerCase());
-  
-  const gradientColors = DEPARTMENT_GRADIENTS[employee.department as keyof typeof DEPARTMENT_GRADIENTS] 
-    || DEPARTMENT_GRADIENTS.hq;
+  const tierColor = TIER_COLORS[employee.tier as keyof typeof TIER_COLORS] || TIER_COLORS.default;
   
   return (
-    <Animated.View style={[
-      styles.nodeContainer,
-      { transform: [{ translateX }, { scale }] },
-    ]}>
-      {/* Connection line for non-root nodes */}
-      {level > 0 && (
-        <ConnectionLine isVisible={true} isLastChild={isLastChild} />
-      )}
-      
+    <Animated.View style={[styles.cardContainer, { transform: [{ scale: scaleAnim }] }]}>
       <TouchableOpacity 
+        style={[styles.card, isCurrentLevel && styles.currentCard]}
         onPress={handlePress}
-        onLongPress={handleToggle}
-        activeOpacity={0.8}
+        activeOpacity={0.9}
       >
-        <View style={[
-          styles.nodeCard,
-          isSelected && styles.selectedCard,
-          isMatch && styles.matchCard,
-          isFocusPath && styles.focusPathCard,
-        ]}>
-          <View style={styles.nodeHeader}>
-            <EmployeeAvatar name={employee.employee_name} level={level} />
-            
-            <View style={styles.nodeInfo}>
-              <Text style={styles.nodeName} numberOfLines={1}>
-                {employee.nickname || employee.employee_name}
-              </Text>
-              <Text style={styles.nodeRole} numberOfLines={1}>
-                {employee.designation}
-              </Text>
-              <View style={styles.nodeMeta}>
-                <View style={[styles.deptBadge, { backgroundColor: gradientColors[0] }]}>
-                  <Text style={styles.deptBadgeText}>{employee.department}</Text>
-                </View>
-                <Text style={styles.tierText}>{employee.tier}</Text>
+        <View style={styles.cardContent}>
+          <Avatar name={employee.employee_name} department={employee.department} />
+          
+          <View style={styles.cardInfo}>
+            <Text style={styles.cardName} numberOfLines={1}>
+              {employee.nickname || employee.employee_name}
+            </Text>
+            <Text style={styles.cardRole} numberOfLines={1}>
+              {employee.designation}
+            </Text>
+            <View style={styles.cardMeta}>
+              <View style={[styles.deptBadge, { backgroundColor: tierColor }]}>
+                <Text style={styles.deptBadgeText}>{employee.tier}</Text>
               </View>
+              <Text style={styles.deptText}>{employee.department}</Text>
             </View>
-            
-            {childCount > 0 && (
-              <TouchableOpacity onPress={handleToggle} style={styles.expandButton}>
-                <View style={[styles.expandCircle, isExpanded && styles.expandCircleActive]}>
-                  <Icon 
-                    name={isExpanded ? "chevron-up" : "chevron-down"} 
-                    size={20} 
-                    color={isExpanded ? Colors.base : Colors.text.secondary} 
-                  />
-                  <Text style={styles.childCountBadge}>{childCount}</Text>
-                </View>
-              </TouchableOpacity>
-            )}
           </View>
           
-          {/* Quick actions */}
-          <View style={styles.quickActions}>
-            <TouchableOpacity style={styles.actionButton}>
-              <Icon name="phone" size={16} color={Colors.primary} />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton}>
-              <Icon name="email" size={16} color={Colors.primary} />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton}>
-              <Icon name="message" size={16} color={Colors.primary} />
-            </TouchableOpacity>
-          </View>
+          {showNavigation && childCount > 0 && (
+            <View style={styles.cardNav}>
+              <View style={styles.childCountBadge}>
+                <Text style={styles.childCountText}>{childCount}</Text>
+              </View>
+              <Icon name="chevron-right" size={24} color={Colors.text.secondary} />
+            </View>
+          )}
+        </View>
+        
+        {/* Quick Actions Bar */}
+        <View style={styles.quickActions}>
+          <TouchableOpacity style={styles.actionBtn}>
+            <Icon name="phone" size={18} color={Colors.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionBtn}>
+            <Icon name="email" size={18} color={Colors.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionBtn}>
+            <Icon name="message-text" size={18} color={Colors.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionBtn}>
+            <Icon name="information" size={18} color={Colors.primary} />
+          </TouchableOpacity>
         </View>
       </TouchableOpacity>
     </Animated.View>
   );
 };
 
-// Breadcrumb Navigation Component
-const BreadcrumbNav = ({ path, onNavigate }) => {
+// Breadcrumb Navigation
+const Breadcrumbs = ({ path, onNavigate }) => {
+  const scrollRef = useRef<ScrollView>(null);
+  
+  useEffect(() => {
+    // Auto scroll to end when path changes
+    setTimeout(() => {
+      scrollRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+  }, [path]);
+  
   return (
-    <ScrollView 
-      horizontal 
-      showsHorizontalScrollIndicator={false}
-      style={styles.breadcrumbContainer}
-    >
-      <TouchableOpacity onPress={() => onNavigate(null)} style={styles.breadcrumbItem}>
-        <Icon name="domain" size={16} color={Colors.primary} />
-        <Text style={styles.breadcrumbText}>Company</Text>
-      </TouchableOpacity>
-      
-      {path.map((emp, index) => (
-        <View key={emp.company_id} style={styles.breadcrumbWrapper}>
-          <Icon name="chevron-right" size={16} color={Colors.text.secondary} />
-          <TouchableOpacity 
-            onPress={() => onNavigate(emp)}
-            style={[
-              styles.breadcrumbItem,
-              index === path.length - 1 && styles.breadcrumbItemActive
-            ]}
-          >
-            <Text style={[
-              styles.breadcrumbText,
-              index === path.length - 1 && styles.breadcrumbTextActive
-            ]}>
-              {emp.nickname || emp.employee_name.split(' ')[0]}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      ))}
-    </ScrollView>
+    <View style={styles.breadcrumbContainer}>
+      <ScrollView 
+        ref={scrollRef}
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.breadcrumbContent}
+      >
+        <TouchableOpacity 
+          style={styles.breadcrumbItem}
+          onPress={() => onNavigate([])}
+        >
+          <Icon name="domain" size={18} color={Colors.primary} />
+          <Text style={styles.breadcrumbText}>Company</Text>
+        </TouchableOpacity>
+        
+        {path.map((employee, index) => (
+          <View key={employee.company_id} style={styles.breadcrumbWrapper}>
+            <Icon name="chevron-right" size={16} color={Colors.text.secondary} />
+            <TouchableOpacity 
+              style={[
+                styles.breadcrumbItem,
+                index === path.length - 1 && styles.breadcrumbActive
+              ]}
+              onPress={() => onNavigate(path.slice(0, index + 1))}
+            >
+              <Text style={[
+                styles.breadcrumbText,
+                index === path.length - 1 && styles.breadcrumbActiveText
+              ]}>
+                {employee.nickname || employee.employee_name.split(' ')[0]}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+      </ScrollView>
+    </View>
   );
 };
 
-// Search Bar Component
-const SearchBar = ({ value, onChangeText, onClear, resultCount = 0 }) => {
-  const [isFocused, setIsFocused] = useState(false);
+// Search Component
+const SearchBar = ({ onSearch, onClose }) => {
+  const [query, setQuery] = useState('');
+  const [isActive, setIsActive] = useState(false);
+  
+  const handleSearch = (text: string) => {
+    setQuery(text);
+    onSearch(text);
+  };
   
   return (
-    <View style={[styles.searchContainer, isFocused && styles.searchContainerFocused]}>
+    <View style={[styles.searchBar, isActive && styles.searchBarActive]}>
       <Icon name="magnify" size={20} color={Colors.text.secondary} />
       <TextInput
         style={styles.searchInput}
         placeholder="Search employees..."
         placeholderTextColor={Colors.text.secondary}
-        value={value}
-        onChangeText={onChangeText}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
+        value={query}
+        onChangeText={handleSearch}
+        onFocus={() => setIsActive(true)}
+        onBlur={() => setIsActive(false)}
       />
-      {value.length > 0 && (
-        <>
-          <Text style={styles.searchResultCount}>
-            {resultCount} found
-          </Text>
-          <TouchableOpacity onPress={onClear}>
-            <Icon name="close-circle" size={20} color={Colors.text.secondary} />
-          </TouchableOpacity>
-        </>
+      {query.length > 0 && (
+        <TouchableOpacity onPress={() => {
+          setQuery('');
+          onSearch('');
+          onClose();
+        }}>
+          <Icon name="close-circle" size={20} color={Colors.text.secondary} />
+        </TouchableOpacity>
       )}
     </View>
   );
 };
 
-// Employee Detail Modal
-const EmployeeDetailModal = ({ employee, isVisible, onClose, onNavigateToEmployee }) => {
-  if (!employee) return null;
-  
-  return (
-    <Modal
-      visible={isVisible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
-    >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
-            <Icon name="close" size={24} color={Colors.text.primary} />
-          </TouchableOpacity>
-          
-          <View style={styles.modalHeader}>
-            <EmployeeAvatar name={employee.employee_name} size={80} />
-            <Text style={styles.modalName}>{employee.employee_name}</Text>
-            <Text style={styles.modalDesignation}>{employee.designation}</Text>
-          </View>
-          
-          <View style={styles.modalDetails}>
-            <View style={styles.detailRow}>
-              <Icon name="briefcase" size={20} color={Colors.primary} />
-              <Text style={styles.detailLabel}>Department</Text>
-              <Text style={styles.detailValue}>{employee.department}</Text>
-            </View>
-            
-            <View style={styles.detailRow}>
-              <Icon name="chart-line" size={20} color={Colors.primary} />
-              <Text style={styles.detailLabel}>Tier</Text>
-              <Text style={styles.detailValue}>{employee.tier}</Text>
-            </View>
-            
-            <View style={styles.detailRow}>
-              <Icon name="phone" size={20} color={Colors.primary} />
-              <Text style={styles.detailLabel}>Phone</Text>
-              <Text style={styles.detailValue}>{employee.phone}</Text>
-            </View>
-            
-            <View style={styles.detailRow}>
-              <Icon name="identifier" size={20} color={Colors.primary} />
-              <Text style={styles.detailLabel}>ID</Text>
-              <Text style={styles.detailValue}>{employee.company_id}</Text>
-            </View>
-          </View>
-          
-          <View style={styles.modalActions}>
-            <TouchableOpacity 
-              style={styles.modalActionButton}
-              onPress={() => {
-                onNavigateToEmployee(employee);
-                onClose();
-              }}
-            >
-              <Icon name="sitemap" size={20} color={Colors.base} />
-              <Text style={styles.modalActionText}>View in Chart</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={[styles.modalActionButton, styles.modalActionButtonSecondary]}>
-              <Icon name="phone" size={20} color={Colors.primary} />
-              <Text style={[styles.modalActionText, { color: Colors.primary }]}>Call</Text>
-            </TouchableOpacity>
-          </View>
+// Level Navigation Header
+const LevelHeader = ({ 
+  currentEmployee, 
+  onBack, 
+  onHome,
+  totalAtLevel 
+}) => {
+  if (!currentEmployee) {
+    return (
+      <View style={styles.levelHeader}>
+        <View style={styles.levelInfo}>
+          <Text style={styles.levelTitle}>Organization Structure</Text>
+          <Text style={styles.levelSubtitle}>
+            {totalAtLevel} {totalAtLevel === 1 ? 'member' : 'members'} at top level
+          </Text>
         </View>
       </View>
-    </Modal>
+    );
+  }
+  
+  return (
+    <View style={styles.levelHeader}>
+      <TouchableOpacity style={styles.backButton} onPress={onBack}>
+        <Icon name="arrow-left" size={24} color={Colors.primary} />
+      </TouchableOpacity>
+      
+      <View style={styles.levelInfo}>
+        <Text style={styles.levelTitle} numberOfLines={1}>
+          {currentEmployee.nickname || currentEmployee.employee_name}'s Team
+        </Text>
+        <Text style={styles.levelSubtitle}>
+          {totalAtLevel} direct {totalAtLevel === 1 ? 'report' : 'reports'}
+        </Text>
+      </View>
+      
+      <TouchableOpacity style={styles.homeButton} onPress={onHome}>
+        <Icon name="home" size={24} color={Colors.text.secondary} />
+      </TouchableOpacity>
+    </View>
   );
 };
 
-// Main Enhanced Org Chart Component
-export default function EnhancedOrgChart() {
+// Statistics Bar
+const StatsBar = ({ totalEmployees, currentLevel, activeDepartments }) => {
+  return (
+    <View style={styles.statsBar}>
+      <View style={styles.statItem}>
+        <Text style={styles.statValue}>{totalEmployees}</Text>
+        <Text style={styles.statLabel}>Total</Text>
+      </View>
+      <View style={styles.statDivider} />
+      <View style={styles.statItem}>
+        <Text style={styles.statValue}>{currentLevel}</Text>
+        <Text style={styles.statLabel}>Level</Text>
+      </View>
+      <View style={styles.statDivider} />
+      <View style={styles.statItem}>
+        <Text style={styles.statValue}>{activeDepartments}</Text>
+        <Text style={styles.statLabel}>Depts</Text>
+      </View>
+    </View>
+  );
+};
+
+// Main Organization Chart Component
+export default function SimplifiedOrgChart() {
   const { employees, loading, error, refetch } = useEmployees();
-  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
-  const [focusedEmployee, setFocusedEmployee] = useState<Employee | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showDetailModal, setShowDetailModal] = useState(false);
   const [navigationPath, setNavigationPath] = useState<Employee[]>([]);
-  const scrollViewRef = useRef<ScrollView>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Employee[]>([]);
+  const [showSearch, setShowSearch] = useState(false);
   
-  // Build hierarchy with enhanced structure
-  const orgHierarchy = useMemo(() => {
-    if (!employees) return { topLevel: [], hierarchy: new Map(), employeeMap: new Map() };
+  // Build hierarchy
+  const orgData = useMemo(() => {
+    if (!employees) return { hierarchy: new Map(), topLevel: [], employeeMap: new Map() };
     
     const activeEmployees = employees.filter(emp => emp.employment_status === 'Active');
+    const hierarchy = new Map<string, Employee[]>();
     const employeeMap = new Map<string, Employee>();
-    const childrenMap = new Map<string, Employee[]>();
-    const parentMap = new Map<string, string>();
     
-    logger.logUserAction('Building Org Hierarchy', {
-      totalEmployees: employees.length,
-      activeEmployees: activeEmployees.length,
-      activeEmployeesList: activeEmployees.map(emp => ({
-        id: emp.company_id,
-        name: emp.employee_name,
-        reportingTo: emp.reporting_to,
-        designation: emp.designation
-      }))
-    });
-    
-    // First pass: Build employee map
+    // Build maps
     activeEmployees.forEach(emp => {
       employeeMap.set(emp.company_id, emp);
     });
     
-    // Second pass: Build relationships (now all employees are in the map)
+    // Build hierarchy
     activeEmployees.forEach(emp => {
       if (emp.reporting_to && employeeMap.has(emp.reporting_to)) {
-        if (!childrenMap.has(emp.reporting_to)) {
-          childrenMap.set(emp.reporting_to, []);
+        if (!hierarchy.has(emp.reporting_to)) {
+          hierarchy.set(emp.reporting_to, []);
         }
-        childrenMap.get(emp.reporting_to)!.push(emp);
-        parentMap.set(emp.company_id, emp.reporting_to);
-        
-        logger.logUserAction('Added Child Relationship', {
-          childId: emp.company_id,
-          childName: emp.employee_name,
-          parentId: emp.reporting_to,
-          parentName: employeeMap.get(emp.reporting_to)?.employee_name
-        });
-      } else if (emp.reporting_to) {
-        logger.logUserAction('Orphaned Employee - Parent Not Found', {
-          employeeId: emp.company_id,
-          employeeName: emp.employee_name,
-          reportingTo: emp.reporting_to,
-          reason: 'Parent not in active employees list'
-        });
+        hierarchy.get(emp.reporting_to)!.push(emp);
       }
     });
     
+    // Find top level (no manager or manager not in active list)
     const topLevel = activeEmployees.filter(emp => 
       !emp.reporting_to || !employeeMap.has(emp.reporting_to)
     );
     
-    logger.logUserAction('Top Level Employees Identified', {
-      topLevelCount: topLevel.length,
-      topLevelEmployees: topLevel.map(emp => ({
-        id: emp.company_id,
-        name: emp.employee_name,
-        reportingTo: emp.reporting_to,
-        hasChildren: childrenMap.has(emp.company_id),
-        childrenCount: childrenMap.get(emp.company_id)?.length || 0
-      }))
-    });
-    
-    // Log hierarchy structure
-    logger.logUserAction('Final Hierarchy Structure', {
-      totalNodes: childrenMap.size,
-      hierarchyDetails: Array.from(childrenMap.entries()).map(([parentId, children]) => ({
-        parentId,
-        parentName: employeeMap.get(parentId)?.employee_name,
-        childrenCount: children.length,
-        children: children.map(child => ({
-          id: child.company_id,
-          name: child.employee_name
-        }))
-      }))
-    });
-    
-    return { topLevel, hierarchy: childrenMap, employeeMap, parentMap };
+    return { hierarchy, topLevel, employeeMap };
   }, [employees]);
   
-  // Build path to employee
-  const buildPathToEmployee = useCallback((employee: Employee): Employee[] => {
-    const path: Employee[] = [];
-    let current = employee;
-    
-    while (current) {
-      path.unshift(current);
-      const parentId = orgHierarchy.parentMap.get(current.company_id);
-      if (parentId && orgHierarchy.employeeMap.has(parentId)) {
-        current = orgHierarchy.employeeMap.get(parentId)!;
-      } else {
-        break;
-      }
+  // Get current level employees to display
+  const currentLevelEmployees = useMemo(() => {
+    if (navigationPath.length === 0) {
+      return orgData.topLevel;
     }
     
-    return path;
-  }, [orgHierarchy]);
+    const currentParent = navigationPath[navigationPath.length - 1];
+    return orgData.hierarchy.get(currentParent.company_id) || [];
+  }, [navigationPath, orgData]);
   
-  // Search results
-  const searchResults = useMemo(() => {
-    if (!searchQuery || !employees) return [];
+  // Handle navigation
+  const navigateToEmployee = useCallback((employee: Employee) => {
+    const hasChildren = orgData.hierarchy.has(employee.company_id);
+    if (hasChildren) {
+      setNavigationPath([...navigationPath, employee]);
+    }
+  }, [navigationPath, orgData]);
+  
+  const navigateToBreadcrumb = useCallback((newPath: Employee[]) => {
+    setNavigationPath(newPath);
+  }, []);
+  
+  const navigateBack = useCallback(() => {
+    if (navigationPath.length > 0) {
+      setNavigationPath(navigationPath.slice(0, -1));
+    }
+  }, [navigationPath]);
+  
+  const navigateHome = useCallback(() => {
+    setNavigationPath([]);
+  }, []);
+  
+  // Handle search
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query);
     
-    return employees.filter(emp => 
-      emp.employment_status === 'Active' &&
-      (emp.employee_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-       emp.designation.toLowerCase().includes(searchQuery.toLowerCase()) ||
-       emp.department.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
-  }, [searchQuery, employees]);
-  
-  // Toggle node expansion with smart collapsing
-  const toggleNode = useCallback((nodeId: string) => {
-    logger.logUserAction('Toggle Node Called', {
-      nodeId,
-      currentExpandedNodes: Array.from(expandedNodes),
-      employee: orgHierarchy.employeeMap.get(nodeId)
-    });
-    
-    setExpandedNodes(prev => {
-      const newSet = new Set(prev);
-      const employee = orgHierarchy.employeeMap.get(nodeId);
-      
-      if (newSet.has(nodeId)) {
-        logger.logUserAction('Collapsing Node', {
-          nodeId,
-          employeeName: employee?.employee_name,
-          hasChildren: (orgHierarchy.hierarchy.get(nodeId) || []).length > 0
-        });
-        
-        // Collapsing: also collapse all children
-        const collapseRecursive = (id: string) => {
-          newSet.delete(id);
-          const children = orgHierarchy.hierarchy.get(id) || [];
-          logger.logUserAction('Collapsing Child', {
-            childId: id,
-            childName: orgHierarchy.employeeMap.get(id)?.employee_name,
-            childrenCount: children.length
-          });
-          children.forEach(child => collapseRecursive(child.company_id));
-        };
-        collapseRecursive(nodeId);
-      } else {
-        logger.logUserAction('Expanding Node', {
-          nodeId,
-          employeeName: employee?.employee_name,
-          reportingTo: employee?.reporting_to,
-          hasReportingTo: !!employee?.reporting_to
-        });
-        
-        // Expanding: collapse siblings
-        if (employee && employee.reporting_to) {
-          const siblings = orgHierarchy.hierarchy.get(employee.reporting_to) || [];
-          logger.logUserAction('Collapsing Siblings', {
-            nodeId,
-            employeeName: employee.employee_name,
-            siblingsCount: siblings.length,
-            siblings: siblings.map(s => ({ id: s.company_id, name: s.employee_name }))
-          });
-          siblings.forEach(sibling => {
-            if (sibling.company_id !== nodeId) {
-              newSet.delete(sibling.company_id);
-            }
-          });
-        } else {
-          logger.logUserAction('Top Level Employee - No Siblings to Collapse', {
-            nodeId,
-            employeeName: employee?.employee_name
-          });
-        }
-        newSet.add(nodeId);
-      }
-      
-      logger.logUserAction('Expansion State Updated', {
-        nodeId,
-        newExpandedNodes: Array.from(newSet),
-        previousExpandedNodes: Array.from(prev)
-      });
-      
-      return newSet;
-    });
-  }, [orgHierarchy, expandedNodes]);
-  
-  // Navigate to employee
-  const navigateToEmployee = useCallback((employee: Employee | null) => {
-    if (!employee) {
-      setFocusedEmployee(null);
-      setNavigationPath([]);
-      setExpandedNodes(new Set());
+    if (!query) {
+      setSearchResults([]);
       return;
     }
     
-    const path = buildPathToEmployee(employee);
-    setNavigationPath(path);
-    setFocusedEmployee(employee);
+    const results = employees?.filter(emp => 
+      emp.employment_status === 'Active' &&
+      (emp.employee_name.toLowerCase().includes(query.toLowerCase()) ||
+       emp.designation.toLowerCase().includes(query.toLowerCase()) ||
+       emp.department.toLowerCase().includes(query.toLowerCase()))
+    ) || [];
     
-    // Expand path to this employee
-    const newExpanded = new Set<string>();
-    path.forEach((emp, index) => {
-      if (index < path.length - 1) {
-        newExpanded.add(emp.company_id);
-      }
-    });
-    setExpandedNodes(newExpanded);
-    
-    // Scroll to top
-    scrollViewRef.current?.scrollTo({ y: 0, animated: true });
-  }, [buildPathToEmployee]);
+    setSearchResults(results);
+  }, [employees]);
   
-  // Select employee (show details)
-  const selectEmployee = useCallback((employee: Employee) => {
-    setSelectedEmployee(employee);
-    setShowDetailModal(true);
-  }, []);
-  
-  // Render hierarchy recursively
-  const renderHierarchy = useCallback((
-    employees: Employee[], 
-    level = 0,
-    parentPath: string[] = []
-  ) => {
-    if (!employees || employees.length === 0) return null;
+  const selectSearchResult = useCallback((employee: Employee) => {
+    // Build path to this employee
+    const path: Employee[] = [];
+    let current = employee;
     
-    // Filter based on focused view
-    let visibleEmployees = employees;
-    if (focusedEmployee && level === 0) {
-      // Show only the focused branch at root level
-      visibleEmployees = employees.filter(emp => 
-        navigationPath.some(p => p.company_id === emp.company_id)
-      );
+    while (current.reporting_to && orgData.employeeMap.has(current.reporting_to)) {
+      const parent = orgData.employeeMap.get(current.reporting_to)!;
+      path.unshift(parent);
+      current = parent;
     }
     
-    return visibleEmployees.map((employee, index) => {
-      const isExpanded = expandedNodes.has(employee.company_id);
-      const children = orgHierarchy.hierarchy.get(employee.company_id) || [];
-      const isLastChild = index === visibleEmployees.length - 1;
-      const isFocusPath = navigationPath.some(p => p.company_id === employee.company_id);
-      const isSelected = selectedEmployee?.company_id === employee.company_id;
-      
-      logger.logUserAction('Rendering Employee Node', {
-        employeeId: employee.company_id,
-        employeeName: employee.employee_name,
-        level,
-        isExpanded,
-        childrenCount: children.length,
-        hasChildren: children.length > 0,
-        expandedNodes: Array.from(expandedNodes),
-        childrenList: children.map(child => ({
-          id: child.company_id,
-          name: child.employee_name
-        }))
-      });
-      
-      return (
-        <View key={employee.company_id}>
-          <EmployeeNode
-            employee={employee}
-            level={level}
-            isExpanded={isExpanded}
-            onToggle={toggleNode}
-            onSelect={selectEmployee}
-            isSelected={isSelected}
-            childCount={children.length}
-            isLastChild={isLastChild}
-            searchQuery={searchQuery}
-            isFocusPath={isFocusPath}
-          />
-          
-          {isExpanded && children.length > 0 && (
-            <View style={styles.childrenContainer}>
-              {renderHierarchy(
-                children, 
-                level + 1,
-                [...parentPath, employee.company_id]
-              )}
-            </View>
-          )}
-        </View>
-      );
-    });
-  }, [expandedNodes, focusedEmployee, navigationPath, selectedEmployee, searchQuery, orgHierarchy, toggleNode, selectEmployee]);
+    setNavigationPath(path);
+    setSearchQuery('');
+    setSearchResults([]);
+    setShowSearch(false);
+  }, [orgData]);
+  
+  // Calculate stats
+  const stats = useMemo(() => {
+    const depts = new Set(currentLevelEmployees.map(e => e.department));
+    return {
+      total: employees?.filter(e => e.employment_status === 'Active').length || 0,
+      level: navigationPath.length + 1,
+      departments: depts.size,
+    };
+  }, [employees, currentLevelEmployees, navigationPath]);
   
   if (loading) {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <Animated.View style={styles.loadingIcon}>
-            <Icon name="sitemap" size={48} color={Colors.primary} />
-          </Animated.View>
-          <Text style={styles.loadingText}>Building organization chart...</Text>
+          <Icon name="sitemap" size={64} color={Colors.primary} />
+          <Text style={styles.loadingText}>Loading organization...</Text>
         </View>
-      </View>
+      </SafeAreaView>
     );
   }
   
   if (error) {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
-          <Icon name="alert-circle" size={48} color={Colors.error} />
-          <Text style={styles.errorText}>Unable to load organization</Text>
+          <Icon name="alert-circle" size={64} color={Colors.error} />
+          <Text style={styles.errorText}>Failed to load organization</Text>
           <Text style={styles.errorSubtext}>{error}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={refetch}>
-            <Text style={styles.retryButtonText}>Retry</Text>
+            <Text style={styles.retryButtonText}>Try Again</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </SafeAreaView>
     );
   }
   
   return (
-    <View style={styles.container}>
-      {/* Header with search */}
+    <SafeAreaView style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Organization</Text>
-        <SearchBar
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          onClear={() => setSearchQuery('')}
-          resultCount={searchResults.length}
-        />
+        <TouchableOpacity 
+          style={styles.searchButton}
+          onPress={() => setShowSearch(!showSearch)}
+        >
+          <Icon name="magnify" size={24} color={Colors.primary} />
+        </TouchableOpacity>
       </View>
       
-      {/* Breadcrumb navigation */}
-      {navigationPath.length > 0 && (
-        <BreadcrumbNav 
-          path={navigationPath}
-          onNavigate={navigateToEmployee}
+      {/* Search Bar (toggleable) */}
+      {showSearch && (
+        <SearchBar 
+          onSearch={handleSearch}
+          onClose={() => setShowSearch(false)}
         />
       )}
       
-      {/* Search results overlay */}
-      {searchQuery && searchResults.length > 0 && (
-        <View style={styles.searchResultsContainer}>
-          <FlatList
-            data={searchResults.slice(0, 5)}
-            keyExtractor={(item) => item.company_id}
-            renderItem={({ item }) => (
-              <TouchableOpacity 
+      {/* Search Results Overlay */}
+      {searchResults.length > 0 && (
+        <View style={styles.searchResults}>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {searchResults.slice(0, 10).map(emp => (
+              <TouchableOpacity
+                key={emp.company_id}
                 style={styles.searchResultItem}
-                onPress={() => {
-                  navigateToEmployee(item);
-                  setSearchQuery('');
-                }}
+                onPress={() => selectSearchResult(emp)}
               >
-                <EmployeeAvatar name={item.employee_name} size={32} />
+                <Avatar name={emp.employee_name} department={emp.department} size={36} />
                 <View style={styles.searchResultInfo}>
-                  <Text style={styles.searchResultName}>{item.employee_name}</Text>
-                  <Text style={styles.searchResultRole}>{item.designation}</Text>
+                  <Text style={styles.searchResultName}>{emp.employee_name}</Text>
+                  <Text style={styles.searchResultRole}>{emp.designation}</Text>
                 </View>
-                <Icon name="chevron-right" size={20} color={Colors.text.secondary} />
+                <Icon name="arrow-right" size={20} color={Colors.text.secondary} />
               </TouchableOpacity>
-            )}
-          />
+            ))}
+          </ScrollView>
         </View>
       )}
       
-      {/* Main org chart */}
+      {/* Breadcrumbs */}
+      <Breadcrumbs 
+        path={navigationPath}
+        onNavigate={navigateToBreadcrumb}
+      />
+      
+      {/* Level Header */}
+      <LevelHeader
+        currentEmployee={navigationPath[navigationPath.length - 1]}
+        onBack={navigateBack}
+        onHome={navigateHome}
+        totalAtLevel={currentLevelEmployees.length}
+      />
+      
+      {/* Statistics Bar */}
+      <StatsBar
+        totalEmployees={stats.total}
+        currentLevel={stats.level}
+        activeDepartments={stats.departments}
+      />
+      
+      {/* Employee List */}
       <ScrollView 
-        ref={scrollViewRef}
-        style={styles.scrollContainer}
+        style={styles.listContainer}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={styles.listContent}
       >
-        {focusedEmployee ? (
-          // Focused view: show manager, employee, and reports
-          <View>
-            {/* Show manager if exists */}
-            {focusedEmployee.reporting_to && orgHierarchy.employeeMap.has(focusedEmployee.reporting_to) && (
-              <View style={styles.managerSection}>
-                <Text style={styles.sectionLabel}>Reports to</Text>
-                {renderHierarchy([orgHierarchy.employeeMap.get(focusedEmployee.reporting_to)!], 0)}
-              </View>
-            )}
-            
-            {/* Show focused employee and their reports */}
-            <View style={styles.focusedSection}>
-              <Text style={styles.sectionLabel}>Focus</Text>
-              {renderHierarchy([focusedEmployee], 0)}
-            </View>
+        {currentLevelEmployees.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Icon name="account-group-outline" size={64} color={Colors.text.secondary} />
+            <Text style={styles.emptyText}>No direct reports</Text>
+            <Text style={styles.emptySubtext}>
+              This employee doesn't have any direct reports
+            </Text>
           </View>
         ) : (
-          // Full hierarchy view
-          renderHierarchy(orgHierarchy.topLevel)
+          currentLevelEmployees.map((employee, index) => {
+            const childCount = orgData.hierarchy.get(employee.company_id)?.length || 0;
+            
+            return (
+              <EmployeeCard
+                key={employee.company_id}
+                employee={employee}
+                onPress={navigateToEmployee}
+                childCount={childCount}
+                isCurrentLevel={false}
+                showNavigation={true}
+              />
+            );
+          })
         )}
       </ScrollView>
       
-      {/* Employee detail modal */}
-      <EmployeeDetailModal
-        employee={selectedEmployee}
-        isVisible={showDetailModal}
-        onClose={() => setShowDetailModal(false)}
-        onNavigateToEmployee={navigateToEmployee}
-      />
-      
-      {/* Floating action button for overview */}
-      {focusedEmployee && (
-        <TouchableOpacity 
-          style={styles.fab}
-          onPress={() => navigateToEmployee(null)}
-        >
-          <Icon name="view-grid" size={24} color={Colors.base} />
-        </TouchableOpacity>
+      {/* Floating Action Buttons */}
+      {navigationPath.length > 0 && (
+        <View style={styles.fabContainer}>
+          <TouchableOpacity 
+            style={[styles.fab, styles.fabSecondary]}
+            onPress={navigateBack}
+          >
+            <Icon name="arrow-up" size={24} color={Colors.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.fab}
+            onPress={navigateHome}
+          >
+            <Icon name="view-grid" size={24} color={Colors.base} />
+          </TouchableOpacity>
+        </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -776,30 +545,36 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.base,
   },
   header: {
-    backgroundColor: Colors.base,
-    paddingTop: Platform.OS === 'ios' ? 50 : 30,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 16,
-    paddingBottom: 12,
+    paddingVertical: 12,
+    backgroundColor: Colors.base,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
     color: Colors.text.primary,
-    marginBottom: 12,
   },
-  searchContainer: {
+  searchButton: {
+    padding: 8,
+  },
+  searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.gray[100],
+    marginHorizontal: 16,
+    marginVertical: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: Colors.gray[50],
     borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  searchContainerFocused: {
+  searchBarActive: {
     borderColor: Colors.primary,
     backgroundColor: Colors.base,
   },
@@ -809,32 +584,27 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.text.primary,
   },
-  searchResultCount: {
-    fontSize: 12,
-    color: Colors.text.secondary,
-    marginRight: 8,
-  },
-  searchResultsContainer: {
+  searchResults: {
     position: 'absolute',
-    top: Platform.OS === 'ios' ? 140 : 120,
+    top: Platform.OS === 'ios' ? 160 : 140,
     left: 16,
     right: 16,
+    maxHeight: 400,
     backgroundColor: Colors.base,
     borderRadius: 12,
     shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 12,
-    elevation: 8,
+    elevation: 10,
     zIndex: 1000,
-    maxHeight: 300,
+    padding: 8,
   },
   searchResultItem: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderRadius: 8,
   },
   searchResultInfo: {
     flex: 1,
@@ -852,10 +622,12 @@ const styles = StyleSheet.create({
   },
   breadcrumbContainer: {
     backgroundColor: Colors.gray[50],
-    paddingVertical: 8,
-    paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
+  },
+  breadcrumbContent: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
   },
   breadcrumbWrapper: {
     flexDirection: 'row',
@@ -864,11 +636,11 @@ const styles = StyleSheet.create({
   breadcrumbItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
   },
-  breadcrumbItemActive: {
+  breadcrumbActive: {
     backgroundColor: Colors.primary,
   },
   breadcrumbText: {
@@ -876,77 +648,99 @@ const styles = StyleSheet.create({
     color: Colors.text.secondary,
     marginLeft: 4,
   },
-  breadcrumbTextActive: {
+  breadcrumbActiveText: {
     color: Colors.base,
     fontWeight: '600',
   },
-  scrollContainer: {
+  levelHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: Colors.base,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  backButton: {
+    padding: 4,
+  },
+  homeButton: {
+    padding: 4,
+  },
+  levelInfo: {
+    flex: 1,
+    marginHorizontal: 12,
+  },
+  levelTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: Colors.text.primary,
+  },
+  levelSubtitle: {
+    fontSize: 14,
+    color: Colors.text.secondary,
+    marginTop: 2,
+  },
+  statsBar: {
+    flexDirection: 'row',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: Colors.primary + '10',
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  statItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  statValue: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: Colors.primary,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: Colors.text.secondary,
+    marginTop: 2,
+  },
+  statDivider: {
+    width: 1,
+    backgroundColor: Colors.border,
+    marginVertical: 4,
+  },
+  listContainer: {
     flex: 1,
   },
-  scrollContent: {
+  listContent: {
     padding: 16,
     paddingBottom: 100,
   },
-  nodeContainer: {
+  cardContainer: {
     marginBottom: 12,
-    position: 'relative',
   },
-  connectionLine: {
-    position: 'absolute',
-    left: -20,
-    top: -12,
-    width: 40,
-  },
-  verticalLine: {
-    position: 'absolute',
-    left: 20,
-    top: 0,
-    width: 2,
-    height: '100%',
-    backgroundColor: Colors.border,
-  },
-  halfLine: {
-    height: '50%',
-  },
-  horizontalLine: {
-    position: 'absolute',
-    left: 20,
-    top: '50%',
-    width: 20,
-    height: 2,
-    backgroundColor: Colors.border,
-  },
-  nodeCard: {
+  card: {
     backgroundColor: Colors.base,
-    borderRadius: 16,
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: Colors.border,
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
     overflow: 'hidden',
   },
-  selectedCard: {
+  currentCard: {
     borderColor: Colors.primary,
     borderWidth: 2,
   },
-  matchCard: {
-    backgroundColor: Colors.warning + '10',
-    borderColor: Colors.warning,
-  },
-  focusPathCard: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primary + '05',
-  },
-  nodeHeader: {
+  cardContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
+    padding: 16,
   },
   avatar: {
-    borderRadius: 100,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -954,112 +748,94 @@ const styles = StyleSheet.create({
     color: Colors.base,
     fontWeight: '600',
   },
-  nodeInfo: {
+  cardInfo: {
     flex: 1,
     marginLeft: 12,
   },
-  nodeName: {
+  cardName: {
     fontSize: 16,
     fontWeight: '600',
     color: Colors.text.primary,
     marginBottom: 2,
   },
-  nodeRole: {
+  cardRole: {
     fontSize: 14,
     color: Colors.text.secondary,
-    marginBottom: 4,
+    marginBottom: 6,
   },
-  nodeMeta: {
+  cardMeta: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
   deptBadge: {
     paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingVertical: 3,
     borderRadius: 4,
   },
   deptBadgeText: {
-    fontSize: 11,
+    fontSize: 10,
     color: Colors.base,
     fontWeight: '600',
     textTransform: 'uppercase',
   },
-  tierText: {
-    fontSize: 11,
+  deptText: {
+    fontSize: 12,
     color: Colors.text.secondary,
+    textTransform: 'capitalize',
   },
-  expandButton: {
-    padding: 4,
-  },
-  expandCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: Colors.gray[100],
-    justifyContent: 'center',
+  cardNav: {
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  expandCircleActive: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
   },
   childCountBadge: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    backgroundColor: Colors.error,
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginBottom: 4,
+  },
+  childCountText: {
     color: Colors.base,
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '600',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 10,
-    overflow: 'hidden',
   },
   quickActions: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 12,
     backgroundColor: Colors.gray[50],
     borderTopWidth: 1,
     borderTopColor: Colors.border,
   },
-  actionButton: {
+  actionBtn: {
     padding: 8,
-    borderRadius: 8,
   },
-  childrenContainer: {
-    marginLeft: 20,
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
   },
-  managerSection: {
-    marginBottom: 24,
-  },
-  focusedSection: {
-    marginBottom: 24,
-  },
-  sectionLabel: {
-    fontSize: 12,
-    color: Colors.text.secondary,
+  emptyText: {
+    fontSize: 18,
     fontWeight: '600',
-    textTransform: 'uppercase',
-    marginBottom: 8,
-    marginLeft: 4,
+    color: Colors.text.primary,
+    marginTop: 16,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: Colors.text.secondary,
+    marginTop: 8,
+    textAlign: 'center',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  loadingIcon: {
-    marginBottom: 16,
-  },
   loadingText: {
     fontSize: 16,
     color: Colors.text.secondary,
+    marginTop: 16,
   },
   errorContainer: {
     flex: 1,
@@ -1072,107 +848,32 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.error,
     marginTop: 16,
-    marginBottom: 8,
   },
   errorSubtext: {
     fontSize: 14,
     color: Colors.text.secondary,
+    marginTop: 8,
     textAlign: 'center',
-    marginBottom: 24,
   },
   retryButton: {
-    backgroundColor: Colors.primary,
+    marginTop: 24,
     paddingHorizontal: 24,
     paddingVertical: 12,
+    backgroundColor: Colors.primary,
     borderRadius: 8,
   },
   retryButtonText: {
     color: Colors.base,
-    fontWeight: '600',
     fontSize: 16,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: Colors.base,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    padding: 24,
-    maxHeight: height * 0.7,
-  },
-  modalCloseButton: {
-    position: 'absolute',
-    top: 16,
-    right: 16,
-    zIndex: 1,
-  },
-  modalHeader: {
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  modalName: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: Colors.text.primary,
-    marginTop: 12,
-  },
-  modalDesignation: {
-    fontSize: 16,
-    color: Colors.text.secondary,
-    marginTop: 4,
-  },
-  modalDetails: {
-    marginBottom: 24,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
-  detailLabel: {
-    flex: 1,
-    fontSize: 14,
-    color: Colors.text.secondary,
-    marginLeft: 12,
-  },
-  detailValue: {
-    fontSize: 14,
     fontWeight: '600',
-    color: Colors.text.primary,
   },
-  modalActions: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  modalActionButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.primary,
-    paddingVertical: 12,
-    borderRadius: 8,
-    gap: 8,
-  },
-  modalActionButtonSecondary: {
-    backgroundColor: Colors.base,
-    borderWidth: 1,
-    borderColor: Colors.primary,
-  },
-  modalActionText: {
-    color: Colors.base,
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  fab: {
+  fabContainer: {
     position: 'absolute',
     bottom: 24,
     right: 24,
+    gap: 12,
+  },
+  fab: {
     width: 56,
     height: 56,
     borderRadius: 28,
@@ -1181,8 +882,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 8,
-    elevation: 8,
+    elevation: 6,
+  },
+  fabSecondary: {
+    backgroundColor: Colors.base,
+    borderWidth: 1,
+    borderColor: Colors.primary,
   },
 });
