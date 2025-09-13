@@ -25,27 +25,53 @@ interface TaskStatsBarChartProps {
   maxWidth?: number;
 }
 
-// Color mapping for different task statuses
-const getStatusColor = (status: TaskProgressStatus): string => {
+// Using brand status colors with gradients and better contrast
+const getStatusConfig = (status: TaskProgressStatus) => {
   switch (status) {
     case 'Pending':
-      return Colors.warning; // Orange for pending
+      return {
+        colors: [Colors.warning, Colors.royalOrange], // Royal Orange gradient
+        shadowColor: Colors.warning,
+        bgColor: Colors.base,
+        textColor: Colors.warning
+      };
     case 'In Progress':
-      return Colors.info; // Green for in progress
+      return {
+        colors: [Colors.info, Colors.illuminatingEmerald], // Illuminating Emerald gradient
+        shadowColor: Colors.info,
+        bgColor: Colors.base,
+        textColor: Colors.info
+      };
     case 'Completed':
-      return Colors.success; // Green for completed
+      return {
+        colors: [Colors.success, Colors.accent], // Accent Dark gradient
+        shadowColor: Colors.success,
+        bgColor: Colors.base,
+        textColor: Colors.success
+      };
     case 'Cancelled':
-      return Colors.error; // Red for cancelled
+      return {
+        colors: [Colors.error, Colors.safetyOrange], // Safety Orange gradient
+        shadowColor: Colors.error,
+        bgColor: Colors.base,
+        textColor: Colors.error
+      };
     default:
-      return Colors.gray[500];
+      return {
+        colors: [Colors.gray[500], Colors.gray[700]],
+        shadowColor: Colors.gray[500],
+        bgColor: Colors.base,
+        textColor: Colors.gray[700]
+      };
   }
 };
 
-// Get icon for status
-const getStatusIcon = (status: TaskProgressStatus, size: number = 12) => {
+// Enhanced icon with modern styling
+const getStatusIcon = (status: TaskProgressStatus, size: number = 14) => {
+  const config = getStatusConfig(status);
   const iconProps = {
     size,
-    color: getStatusColor(status),
+    color: config.textColor,
   };
 
   switch (status) {
@@ -72,35 +98,57 @@ export const TaskStatsBarChart: React.FC<TaskStatsBarChartProps> = ({
 }) => {
   const statuses: TaskProgressStatus[] = ['Pending', 'In Progress', 'Completed', 'Cancelled'];
   const values = statuses.map(status => tasksByProgress[status]);
-  const maxValue = Math.max(...values, 1); // Avoid division by zero
+  const maxValue = Math.max(...values, 1);
+  const totalTasks = values.reduce((sum, val) => sum + val, 0);
 
   const renderVerticalChart = () => (
     <View style={styles.verticalContainer}>
       <View style={styles.chartContainer}>
         {statuses.map((status, index) => {
           const value = values[index];
-          const height = (value / maxValue) * maxHeight;
-          const color = getStatusColor(status);
+          const height = (value / maxValue) * (maxHeight - 10);
+          const config = getStatusConfig(status);
+          const percentage = totalTasks > 0 ? Math.round((value / totalTasks) * 100) : 0;
           
           return (
             <View key={status} style={styles.verticalBarContainer}>
-              <View style={styles.barWrapper}>
-                <View 
-                  style={[
-                    styles.verticalBar, 
-                    { 
-                      height: Math.max(height, 4), // Minimum height for visibility
-                      backgroundColor: color 
-                    }
-                  ]} 
-                />
+              <View style={styles.verticalBarWrapper}>
+                {/* Percentage label on top */}
                 {showValues && (
-                  <Text style={styles.barValue}>{value}</Text>
+                  <Text style={[styles.verticalPercentLabel, { color: config.textColor }]}>
+                    {percentage}%
+                  </Text>
+                )}
+                
+                {/* Progress indicator background */}
+                <View style={[styles.progressTrack, { height: maxHeight - 10 }]}>
+                  {/* Animated progress bar with gradient */}
+                  <View 
+                    style={[
+                      styles.verticalProgressBar,
+                      {
+                        height: Math.max(height, 10),
+                        backgroundColor: config.colors[0],
+                        shadowColor: config.shadowColor,
+                      }
+                    ]}
+                  />
+                </View>
+                
+                {/* Value badge (only showing the actual value now) */}
+                {showValues && (
+                  <View style={[styles.valueBadge, { backgroundColor: 'transparent' }]}>
+                    <Text style={[styles.valueText, { color: config.textColor }]}>
+                      {value}
+                    </Text>
+                  </View>
                 )}
               </View>
+              
+              {/* Icon with background */}
               {showLabels && (
-                <View style={styles.iconContainer}>
-                  {getStatusIcon(status, 10)}
+                <View style={[styles.iconBadge, { backgroundColor: 'transparent' }]}>
+                  {getStatusIcon(status, 24)}
                 </View>
               )}
             </View>
@@ -114,29 +162,46 @@ export const TaskStatsBarChart: React.FC<TaskStatsBarChartProps> = ({
     <View style={styles.horizontalContainer}>
       {statuses.map((status, index) => {
         const value = values[index];
-        const width = (value / maxValue) * maxWidth;
-        const color = getStatusColor(status);
+        const width = (value / maxValue) * (maxWidth - 60);
+        const config = getStatusConfig(status);
+        const percentage = totalTasks > 0 ? Math.round((value / totalTasks) * 100) : 0;
         
         return (
           <View key={status} style={styles.horizontalBarContainer}>
+            {/* Icon with modern badge */}
             {showLabels && (
-              <View style={styles.horizontalIconContainer}>
-                {getStatusIcon(status, 10)}
+              <View style={[styles.horizontalIconBadge, { backgroundColor: config.bgColor }]}>
+                {getStatusIcon(status, 11)}
               </View>
             )}
-            <View style={styles.horizontalBarWrapper}>
+            
+            <View style={styles.horizontalProgressContainer}>
+              {/* Progress track */}
+              <View style={[styles.horizontalProgressTrack, { width: maxWidth - 60 }]}>
+                {/* Animated progress bar */}
+                <View 
+                  style={[
+                    styles.horizontalProgressBar,
+                    {
+                      width: Math.max(width, 8),
+                      backgroundColor: config.colors[0],
+                      shadowColor: config.shadowColor,
+                    }
+                  ]}
+                />
+              </View>
+              
+              {/* Value display */}
               {showValues && (
-                <Text style={styles.horizontalValue}>{value}</Text>
+                <View style={styles.horizontalValueContainer}>
+                  <Text style={[styles.horizontalValueText, { color: config.textColor }]}>
+                    {value}
+                  </Text>
+                  <Text style={[styles.horizontalPercentText, { color: config.textColor }]}>
+                    ({percentage}%)
+                  </Text>
+                </View>
               )}
-              <View 
-                style={[
-                  styles.horizontalBar, 
-                  { 
-                    width: Math.max(width, 8), // Minimum width for visibility
-                    backgroundColor: color 
-                  }
-                ]} 
-              />
             </View>
           </View>
         );
@@ -154,6 +219,7 @@ export const TaskStatsBarChart: React.FC<TaskStatsBarChartProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 8,
   },
   
   // Vertical Chart Styles
@@ -166,75 +232,130 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
-    height: 120,
-    paddingHorizontal: Layout.spacing.sm,
+    width: '100%',
+    paddingHorizontal: 0,
+    paddingVertical: 8,
+    height: '100%',
   },
   verticalBarContainer: {
     flex: 1,
     alignItems: 'center',
-    marginHorizontal: 2,
+    marginHorizontal: 3,
+    height: '100%',
+    justifyContent: 'center',
   },
-  barWrapper: {
+  verticalBarWrapper: {
     alignItems: 'center',
     justifyContent: 'flex-end',
-    height: 100,
+    height: 'auto',
+    marginBottom: 8,
   },
-  verticalBar: {
-    width: 20,
-    borderRadius: Layout.borderRadius.sm,
-    minHeight: 4,
-    marginBottom: Layout.spacing.xs,
-  },
-  barValue: {
-    ...Typography.styles.caption,
-    color: Colors.text.primary,
-    fontSize: 10,
+  verticalPercentLabel: {
+    fontSize: 14,
     fontWeight: '600',
+    marginBottom: 6,
+    textAlign: 'center',
   },
-  iconContainer: {
+  progressTrack: {
+    width: 40,
+    backgroundColor: Colors.base,
+    borderRadius: 12,
+    overflow: 'hidden',
+    justifyContent: 'flex-end',
+    marginBottom: 12,
+    minHeight: 120,
+  },
+  verticalProgressBar: {
+    width: '100%',
+    minHeight: 10,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    elevation: 3,
+    borderTopWidth: 2.5,
+    borderTopColor: Colors.primary,
+  },
+  valueBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 10,
+    minWidth: 40,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  valueText: {
+    fontSize: 14,
+    fontWeight: '700',
+    lineHeight: 18,
+  },
+  iconBadge: {
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: Layout.spacing.xs,
-    width: 20,
-    height: 16,
   },
   
   // Horizontal Chart Styles
   horizontalContainer: {
     flex: 1,
-    justifyContent: 'space-between',
-    gap: 1, // Reduced gap between bars
+    paddingVertical: 1, // Minimal padding
+    gap: 0, // No gap between bars
+    minWidth: '100%',
   },
   horizontalBarContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 1, // Reduced vertical margin
+    marginVertical: 6, // No vertical margin
+    paddingHorizontal: 4,
   },
-  horizontalIconContainer: {
+  horizontalIconBadge: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     alignItems: 'center',
     justifyContent: 'center',
-    width: 20,
-    marginRight: Layout.spacing.xs,
+    marginRight: 8,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 1,
+    elevation: 1,
   },
-  horizontalBarWrapper: {
+  horizontalProgressContainer: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
   },
-  horizontalBar: {
-    height: 10,
-    borderRadius: Layout.borderRadius.sm,
-    minWidth: 8,
-    marginRight: Layout.spacing.xs,
+  horizontalProgressTrack: {
+    height: 12,
+    backgroundColor: Colors.gray[300],
+    borderRadius: 6,
+    overflow: 'hidden',
+    marginRight: 8,
   },
-  horizontalValue: {
-    ...Typography.styles.bodyMedium,
-    color: Colors.primary,
-    fontSize: 10,
-    fontWeight: '400',
-    minWidth: 18,
-    textAlign: 'left',
-    marginRight: Layout.spacing.xs,
+  horizontalProgressBar: {
+    height: '100%',
+    borderRadius: 6,
+    minWidth: 8,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.12,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  horizontalValueContainer: {
+    minWidth: 45,
+    alignItems: 'flex-end',
+  },
+  horizontalValueText: {
+    fontSize: 11,
+    fontWeight: '700',
+    lineHeight: 13,
+  },
+  horizontalPercentText: {
+    fontSize: 8,
+    fontWeight: '500',
+    opacity: 0.7,
+    lineHeight: 10,
   },
 });
 

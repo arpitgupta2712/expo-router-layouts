@@ -29,10 +29,12 @@ export const Colors = {
   baseDark: "#000000",       // Black - BASE COLOR
   
   // Status Colors (using extended palette appropriately)
-  success: "#47C686",        // Ocean Green
+  success: "#DCFF00",        // Chartreuse
   warning: "#FF9E4A",        // Royal Orange
   error: "#FF7700",          // Safety Orange
   info: "#2CA166",           // Illuminating Emerald
+  infoLight: "#47C686",      // Ocean Green
+  infoDark: "#032516",      // Dark Green
   
   // Minimal Neutrals (for UI elements)
   gray: {

@@ -190,25 +190,17 @@ export default function EmployeesPage() {
       </View>
 
       <View style={styles.grid}>
-        {/* Featured Task Statistics Card */}
+        {/* Featured Org Chart Card */}
         <View style={styles.row}>
-          <FeaturedCard 
-            title="Task Status"
-            badgeValue={taskStats?.totalTasks || 0}
-            loading={taskLoading}
-            size="rectangle"
-            contentMode="aboveFooter"
-          >
-            {taskStats?.tasksByProgress && (
-              <TaskStatsBarChart 
-                tasksByProgress={taskStats.tasksByProgress}
-                variant="horizontal"
-                showLabels={true}
-                showValues={true}
-                maxHeight={80}
-              />
-            )}
-          </FeaturedCard>
+          <Link href="/employees/org-chart" asChild>
+            <FeaturedCard 
+              title="Org Chart"
+              size="rectangle"
+              contentMode="fillContainer"
+            >
+              {/* Empty content for now - no photo */}
+            </FeaturedCard>
+          </Link>
         </View>
 
         {/* Department Cards */}
@@ -260,9 +252,24 @@ export default function EmployeesPage() {
           );
         })}
 
-        {/* Additional Feature Cards */}
+        {/* Task Statistics Card */}
         <View style={styles.row}>
-          <FeatureCard size="big" title="Org Chart" href="/employees/org-chart" />
+          <FeaturedCard 
+            title="Task Status"
+            loading={taskLoading}
+            size="big"
+            contentMode="aboveFooter"
+          >
+            {taskStats?.tasksByProgress && (
+              <TaskStatsBarChart 
+                tasksByProgress={taskStats.tasksByProgress}
+                variant="vertical"
+                showLabels={true}
+                showValues={true}
+                maxHeight={120}
+              />
+            )}
+          </FeaturedCard>
         </View>
       </View>
     </ScrollView>
