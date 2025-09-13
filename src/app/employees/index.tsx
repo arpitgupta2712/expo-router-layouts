@@ -14,9 +14,8 @@ import { Link } from "expo-router";
 import { Layout } from "@/constants/Layout";
 import { Colors } from "@/constants/Colors";
 import { Typography } from "@/constants/Typography";
-import { CalendarIcon } from "@/components";
-import { useEmployees, useEmployeeStats } from "@/hooks/useEmployees";
-import { Employee } from "@/types/AdminTypes";
+import { CalendarIcon, TaskStatsBarChart, FeaturedCard } from "@/components";
+import { useEmployees, useEmployeeStats, useTaskOverview } from "@/hooks";
 import { 
   getCardSize, 
   getCardStyle,
@@ -25,7 +24,6 @@ import {
   getDepartmentImage
 } from "@/utils";
 
-const { width } = Dimensions.get("window");
 const CARD_GAP = DASHBOARD_CONFIG.CARD_GAP;
 const CONTAINER_PADDING = DASHBOARD_CONFIG.CONTAINER_PADDING;
 
@@ -70,30 +68,6 @@ const DepartmentCard = ({ department, activeCount, borderColor, size = 'small' }
   );
 };
 
-// Featured card component for statistics
-const FeaturedCard = ({ stats, size = 'rectangle' }) => {
-  const cardStyle = getCardStyle(size, CARD_SIZE, CARD_GAP);
-
-  const cardContent = (
-    <View style={[styles.card, cardStyle, { borderColor: Colors.primary }]}>
-      {/* Active employees badge */}
-      <View style={styles.statsBadge}>
-        <Text style={styles.statsBadgeText}>{stats?.active || 0}</Text>
-      </View>
-      
-      {/* Footer with title only */}
-      <View style={styles.cardFooter}>
-        <Text style={styles.featuredTitle}>Employees</Text>
-      </View>
-    </View>
-  );
-
-  return (
-    <TouchableOpacity activeOpacity={0.8}>
-      {cardContent}
-    </TouchableOpacity>
-  );
-};
 
 // Static feature card component
 const FeatureCard = ({ size, title, href = null }) => {
@@ -129,12 +103,13 @@ const FeatureCard = ({ size, title, href = null }) => {
 export default function EmployeesPage() {
   const { employees, loading, error, refetch } = useEmployees();
   const { stats } = useEmployeeStats();
+  const { stats: taskStats, loading: taskLoading, error: taskError } = useTaskOverview();
 
   // Group employees by department and calculate stats
   const departmentStats = React.useMemo(() => {
     if (!employees) return {};
     
-    return employees.reduce((acc, employee) => {
+    const stats = employees.reduce((acc, employee) => {
       const dept = employee.department;
       if (!acc[dept]) {
         acc[dept] = { total: 0, active: 0, terminated: 0 };
@@ -147,6 +122,9 @@ export default function EmployeesPage() {
       }
       return acc;
     }, {} as Record<string, { total: number; active: number; terminated: number }>);
+    
+    
+    return stats;
   }, [employees]);
 
   // Get department list for cards
@@ -212,9 +190,25 @@ export default function EmployeesPage() {
       </View>
 
       <View style={styles.grid}>
-        {/* Featured Statistics Card */}
+        {/* Featured Task Statistics Card */}
         <View style={styles.row}>
-          <FeaturedCard stats={stats} size="rectangle" />
+          <FeaturedCard 
+            title="Task Status"
+            badgeValue={taskStats?.totalTasks || 0}
+            loading={taskLoading}
+            size="rectangle"
+            contentMode="aboveFooter"
+          >
+            {taskStats?.tasksByProgress && (
+              <TaskStatsBarChart 
+                tasksByProgress={taskStats.tasksByProgress}
+                variant="horizontal"
+                showLabels={true}
+                showValues={true}
+                maxHeight={80}
+              />
+            )}
+          </FeaturedCard>
         </View>
 
         {/* Department Cards */}
@@ -347,15 +341,17 @@ const styles = StyleSheet.create({
   },
   employeeBadge: {
     position: 'absolute',
-    top: Layout.spacing.sm,
-    right: Layout.spacing.sm,
+    top: -4,
+    right: -4,
     backgroundColor: Colors.primary,
-    borderRadius: Layout.borderRadius.full,
-    paddingHorizontal: Layout.spacing.sm,
-    paddingVertical: Layout.spacing.xs,
-    minWidth: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingTop: Layout.spacing.sm,
+    paddingBottom: Layout.spacing.xs,
+    paddingRight: Layout.spacing.sm,
+    paddingLeft: Layout.spacing.xs,
+    minWidth: 36,
+    minHeight: 24,
+    borderRadius: Layout.borderRadius.md,
+
     shadowColor: Colors.black,
     shadowOffset: {
       width: 0,
@@ -366,36 +362,9 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   employeeBadgeText: {
-    ...Typography.styles.caption,
-    color: Colors.accent,
-    fontWeight: '600',
-    fontSize: 12,
-  },
-  statsBadge: {
-    position: 'absolute',
-    top: Layout.spacing.sm,
-    right: Layout.spacing.sm,
-    backgroundColor: Colors.primary,
-    borderRadius: Layout.borderRadius.full,
-    paddingHorizontal: Layout.spacing.sm,
-    paddingVertical: Layout.spacing.xs,
-    minWidth: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: Colors.black,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  statsBadgeText: {
-    ...Typography.styles.caption,
-    color: Colors.accent,
-    fontWeight: '600',
-    fontSize: 12,
+    ...Typography.styles.captionBold,
+    color: Colors.base,
+    textAlign: 'center',
   },
   cardFooter: {
     position: 'absolute',
@@ -420,12 +389,6 @@ const styles = StyleSheet.create({
     left: 0,
   },
   departmentName: {
-    ...Typography.styles.dashboardCardTitle,
-    color: Colors.base,
-    textAlign: 'left',
-    textTransform: 'uppercase',
-  },
-  featuredTitle: {
     ...Typography.styles.dashboardCardTitle,
     color: Colors.base,
     textAlign: 'left',

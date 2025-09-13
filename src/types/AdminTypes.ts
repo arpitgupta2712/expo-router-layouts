@@ -201,3 +201,37 @@ export interface UseEmployeesReturn {
   getActiveEmployees: () => Employee[];
   refetch: () => Promise<void>;
 }
+
+// Task Statistics Types
+export type TaskProgressStatus = 'Pending' | 'In Progress' | 'Completed' | 'Cancelled';
+
+export interface TaskOverviewStats {
+  totalTasks: number;
+  totalEmployees: number;
+  averageTasksPerEmployee: number;
+  tasksByProgress: {
+    Pending: number;
+    'In Progress': number;
+    Completed: number;
+    Cancelled: number;
+  };
+  tasksByDepartment: Record<string, number>;
+  activeTasksByDepartment: Record<string, number>;
+}
+
+export interface EmployeeTaskStats {
+  [employeeEmail: string]: {
+    total: number;
+    completed: number;
+    pending: number;
+    completionRate: number;
+  };
+}
+
+export interface UseTaskStatsReturn {
+  overviewStats: TaskOverviewStats | null;
+  employeeStats: EmployeeTaskStats | null;
+  loading: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
+}

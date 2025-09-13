@@ -14,7 +14,7 @@ import { Link } from "expo-router";
 import { Layout } from "@/constants/Layout";
 import { Colors } from "@/constants/Colors";
 import { Typography } from "@/constants/Typography";
-import { CalendarIcon } from "@/components";
+import { CalendarIcon, FeaturedCard } from "@/components";
 import { useCitiesAndVenues } from "@/hooks";
 import { useCityService } from "@/hooks/useCityService";
 import { 
@@ -206,12 +206,19 @@ export default function DashboardPage() {
       <View style={styles.grid}>
         {/* Hero Feature Card */}
         <View style={styles.row}>
-          <FeatureCard 
-            size="rectangle" 
-            title="ClayGrounds" 
-            externalUrl="https://linktree.com/claygrounds"
-            venueCount={totalVenueCount}
-          />
+          <FeaturedCard 
+            title="ClayGrounds"
+            badgeValue={totalVenueCount}
+            size="rectangle"
+            contentMode="fillContainer"
+            onPress={() => Linking.openURL("https://linktree.com/claygrounds")}
+          >
+            <Image 
+              source={getFeatureImage("ClayGrounds")} 
+              style={styles.featureImage}
+              resizeMode="cover"
+            />
+          </FeaturedCard>
         </View>
 
         {/* Dynamic City Cards */}

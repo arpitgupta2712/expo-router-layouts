@@ -126,7 +126,7 @@ export const Typography = {
       fontFamily: 'Poppins_400Regular',
       fontSize: getResponsiveFontSize(20, 0.8),
       fontWeight: '400',
-      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(20, 0.8), 1.4),
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(20, 0.8), 1.2),
       letterSpacing: 0,
     },
     
@@ -142,7 +142,7 @@ export const Typography = {
       fontFamily: 'PTSans_400Regular',
       fontSize: getResponsiveFontSize(16, 0.8),
       fontWeight: '400',
-      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(16, 0.8), 1.6),
+      lineHeight: getResponsiveLineHeight(getResponsiveFontSize(16, 0.8), 1.2),
       letterSpacing: 0,
     },
     bodySmall: {
@@ -185,10 +185,11 @@ export const Typography = {
       letterSpacing: 0.5,
     },
     captionBold: {
-      fontFamily: 'ArchivoExtraCondensed-BoldItalic',
+      fontFamily: 'Poppins_600SemiBold',
       fontSize: getResponsiveFontSize(12, 0.8),
       lineHeight: getResponsiveLineHeight(getResponsiveFontSize(12, 0.8), 1.5),
       letterSpacing: 0.5,
+      fontWeight: '600',
     },
     overline: {
       fontFamily: 'ArchivoExtraCondensed-BoldItalic',
