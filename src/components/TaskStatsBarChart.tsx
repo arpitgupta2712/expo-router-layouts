@@ -18,7 +18,6 @@ interface TaskStatsBarChartProps {
     Completed: number;
     Cancelled: number;
   };
-  variant?: 'vertical' | 'horizontal';
   showLabels?: boolean;
   showValues?: boolean;
   maxHeight?: number;
@@ -32,35 +31,35 @@ const getStatusConfig = (status: TaskProgressStatus) => {
       return {
         colors: [Colors.warning, Colors.royalOrange], // Royal Orange gradient
         shadowColor: Colors.warning,
-        bgColor: Colors.base,
+        bgColor: Colors.warning,
         textColor: Colors.warning
       };
     case 'In Progress':
       return {
         colors: [Colors.info, Colors.illuminatingEmerald], // Illuminating Emerald gradient
         shadowColor: Colors.info,
-        bgColor: Colors.base,
+        bgColor: Colors.info,
         textColor: Colors.info
       };
     case 'Completed':
       return {
         colors: [Colors.success, Colors.accent], // Accent Dark gradient
         shadowColor: Colors.success,
-        bgColor: Colors.base,
+        bgColor: Colors.success,
         textColor: Colors.success
       };
     case 'Cancelled':
       return {
         colors: [Colors.error, Colors.safetyOrange], // Safety Orange gradient
         shadowColor: Colors.error,
-        bgColor: Colors.base,
+        bgColor: Colors.error,
         textColor: Colors.error
       };
     default:
       return {
         colors: [Colors.gray[500], Colors.gray[700]],
         shadowColor: Colors.gray[500],
-        bgColor: Colors.base,
+        bgColor: Colors.gray[500],
         textColor: Colors.gray[700]
       };
   }
@@ -90,7 +89,6 @@ const getStatusIcon = (status: TaskProgressStatus, size: number = 14) => {
 
 export const TaskStatsBarChart: React.FC<TaskStatsBarChartProps> = ({
   tasksByProgress,
-  variant = 'vertical',
   showLabels = true,
   showValues = true,
   maxHeight = 120,
@@ -113,11 +111,11 @@ export const TaskStatsBarChart: React.FC<TaskStatsBarChartProps> = ({
           return (
             <View key={status} style={styles.verticalBarContainer}>
               <View style={styles.verticalBarWrapper}>
-                {/* Percentage label on top */}
-                {showValues && (
-                  <Text style={[styles.verticalPercentLabel, { color: config.textColor }]}>
-                    {percentage}%
-                  </Text>
+                {/* Icon with background */}
+                {showLabels && (
+                  <View style={[styles.iconBadge, { backgroundColor: 'transparent' }]}>
+                    {getStatusIcon(status, 20)}
+                  </View>
                 )}
                 
                 {/* Progress indicator background */}
@@ -135,20 +133,30 @@ export const TaskStatsBarChart: React.FC<TaskStatsBarChartProps> = ({
                   />
                 </View>
                 
-                {/* Value badge (only showing the actual value now) */}
+                {/* Percentage label */}
                 {showValues && (
-                  <View style={[styles.valueBadge, { backgroundColor: 'transparent' }]}>
-                    <Text style={[styles.valueText, { color: config.textColor }]}>
-                      {value}
-                    </Text>
-                  </View>
+                  <Text style={[styles.verticalPercentLabel, { color: config.textColor }]}>
+                    {percentage}%
+                  </Text>
                 )}
               </View>
               
-              {/* Icon with background */}
-              {showLabels && (
-                <View style={[styles.iconBadge, { backgroundColor: 'transparent' }]}>
-                  {getStatusIcon(status, 24)}
+              {/* Horizontal dotted separator */}
+              <View style={styles.dottedSeparator}>
+                {[...Array(5)].map((_, index) => (
+                  <View 
+                    key={index} 
+                    style={[styles.dot, { backgroundColor: config.textColor }]} 
+                  />
+                ))}
+              </View>
+              
+              {/* Value badge (only showing the actual value now) */}
+              {showValues && (
+                <View style={[styles.valueBadge, { backgroundColor: config.bgColor }]}>
+                  <Text style={[styles.valueText, { color: Colors.primary }]}>
+                    {value}
+                  </Text>
                 </View>
               )}
             </View>
@@ -158,60 +166,9 @@ export const TaskStatsBarChart: React.FC<TaskStatsBarChartProps> = ({
     </View>
   );
 
-  const renderHorizontalChart = () => (
-    <View style={styles.horizontalContainer}>
-      {statuses.map((status, index) => {
-        const value = values[index];
-        const width = (value / maxValue) * (maxWidth - 60);
-        const config = getStatusConfig(status);
-        const percentage = totalTasks > 0 ? Math.round((value / totalTasks) * 100) : 0;
-        
-        return (
-          <View key={status} style={styles.horizontalBarContainer}>
-            {/* Icon with modern badge */}
-            {showLabels && (
-              <View style={[styles.horizontalIconBadge, { backgroundColor: config.bgColor }]}>
-                {getStatusIcon(status, 11)}
-              </View>
-            )}
-            
-            <View style={styles.horizontalProgressContainer}>
-              {/* Progress track */}
-              <View style={[styles.horizontalProgressTrack, { width: maxWidth - 60 }]}>
-                {/* Animated progress bar */}
-                <View 
-                  style={[
-                    styles.horizontalProgressBar,
-                    {
-                      width: Math.max(width, 8),
-                      backgroundColor: config.colors[0],
-                      shadowColor: config.shadowColor,
-                    }
-                  ]}
-                />
-              </View>
-              
-              {/* Value display */}
-              {showValues && (
-                <View style={styles.horizontalValueContainer}>
-                  <Text style={[styles.horizontalValueText, { color: config.textColor }]}>
-                    {value}
-                  </Text>
-                  <Text style={[styles.horizontalPercentText, { color: config.textColor }]}>
-                    ({percentage}%)
-                  </Text>
-                </View>
-              )}
-            </View>
-          </View>
-        );
-      })}
-    </View>
-  );
-
   return (
     <View style={styles.container}>
-      {variant === 'vertical' ? renderVerticalChart() : renderHorizontalChart()}
+      {renderVerticalChart()}
     </View>
   );
 };
@@ -233,9 +190,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     justifyContent: 'space-between',
     width: '100%',
-    paddingHorizontal: 0,
-    paddingVertical: 8,
     height: '100%',
+    bottom: 6,
   },
   verticalBarContainer: {
     flex: 1,
@@ -251,18 +207,17 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   verticalPercentLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 6,
+    ...Typography.styles.buttonSmall,
+    marginBottom: 2,
     textAlign: 'center',
   },
   progressTrack: {
-    width: 40,
+    width: 36,
     backgroundColor: Colors.base,
     borderRadius: 12,
     overflow: 'hidden',
     justifyContent: 'flex-end',
-    marginBottom: 12,
+    marginBottom: 10,
     minHeight: 120,
   },
   verticalProgressBar: {
@@ -279,83 +234,33 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 3,
     borderRadius: 10,
-    minWidth: 40,
+    minWidth: 36,
     height: 30,
     justifyContent: 'center',
     alignItems: 'center',
   },
   valueText: {
-    fontSize: 14,
-    fontWeight: '700',
-    lineHeight: 18,
+    ...Typography.styles.buttonLarge,
   },
   iconBadge: {
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 4,
   },
-  
-  // Horizontal Chart Styles
-  horizontalContainer: {
-    flex: 1,
-    paddingVertical: 1, // Minimal padding
-    gap: 0, // No gap between bars
-    minWidth: '100%',
-  },
-  horizontalBarContainer: {
+  dottedSeparator: {
+    width: 24,
+    height: 2,
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginVertical: 6, // No vertical margin
-    paddingHorizontal: 4,
+    marginBottom: 12,
   },
-  horizontalIconBadge: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 8,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 1,
-    elevation: 1,
-  },
-  horizontalProgressContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  horizontalProgressTrack: {
-    height: 12,
-    backgroundColor: Colors.gray[300],
-    borderRadius: 6,
-    overflow: 'hidden',
-    marginRight: 8,
-  },
-  horizontalProgressBar: {
-    height: '100%',
-    borderRadius: 6,
-    minWidth: 8,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.12,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  horizontalValueContainer: {
-    minWidth: 45,
-    alignItems: 'flex-end',
-  },
-  horizontalValueText: {
-    fontSize: 11,
-    fontWeight: '700',
-    lineHeight: 13,
-  },
-  horizontalPercentText: {
-    fontSize: 8,
-    fontWeight: '500',
-    opacity: 0.7,
-    lineHeight: 10,
+  dot: {
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
   },
 });
 

@@ -263,7 +263,6 @@ export default function EmployeesPage() {
             {taskStats?.tasksByProgress && (
               <TaskStatsBarChart 
                 tasksByProgress={taskStats.tasksByProgress}
-                variant="vertical"
                 showLabels={true}
                 showValues={true}
                 maxHeight={120}
