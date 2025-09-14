@@ -4,7 +4,6 @@ import {
   Text, 
   StyleSheet, 
   ScrollView,
-  Dimensions,
   Platform,
   TouchableOpacity,
   ActivityIndicator,
@@ -15,7 +14,7 @@ import { Layout } from "@/constants/Layout";
 import { Colors } from "@/constants/Colors";
 import { Typography } from "@/constants/Typography";
 import { CalendarIcon, TaskStatsBarChart, FeaturedCard } from "@/components";
-import { useEmployees, useEmployeeStats, useTaskOverview } from "@/hooks";
+import { useEmployees, useTaskOverview } from "@/hooks";
 import { 
   getCardSize, 
   getCardStyle,
@@ -69,41 +68,10 @@ const DepartmentCard = ({ department, activeCount, borderColor, size = 'small' }
 };
 
 
-// Static feature card component
-const FeatureCard = ({ size, title, href = null }) => {
-  const cardStyle = getCardStyle(size, CARD_SIZE, CARD_GAP);
-
-  const cardContent = (
-    <View style={[styles.card, cardStyle, { borderColor: Colors.primary }]}>
-      {/* Footer with title */}
-      <View style={styles.cardFooter}>
-        <Text style={styles.featureTitle}>{title}</Text>
-      </View>
-    </View>
-  );
-
-  // Handle internal routing
-  if (href) {
-    return (
-      <Link href={href} asChild>
-        <TouchableOpacity activeOpacity={0.8}>
-          {cardContent}
-        </TouchableOpacity>
-      </Link>
-    );
-  }
-
-  return (
-    <TouchableOpacity activeOpacity={0.8}>
-      {cardContent}
-    </TouchableOpacity>
-  );
-};
 
 export default function EmployeesPage() {
   const { employees, loading, error, refetch } = useEmployees();
-  const { stats } = useEmployeeStats();
-  const { stats: taskStats, loading: taskLoading, error: taskError } = useTaskOverview();
+  const { stats: taskStats, loading: taskLoading } = useTaskOverview();
 
   // Group employees by department and calculate stats
   const departmentStats = React.useMemo(() => {
@@ -381,13 +349,13 @@ const styles = StyleSheet.create({
     bottom: -1,
     left: -1,
     right: -1,
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.base,
     paddingLeft: Layout.spacing.md,
     paddingRight: Layout.spacing.md,
     paddingBottom: Layout.spacing.sm,
     paddingTop: Layout.spacing.sm,
     borderTopWidth: 2,
-    borderTopColor: Colors.accent,
+    borderTopColor: Colors.primary,
     borderBottomLeftRadius: Layout.borderRadius.xl,
     borderBottomRightRadius: Layout.borderRadius.xl,
   },
@@ -407,13 +375,7 @@ const styles = StyleSheet.create({
   },
   departmentName: {
     ...Typography.styles.dashboardCardTitle,
-    color: Colors.base,
-    textAlign: 'left',
-    textTransform: 'uppercase',
-  },
-  featureTitle: {
-    ...Typography.styles.dashboardCardTitle,
-    color: Colors.base,
+    color: Colors.primary,
     textAlign: 'left',
     textTransform: 'uppercase',
   },

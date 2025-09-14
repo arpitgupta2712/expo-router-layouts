@@ -43,10 +43,10 @@ const getStatusConfig = (status: TaskProgressStatus) => {
       };
     case 'Completed':
       return {
-        colors: [Colors.success, Colors.accent], // Accent Dark gradient
-        shadowColor: Colors.success,
-        bgColor: Colors.success,
-        textColor: Colors.success
+        colors: [Colors.primaryLight, Colors.primary], // Accent Dark gradient
+        shadowColor: Colors.primaryLight,
+        bgColor: Colors.primaryLight,
+        textColor: Colors.primaryLight
       };
     case 'Cancelled':
       return {
@@ -92,7 +92,6 @@ export const TaskStatsBarChart: React.FC<TaskStatsBarChartProps> = ({
   showLabels = true,
   showValues = true,
   maxHeight = 120,
-  maxWidth = 200,
 }) => {
   const statuses: TaskProgressStatus[] = ['Pending', 'In Progress', 'Completed', 'Cancelled'];
   const values = statuses.map(status => tasksByProgress[status]);
@@ -104,7 +103,7 @@ export const TaskStatsBarChart: React.FC<TaskStatsBarChartProps> = ({
       <View style={styles.chartContainer}>
         {statuses.map((status, index) => {
           const value = values[index];
-          const height = (value / maxValue) * (maxHeight - 10);
+          const height = (value / maxValue) * (maxHeight - 30);
           const config = getStatusConfig(status);
           const percentage = totalTasks > 0 ? Math.round((value / totalTasks) * 100) : 0;
           
@@ -133,12 +132,6 @@ export const TaskStatsBarChart: React.FC<TaskStatsBarChartProps> = ({
                   />
                 </View>
                 
-                {/* Percentage label */}
-                {showValues && (
-                  <Text style={[styles.verticalPercentLabel, { color: config.textColor }]}>
-                    {percentage}%
-                  </Text>
-                )}
               </View>
               
               {/* Horizontal dotted separator */}
@@ -227,8 +220,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 3,
     elevation: 3,
-    borderTopWidth: 2.5,
-    borderTopColor: Colors.primary,
   },
   valueBadge: {
     paddingHorizontal: 6,
